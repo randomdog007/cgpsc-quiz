@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase as realSupabase } from "./supabase";
 
 // --- SUPABASE CLIENT PLACEHOLDER FOR CANVAS PREVIEW ---
 // For local development, delete this dummy object and uncomment the import below:
@@ -57,8 +58,6 @@ const PREVIEW_LEADERBOARD = [
   { user_id:"user-4",         display_name:"Suresh Yadav",   avatar_url:null, total_attempts:8,  avg_accuracy:55, total_score:98,  best_streak:2, rank:4 },
 ];
 
-// ── FLAT TOPICS LIST for mock (all 83 topics) ────────────────────────────────
-const ALL_STATIC_TOPICS = Object.values(STATIC_DATA.topics).flat();
 
 // ── MOCK QUIZ ATTEMPTS for preview ───────────────────────────────────────────
 const PREVIEW_ATTEMPTS = [
@@ -96,7 +95,7 @@ const PREVIEW_QUESTIONS = [
   { id:9, quiz_id:3, question:"In which Part of the Indian Constitution are Fundamental Rights enshrined?", option_a:"Part II", option_b:"Part III", option_c:"Part IV", option_d:"Part V", correct_option:1, explanation:"Fundamental Rights are in Part III (Articles 12–35).", question_hi:"भारतीय संविधान के किस भाग में मौलिक अधिकार वर्णित हैं?", option_a_hi:"भाग II", option_b_hi:"भाग III", option_c_hi:"भाग IV", option_d_hi:"भाग V", explanation_hi:"मौलिक अधिकार भाग III (अनुच्छेद 12–35) में हैं।", sort_order:1 },
 ];
 
-const supabase = {
+const mockSupabase = {
   auth: {
     getSession: async () => ({ data: { session: null }, error: null }),
     onAuthStateChange: (cb) => {
@@ -112,7 +111,7 @@ const supabase = {
       table === "profiles"      ? [PREVIEW_PROFILE]      :
       table === "leaderboard"   ? PREVIEW_LEADERBOARD     :
       table === "subjects"      ? STATIC_DATA.subjects    :
-      table === "topics"        ? ALL_STATIC_TOPICS        :
+      table === "topics"        ? Object.values(STATIC_DATA.topics).flat() :
       table === "quizzes"       ? PREVIEW_QUIZZES         :
       table === "questions"     ? PREVIEW_QUESTIONS       :
       table === "quiz_attempts" ? PREVIEW_ATTEMPTS        :
@@ -120,6 +119,8 @@ const supabase = {
     return createQueryChain({ data: mockData, error: null });
   }
 };
+
+const supabase = process.env.REACT_APP_USE_MOCK === "true" ? mockSupabase : realSupabase;
 
 // ─── STATIC CGPSC SUBJECTS & TOPICS SCHEMA ────────────────────────────────────
 const STATIC_DATA = {
@@ -507,6 +508,7 @@ export default function App() {
         } else {
           setDataError("Could not load assessments: " + msg);
         }
+        setQuizzes([]);
       }
       else {
         const filtered = (data || []).filter(q => idsMatch(q.topic_id, topic.id));
@@ -529,7 +531,7 @@ export default function App() {
     try {
       const { data, error } = await supabase.from("questions").select("*").eq("quiz_id", quiz.id).order("sort_order").limit(200);
       if (error) { setDataError("Could not load questions: " + error.message); setDataLoading(false); return; }
-      const filtered = (data || []).filter(q => Number(q.quiz_id) === Number(quiz.id));
+      const filtered = (data || []).filter(q => idsMatch(q.quiz_id, quiz.id));
       const formatted = filtered.map(q => ({
         id:          q.id,
         question:    q.question,
@@ -606,40 +608,55 @@ export default function App() {
     if (!mockMode) setShowExp(true);
   };
 
+  const finishQuiz = () => {
+    clearInterval(timerRef.current);
+    const correct = questions.filter((q, i) => answers[i] === q.correct).length;
+    const totalSecs = (selectedQuiz?.time_limit_mins || 20) * 60;
+    const taken = Math.max(totalSecs - timer, 0);
+    setScore(correct);
+    setTimeTaken(taken);
+    if (selectedQuiz?.id) saveAttempt(selectedQuiz.id, correct, questions.length, taken);
+    fetchHistory(user);
+    setScreen("result");
+  };
+
   const nextQ = () => {
     setShowExp(false);
     if (currentQ < questions.length - 1) {
       setCurrentQ(q => q + 1);
-    } else {
-      clearInterval(timerRef.current);
-      const correct = questions.filter((q, i) => answers[i] === q.correct).length;
-      const totalSecs = (selectedQuiz?.time_limit_mins || 20) * 60;
-      const taken   = totalSecs - timer;
-      setScore(correct);
-      setTimeTaken(taken);
-      saveAttempt(selectedQuiz.id, correct, questions.length, taken);
-      fetchHistory(user);
-      setScreen("result");
+      return;
     }
+    finishQuiz();
   };
 
   const toggleBM  = (q)  => setBookmarks(prev => prev.find(b => b.id === q.id) ? prev.filter(b => b.id !== q.id) : [...prev, q]);
   const isBM      = (q)  => q && bookmarks.some(b => b.id === q.id);
   const fmt       = (s)  => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
   
+  useEffect(() => {
+    if (screen === "quiz" && !dataLoading && timer === 0) {
+      finishQuiz();
+    }
+  }, [timer, screen, dataLoading]);
+
   const diffClr   = (d)  => d === "Easy" ? C.ok : d === "Medium" ? "#eab308" : C.err;
 
-  const filteredQuizzes = quizzes.filter(q =>
-    (diff === "All" || q.difficulty === diff) &&
-    (!prevYear || q.is_previous_year) &&
-    (q.title?.toLowerCase().includes(search.toLowerCase()) || q.title_hi?.includes(search))
-  );
+  const filteredQuizzes = quizzes.filter(q => {
+    const titleEn = String(q.title || "").toLowerCase();
+    const titleHi = String(q.title_hi || "").toLowerCase();
+    const query = search.trim().toLowerCase();
+    return (
+      (diff === "All" || q.difficulty === diff) &&
+      (!prevYear || q.is_previous_year) &&
+      (query === "" || titleEn.includes(query) || titleHi.includes(query))
+    );
+  });
 
   // ════════════════════════════════════════════════════════════════════════════
   // REUSABLE UI PIECES
   // ════════════════════════════════════════════════════════════════════════════
-  const css = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes spin{to{transform:rotate(360deg)}}.card-h{transition:all 0.2s ease;cursor:pointer;}.card-h:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);border-color:${C.acc}88 !important;}.opt{transition:all 0.15s;width:100%;border:none;text-align:left;cursor:pointer;}.opt:hover:not(:disabled){background:${C.inp};}.bar{transition:width 1s cubic-bezier(0.4,0,0.2,1);}`;
-  const ms  = { minHeight:"100vh", background:C.bg, color:C.text, fontFamily:"'Inter', sans-serif", paddingBottom:80 };
+  const css = `@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700&display=swap');*{box-sizing:border-box;margin:0;padding:0;}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes popIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}.card-h{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;cursor:pointer;}.card-h:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.10);border-color:${C.acc}88 !important;}.opt{transition:all .15s;width:100%;border:none;text-align:left;cursor:pointer;}.opt:hover:not(:disabled){background:${C.inp};}.bar{transition:width 1s cubic-bezier(.4,0,.2,1);}.glass{backdrop-filter:blur(8px);}`;
+  const ms  = { minHeight:"100vh", background: dark ? 'radial-gradient(circle at 10% 10%, #172554 0%, #0f172a 35%, #020617 100%)' : 'radial-gradient(circle at 10% 10%, #dbeafe 0%, #f8fafc 45%, #eef2ff 100%)', color:C.text, fontFamily:"'Manrope','Noto Sans Devanagari',sans-serif", paddingBottom:80 };
 
   const Av = ({ ini, size=36, color=C.acc, pic=null }) => (
     pic
@@ -860,7 +877,7 @@ export default function App() {
               : <div style={{display:"flex",flexDirection:"column",gap:12}}>
                   {filteredQuizzes.map((quiz, idx) => (
                     <div key={quiz.id} className="card-h" onClick={()=>startQuiz(quiz)}
-                      style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:16}}>
+                      style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,boxShadow:"0 6px 16px rgba(15,23,42,0.04)"}}>
                       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
                         <div style={{flex:1}}>
                           <div style={{fontWeight:600,fontSize:15,color:C.text,marginBottom:8}}>{lang==="hi"&&quiz.title_hi ? quiz.title_hi : quiz.title}</div>
@@ -932,11 +949,12 @@ export default function App() {
                       } else if (isSel && mockMode) { bg=`${C.acc}11`; border=C.acc; tc=C.acc; }
                       
                       const letter = ["A","B","C","D"][idx];
+                      const letterColor = ((answered && !mockMode && (isOk || isSel)) || (isSel && mockMode)) ? "#fff" : C.muted;
                       
                       return (
                         <button key={idx} onClick={()=>selectAnswer(idx)} disabled={answered} className="opt"
                           style={{background:bg,border:`1px solid ${border}`,borderRadius:6,padding:"14px 16px",color:tc,fontSize:14,display:"flex",alignItems:"center",gap:14}}>
-                          <span style={{width:24,height:24,borderRadius:4,flexShrink:0,background:answered&&!mockMode&&isOk?C.ok:answered&&!mockMode&&isSel?C.err:(isSel&&mockMode?C.acc:C.card),border:`1px solid ${answered&&!mockMode?(isOk?C.ok:isSel?C.err:C.border):(isSel&&mockMode?C.acc:C.border)}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:600,fontSize:12,color:answered&&!mockMode&&(isOk||isSel)||(isSel&&mockMode)?"#fff":C.muted}}>
+                          <span style={{width:24,height:24,borderRadius:4,flexShrink:0,background:answered&&!mockMode&&isOk?C.ok:answered&&!mockMode&&isSel?C.err:(isSel&&mockMode?C.acc:C.card),border:`1px solid ${answered&&!mockMode?(isOk?C.ok:isSel?C.err:C.border):(isSel&&mockMode?C.acc:C.border)}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:600,fontSize:12,color:letterColor}}>
                             {letter}
                           </span>
                           <span style={{lineHeight:1.4}}>{opt}</span>
@@ -1055,7 +1073,7 @@ export default function App() {
 
     const HomeTab = () => (
       <div style={{animation:"fadeUp 0.3s ease"}}>
-        <div style={{padding:"24px 16px",background:C.hdr,borderBottom:`1px solid ${C.border}`}}>
+        <div style={{padding:"24px 16px",background:`linear-gradient(180deg, ${C.hdr}, ${C.inp})`,borderBottom:`1px solid ${C.border}`}}>
           <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
             <Av ini={userAvatar} size={48} pic={userPic} color={C.acc} />
             <div>
@@ -1063,7 +1081,7 @@ export default function App() {
               <div style={{fontWeight:700,fontSize:18,color:C.text,letterSpacing:"-0.5px"}}>{userName}</div>
             </div>
           </div>
-          <div style={{background:C.acc,borderRadius:8,padding:"20px",color:"#fff",boxShadow:"0 10px 25px rgba(37,99,235,0.2)"}}>
+          <div className="glass" style={{background:`linear-gradient(135deg, ${C.acc}, ${C.acc2})`,borderRadius:14,padding:"22px",color:"#fff",boxShadow:"0 16px 35px rgba(37,99,235,0.28)",animation:"popIn .28s ease"}}>
             <div style={{fontSize:18,fontWeight:700,marginBottom:4}}>{t.prepareSmarter}</div>
             <div style={{fontSize:13,opacity:0.9,fontWeight:400}}>{t.scoreHigher}</div>
             {profile && (
@@ -1077,7 +1095,7 @@ export default function App() {
         </div>
         
         <div style={{padding:"24px 16px", maxWidth: 800, margin: "0 auto"}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:32}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:12,marginBottom:28}}>
             {[
               [subjects.length||STATIC_DATA.subjects.length, t.subjects],
               [Object.values(STATIC_DATA.topics).reduce((a,v)=>a+v.length,0), t.topics],
@@ -1108,7 +1126,7 @@ export default function App() {
                   return Object.entries(grouped).map(([paperName, subs]) => (
                     <div key={paperName} style={{marginBottom:28}}>
                       <div style={{fontSize:11,fontWeight:700,color:C.acc,textTransform:"uppercase",letterSpacing:"1px",marginBottom:12,padding:"4px 0",borderBottom:`1px solid ${C.border}`}}>{paperName}</div>
-                      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:10}}>
+                      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:12}}>
                         {subs.map(sub=>(
                           <div key={sub.id} className="card-h" onClick={()=>openSubject(sub)}
                             style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:16}}>
@@ -1400,4 +1418,6 @@ export default function App() {
 
   return null;
 }
+
+
 
