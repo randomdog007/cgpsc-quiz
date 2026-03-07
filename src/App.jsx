@@ -30,6 +30,7 @@ const createQueryChain = (resolvedValue = { data: [], error: null }) => {
   promise.delete    = async () => ({ error: null });
   return promise;
 };
+const idsMatch = (a, b) => String(a == null ? "" : a) === String(b == null ? "" : b);
 
 // ── PREVIEW USER PROFILE ────────────────────────────────────────────────────
 const PREVIEW_PROFILE = {
@@ -481,8 +482,8 @@ export default function App() {
       const { data, error } = await supabase.from("topics").select("*").eq("subject_id", subject.id).order("sort_order");
       if (error) { setTopics(STATIC_DATA.topics[subject.id] || []); }
       else {
-        // Filter client-side by subject_id (handles both real Supabase and mock preview)
-        const filtered = (data || []).filter(t => Number(t.subject_id) === Number(subject.id));
+        // Filter client-side by subject_id (supports numeric and UUID/text IDs)
+        const filtered = (data || []).filter(t => idsMatch(t.subject_id, subject.id));
         setTopics(filtered.length > 0 ? filtered : (STATIC_DATA.topics[subject.id] || []));
       }
     } catch (e) { setTopics(STATIC_DATA.topics[subject.id] || []); }
@@ -499,9 +500,16 @@ export default function App() {
     setDataError(null);
     try {
       const { data, error } = await supabase.from("quizzes").select("*").eq("topic_id", topic.id).order("id");
-      if (error) { setDataError("Could not load assessments: " + error.message); }
+      if (error) {
+        const msg = String(error.message || "");
+        if (msg.includes("quizzes.subject_id")) {
+          setDataError("Could not load quizzes: Supabase schema/policy references quizzes.subject_id, but that column is missing.");
+        } else {
+          setDataError("Could not load assessments: " + msg);
+        }
+      }
       else {
-        const filtered = (data || []).filter(q => Number(q.topic_id) === Number(topic.id));
+        const filtered = (data || []).filter(q => idsMatch(q.topic_id, topic.id));
         setQuizzes(filtered);
       }
     } catch (e) { setQuizzes([]); }
@@ -1392,3 +1400,4 @@ export default function App() {
 
   return null;
 }
+
