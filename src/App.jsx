@@ -398,6 +398,7 @@ export default function App() {
       }
     });
     return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const signIn = async () => {
@@ -637,7 +638,7 @@ export default function App() {
     if (screen === "quiz" && !dataLoading && timer === 0) {
       finishQuiz();
     }
-  }, [timer, screen, dataLoading]);
+    }, [timer, screen, dataLoading, finishQuiz]);
 
   const diffClr   = (d)  => d === "Easy" ? C.ok : d === "Medium" ? "#eab308" : C.err;
 
