@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase as realSupabase } from "./supabase";
+import LoginPage from "./pages/LoginPage";
+import MainPage from "./pages/MainPage";
+import SubjectPage from "./pages/SubjectPage";
+import TopicPage from "./pages/TopicPage";
+import QuizPage from "./pages/QuizPage";
+import ResultPage from "./pages/ResultPage";
 
 // --- SUPABASE CLIENT PLACEHOLDER FOR CANVAS PREVIEW ---
 // For local development, delete this dummy object and uncomment the import below:
@@ -369,6 +375,76 @@ export default function App() {
   const C = dark
     ? { bg:"#0f172a", card:"#1e293b", border:"#334155", text:"#f8fafc", muted:"#94a3b8", hdr:"#1e293b", acc:"#3b82f6", acc2:"#2563eb", ok:"#10b981", err:"#ef4444", inp:"#0f172a" }
     : { bg:"#f8fafc", card:"#ffffff", border:"#e2e8f0", text:"#0f172a", muted:"#64748b", hdr:"#ffffff", acc:"#2563eb", acc2:"#1d4ed8", ok:"#059669", err:"#dc2626", inp:"#f1f5f9" };
+  const syncUrl = (path, replace = false) => {
+    if (typeof window === "undefined") return;
+    const method = replace ? "replaceState" : "pushState";
+    if (window.location.pathname !== path) {
+      window.history[method]({}, "", path);
+    }
+  };
+
+  const mainPath = (nextTab = "home") => (nextTab === "home" ? "/" : `/${nextTab}`);
+  const goLogin = (replace = false) => {
+    setScreen("login");
+    syncUrl("/login", replace);
+  };
+  const goMain = (nextTab = "home", replace = false) => {
+    setTab(nextTab);
+    setScreen("main");
+    syncUrl(mainPath(nextTab), replace);
+  };
+  const goSubject = (subject, replace = false) => {
+    if (subject) setSelectedSubject(subject);
+    setScreen("subject");
+    syncUrl(subject ? `/subject/${subject.id}` : "/", replace);
+  };
+  const goTopic = (topic, replace = false) => {
+    if (topic) setSelectedTopic(topic);
+    setScreen("topic");
+    syncUrl(topic ? `/topic/${topic.id}` : "/", replace);
+  };
+  const goQuiz = (quiz, replace = false) => {
+    if (quiz) setSelectedQuiz(quiz);
+    setScreen("quiz");
+    syncUrl(quiz ? `/quiz/${quiz.id}` : "/", replace);
+  };
+  const goResult = (quiz = selectedQuiz, replace = false) => {
+    setScreen("result");
+    syncUrl(quiz ? `/result/${quiz.id}` : "/result", replace);
+  };
+
+
+  const restorePathAfterAuth = (path) => {
+    if (!path || path === "/" || path === "/login") {
+      goMain("home", true);
+      return;
+    }
+    if (["/analytics", "/leaderboard", "/bookmarks", "/profile"].includes(path)) {
+      setScreen("main");
+      setTab(path.slice(1));
+      return;
+    }
+    if (path.startsWith("/subject/")) {
+      const subjectId = path.split("/")[2];
+      const subject = STATIC_DATA.subjects.find((item) => idsMatch(item.id, subjectId));
+      if (subject) {
+        openSubject(subject);
+        return;
+      }
+    }
+    if (path.startsWith("/topic/")) {
+      const topicId = path.split("/")[2];
+      const allTopics = Object.values(STATIC_DATA.topics).flat();
+      const topic = allTopics.find((item) => idsMatch(item.id, topicId));
+      if (topic) {
+        const subject = STATIC_DATA.subjects.find((item) => idsMatch(item.id, topic.subject_id));
+        if (subject) setSelectedSubject(subject);
+        openTopic(topic);
+        return;
+      }
+    }
+    goMain("home", true);
+  };
 
   // ════════════════════════════════════════════════════════════════════════════
   // AUTH
@@ -377,7 +453,7 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        setScreen("main");
+        restorePathAfterAuth(window.location.pathname);
         fetchProfile(session.user);
         fetchHistory(session.user);
       }
@@ -387,20 +463,39 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) {
         setUser(session.user);
-        setScreen("main");
-        setTab("home");
+        goMain("home", true);
         fetchProfile(session.user);
         fetchHistory(session.user);
       } else {
         setUser(null);
         setProfile(null);
-        setScreen("login");
+        goLogin(true);
       }
     });
     return () => subscription.unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const applyPath = () => {
+      const path = window.location.pathname;
+      if (path === "/login") { setScreen("login"); return; }
+      if (path === "/" || path === "") { setScreen("main"); setTab("home"); return; }
+      if (["/analytics", "/leaderboard", "/bookmarks", "/profile"].includes(path)) {
+        setScreen("main");
+        setTab(path.slice(1));
+        return;
+      }
+      if (path.startsWith("/subject/") && selectedSubject) { setScreen("subject"); return; }
+      if (path.startsWith("/topic/") && selectedTopic) { setScreen("topic"); return; }
+      if (path.startsWith("/quiz/") && selectedQuiz) { setScreen("quiz"); return; }
+      if (path.startsWith("/result/") && selectedQuiz) { setScreen("result"); return; }
+      if (user) { setScreen("main"); setTab("home"); }
+    };
+    applyPath();
+    window.addEventListener("popstate", applyPath);
+    return () => window.removeEventListener("popstate", applyPath);
+  }, [user, selectedSubject, selectedTopic, selectedQuiz]);
   const signIn = async () => {
     setSigningIn(true);
     const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
@@ -478,6 +573,7 @@ export default function App() {
   const openSubject = async (subject) => {
     setSelectedSubject(subject);
     setScreen("subject");
+    syncUrl(`/subject/${subject.id}`);
     setDataLoading(true);
     setDataError(null);
     try {
@@ -497,7 +593,7 @@ export default function App() {
     setSearch("");
     setDiff("All");
     setPrevYear(false);
-    setScreen("topic");
+    goTopic(topic);
     setDataLoading(true);
     setDataError(null);
     try {
@@ -522,7 +618,7 @@ export default function App() {
   const startQuiz = async (quiz) => {
     setDataLoading(true);
     setDataError(null);
-    setScreen("quiz");
+    goQuiz(quiz);
     setSelectedQuiz(quiz);
     setCurrentQ(0);
     setAnswers({});
@@ -597,8 +693,9 @@ export default function App() {
   // TIMER & QUIZ LOGIC
   // ════════════════════════════════════════════════════════════════════════════
   useEffect(() => {
+    clearInterval(timerRef.current);
     if (screen === "quiz" && !dataLoading) {
-      timerRef.current = setInterval(() => setTimer(t => t > 0 ? t - 1 : 0), 1000);
+      timerRef.current = setInterval(() => setTimer(prev => prev > 0 ? prev - 1 : 0), 1000);
     }
     return () => clearInterval(timerRef.current);
   }, [screen, dataLoading]);
@@ -618,7 +715,7 @@ export default function App() {
     setTimeTaken(taken);
     if (selectedQuiz?.id) saveAttempt(selectedQuiz.id, correct, questions.length, taken);
     fetchHistory(user);
-    setScreen("result");
+    goResult(selectedQuiz);
   };
 
   const nextQ = () => {
@@ -634,11 +731,15 @@ export default function App() {
   const isBM      = (q)  => q && bookmarks.some(b => b.id === q.id);
   const fmt       = (s)  => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
   
+  const finishQuizRef = useRef(null);
+  finishQuizRef.current = finishQuiz;
+
   useEffect(() => {
     if (screen === "quiz" && !dataLoading && timer === 0) {
-      finishQuiz();
+      finishQuizRef.current?.();
     }
-    }, [timer, screen, dataLoading, finishQuiz]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timer, screen, dataLoading]);
 
   const diffClr   = (d)  => d === "Easy" ? C.ok : d === "Medium" ? "#eab308" : C.err;
 
@@ -727,698 +828,34 @@ export default function App() {
   // ════════════════════════════════════════════════════════════════════════════
   // LOADING / LOGIN SCREENS
   // ════════════════════════════════════════════════════════════════════════════
-  if (authLoading) return <Spinner text="Initializing System..." />;
+  if (authLoading) return <div style={ms}><style>{css}</style><div style={{ paddingTop: 120 }}><div style={{ textAlign: "center", color: C.text }}>{t.loading}</div></div></div>;
 
-  if (screen === "login") return (
-    <div style={{minHeight:"100vh",background:dark?"#0f172a":"#f1f5f9",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'Inter',sans-serif"}}>
-      <style>{css}</style>
-      <div style={{maxWidth:400,width:"100%",animation:"fadeUp 0.5s ease"}}>
-        {/* Brand */}
-        <div style={{textAlign:"center",marginBottom:28}}>
-          <div style={{width:64,height:64,background:"linear-gradient(135deg,#2563eb,#1d4ed8)",borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:22,margin:"0 auto 14px",boxShadow:"0 8px 24px rgba(37,99,235,0.35)"}}>CG</div>
-          <h1 style={{fontSize:22,fontWeight:800,color:C.text,marginBottom:4,letterSpacing:"-0.5px"}}>{t.appName}</h1>
-          <p style={{color:C.muted,fontSize:12,textTransform:"uppercase",letterSpacing:"2px",fontWeight:600}}>State Civil Services Portal</p>
-        </div>
+  const headerProps = { screen, dataLoading, timer, fmt, toggleLang, toggleDark, lang, dark };
+  const onHome = () => goMain("home");
+  const onTabNavigate = (nextTab) => goMain(nextTab);
 
-        {/* Exam overview pills */}
-        <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:24,flexWrap:"wrap"}}>
-          {[["Paper 1","General Studies + CG","#2563eb"],["Paper 2","CSAT Aptitude","#7c3aed"]].map(([p,d,c])=>(
-            <div key={p} style={{background:`${c}12`,border:`1px solid ${c}33`,borderRadius:8,padding:"8px 14px",textAlign:"center"}}>
-              <div style={{fontWeight:700,fontSize:12,color:c}}>{p}</div>
-              <div style={{fontSize:11,color:C.muted,marginTop:2}}>{d}</div>
-            </div>
-          ))}
-        </div>
+  if (screen === "login") {
+    return <LoginPage dark={dark} css={css} C={C} t={t} signingIn={signingIn} signIn={signIn} />;
+  }
 
-        {/* Stats row */}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:24}}>
-          {[["20","Subjects"],["83","Topics"],["2","Papers"]].map(([n,l])=>(
-            <div key={l} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px 8px",textAlign:"center"}}>
-              <div style={{fontWeight:800,fontSize:18,color:C.text}}>{n}</div>
-              <div style={{fontSize:10,color:C.muted,fontWeight:500,marginTop:2,textTransform:"uppercase",letterSpacing:"0.5px"}}>{l}</div>
-            </div>
-          ))}
-        </div>
+  if (screen === "subject") {
+    return <SubjectPage ms={ms} css={css} C={C} t={t} topics={topics} selectedSubject={selectedSubject} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goMain("home")} onOpenTopic={openTopic} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} lang={lang} />;
+  }
 
-        {/* Sign-in card */}
-        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:28,boxShadow:"0 10px 40px rgba(0,0,0,0.06)"}}>
-          <p style={{color:C.text,fontSize:14,marginBottom:20,textAlign:"center",fontWeight:500,lineHeight:1.5}}>{t.signInMsg}</p>
-          {signingIn
-            ? <div style={{textAlign:"center",padding:"12px 0"}}><Spinner text={t.signingIn}/></div>
-            : (
-              <button onClick={signIn} style={{width:"100%",background:"#fff",border:"1.5px solid #dadce0",borderRadius:8,padding:"13px 16px",fontSize:14,fontWeight:600,cursor:"pointer",color:"#3c4043",display:"flex",alignItems:"center",justifyContent:"center",gap:10,boxShadow:"0 1px 3px rgba(0,0,0,0.08)",transition:"all 0.2s"}}
-                onMouseEnter={e=>{e.currentTarget.style.boxShadow="0 4px 12px rgba(0,0,0,0.12)";e.currentTarget.style.borderColor="#aaa";}}
-                onMouseLeave={e=>{e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.08)";e.currentTarget.style.borderColor="#dadce0";}}>
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                {t.signInGoogle}
-              </button>
-            )
-          }
-          <p style={{textAlign:"center",fontSize:11,color:C.muted,marginTop:16,lineHeight:1.5}}>By signing in you agree to use this portal for CGPSC exam preparation only.</p>
-        </div>
+  if (screen === "topic") {
+    return <TopicPage ms={ms} css={css} C={C} t={t} selectedTopic={selectedTopic} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goSubject(selectedSubject)} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} lang={lang} search={search} setSearch={setSearch} diff={diff} setDiff={setDiff} prevYear={prevYear} setPrevYear={setPrevYear} mockMode={mockMode} setMockMode={setMockMode} quizzes={quizzes} filteredQuizzes={filteredQuizzes} diffClr={diffClr} onStartQuiz={startQuiz} />;
+  }
 
-        <p style={{textAlign:"center",fontSize:11,color:C.muted,marginTop:16,opacity:0.6}}>
-          Powered by Chhattisgarh PSC Prep · {new Date().getFullYear()}
-        </p>
-      </div>
-    </div>
-  );
-
-  // ════════════════════════════════════════════════════════════════════════════
-  // SUBJECT SCREEN
-  // ════════════════════════════════════════════════════════════════════════════
-  if (screen === "subject") return (
-    <div style={ms}><style>{css}</style>
-      <Hdr back onBack={()=>setScreen("main")}/>
-      <ErrorBanner msg={dataError}/>
-      <div style={{padding:"20px 16px",animation:"fadeUp 0.3s ease", maxWidth:800, margin:"0 auto"}}>
-
-        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:20,marginBottom:24}}>
-          <div style={{fontSize:11,color:C.muted,textTransform:"uppercase",letterSpacing:"1px",fontWeight:600,marginBottom:4}}>Subject Module</div>
-          <div style={{fontWeight:700,fontSize:22,color:C.text,letterSpacing:"-0.5px",marginBottom:6}}>{lang==="hi"&&selectedSubject?.name_hi ? selectedSubject.name_hi : selectedSubject?.name}</div>
-        </div>
-
-        <h2 style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:12,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.chooseTopic}</h2>
-        
-        {dataLoading
-          ? <Spinner/>
-          : topics.length === 0
-            ? <Empty icon="📂" title={t.noTopics} desc={`${t.noTopicsDesc} ${selectedSubject?.id}`}/>
-            : <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {topics.map((topic, idx) => (
-                  <div key={topic.id} className="card-h" onClick={()=>openTopic(topic)}
-                    style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:16,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                    <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
-                      <div style={{width:32,height:32,borderRadius:6,background:C.inp,color:C.muted,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:600,border:`1px solid ${C.border}`}}>
-                        {String(idx+1).padStart(2,'0')}
-                      </div>
-                      <div>
-                        <div style={{fontWeight:600,fontSize:15,color:C.text}}>{lang==="hi"&&topic.name_hi ? topic.name_hi : topic.name}</div>
-                      </div>
-                    </div>
-                    <span style={{color:C.muted,fontSize:18}}>→</span>
-                  </div>
-                ))}
-              </div>
-        }
-      </div>
-      <Nav/>
-    </div>
-  );
-
-  // ════════════════════════════════════════════════════════════════════════════
-  // TOPIC SCREEN (SHOWS QUIZZES)
-  // ════════════════════════════════════════════════════════════════════════════
-  if (screen === "topic") return (
-    <div style={ms}><style>{css}</style>
-      <Hdr back onBack={()=>setScreen("subject")}/>
-      <ErrorBanner msg={dataError}/>
-      <div style={{padding:"20px 16px",animation:"fadeUp 0.3s ease", maxWidth:800, margin:"0 auto"}}>
-
-        <div style={{marginBottom:24}}>
-          <div style={{fontSize:11,color:C.acc,textTransform:"uppercase",letterSpacing:"1px",fontWeight:700,marginBottom:4}}>Topic Overview</div>
-          <div style={{fontWeight:700,fontSize:20,color:C.text,letterSpacing:"-0.5px"}}>{lang==="hi"&&selectedTopic?.name_hi ? selectedTopic.name_hi : selectedTopic?.name}</div>
-        </div>
-
-        {/* Filters */}
-        <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search}
-            style={{flex:1,minWidth:140,background:C.card,border:`1px solid ${C.border}`,borderRadius:6,padding:"8px 12px",color:C.text,fontSize:13,outline:"none",fontFamily:"inherit"}}/>
-          {["All","Easy","Medium","Hard"].map(d=>(
-            <button key={d} onClick={()=>setDiff(d)} style={{background:diff===d?C.acc:C.card,border:`1px solid ${diff===d?C.acc:C.border}`,color:diff===d?"#fff":C.text,borderRadius:6,padding:"8px 12px",fontSize:12,cursor:"pointer",fontWeight:500,transition:"all 0.2s"}}>
-              {d==="All"?t.allDifficulty:d}
-            </button>
-          ))}
-        </div>
-
-        <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20,background:C.card,padding:12,borderRadius:8,border:`1px solid ${C.border}`}}>
-           <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
-            <input type="checkbox" checked={prevYear} onChange={e=>setPrevYear(e.target.checked)}/>
-            <span style={{fontSize:13,color:C.text,fontWeight:500}}>{t.previousYear}</span>
-          </label>
-          <div style={{width:1,height:20,background:C.border}}></div>
-          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
-            <input type="checkbox" checked={mockMode} onChange={e=>setMockMode(e.target.checked)}/>
-            <span style={{fontSize:13,color:C.text,fontWeight:500}}>{t.mockMode}</span>
-          </label>
-        </div>
-
-        {/* Quiz list */}
-        {dataLoading
-          ? <Spinner/>
-          : quizzes.length === 0
-            ? <Empty icon="📄" title={t.noQuizzes} desc={`${t.noQuizzesDesc} ${selectedTopic?.id}`}/>
-            : filteredQuizzes.length === 0
-              ? <Empty icon="🔍" title={t.filterNoMatch} desc="Adjust your filters to see more results"/>
-              : <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                  {filteredQuizzes.map((quiz, idx) => (
-                    <div key={quiz.id} className="card-h" onClick={()=>startQuiz(quiz)}
-                      style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,boxShadow:"0 6px 16px rgba(15,23,42,0.04)"}}>
-                      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
-                        <div style={{flex:1}}>
-                          <div style={{fontWeight:600,fontSize:15,color:C.text,marginBottom:8}}>{lang==="hi"&&quiz.title_hi ? quiz.title_hi : quiz.title}</div>
-                          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                            <span style={{fontSize:11,color:C.muted,background:C.inp,padding:"2px 8px",borderRadius:4,border:`1px solid ${C.border}`}}>{quiz.total_questions||20} Qs</span>
-                            <span style={{fontSize:11,color:diffClr(quiz.difficulty),background:`${diffClr(quiz.difficulty)}15`,padding:"2px 8px",borderRadius:4,fontWeight:600}}>{quiz.difficulty||"Medium"}</span>
-                            {quiz.is_previous_year && <span style={{fontSize:11,color:"#0ea5e9",background:"#0ea5e915",padding:"2px 8px",borderRadius:4,fontWeight:600}}>PYQ</span>}
-                          </div>
-                        </div>
-                        <button style={{background:C.acc,color:"#fff",border:"none",borderRadius:6,padding:"8px 16px",fontWeight:600,fontSize:13,cursor:"pointer",flexShrink:0,transition:"opacity 0.2s"}}>{t.startQuiz}</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-        }
-      </div>
-      <Nav/>
-    </div>
-  );
-
-  // ════════════════════════════════════════════════════════════════════════════
-  // QUIZ SCREEN
-  // ════════════════════════════════════════════════════════════════════════════
   if (screen === "quiz") {
-    const q        = questions[currentQ];
-    const answered = answers[currentQ] !== undefined;
-    const opts     = lang==="hi" && q?.options_hi ? q.options_hi : q?.options;
-    const qTxt     = lang==="hi" && q?.question_hi ? q.question_hi : q?.question;
-
-    return (
-      <div style={ms}><style>{css}</style>
-        <Hdr back onBack={()=>setScreen("topic")}/>
-        <ErrorBanner msg={dataError}/>
-
-        {dataLoading
-          ? <Spinner text="Loading Assessment..."/>
-          : questions.length === 0
-            ? <Empty icon="📄" title={t.noQuestions} desc={`${t.noQuestionsDesc} ${selectedQuiz?.id}`}/>
-            : (
-              <div style={{padding:"20px 16px",maxWidth:800,margin:"0 auto"}}>
-                {/* Progress */}
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:8,alignItems:"center"}}>
-                  <span style={{fontSize:13,color:C.text,fontWeight:600}}>Q. {currentQ+1} <span style={{color:C.muted,fontWeight:400}}>/ {questions.length}</span></span>
-                  <span style={{fontSize:12,color:C.muted,background:C.card,padding:"2px 8px",borderRadius:4,border:`1px solid ${C.border}`}}>
-                    {Object.keys(answers).filter(k=>answers[k]===questions[k]?.correct).length} {t.correct}
-                  </span>
-                </div>
-                <div style={{height:4,background:C.border,borderRadius:2,marginBottom:24,overflow:"hidden"}}>
-                  <div style={{width:`${((currentQ+1)/questions.length)*100}%`,height:"100%",background:C.acc,borderRadius:2,transition:"width 0.3s"}}/>
-                </div>
-
-                {/* Question card */}
-                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:24,marginBottom:16,boxShadow:"0 2px 8px rgba(0,0,0,0.02)"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
-                    <p style={{fontSize:16,lineHeight:1.6,color:C.text,fontWeight:500,marginRight:16}}>{qTxt}</p>
-                    <button onClick={()=>q&&toggleBM(q)} style={{background:"none",border:`1px solid ${isBM(q)?C.acc:C.border}`,borderRadius:4,padding:"4px 8px",cursor:"pointer",fontSize:12,color:isBM(q)?C.acc:C.muted,fontWeight:500,flexShrink:0}}>
-                      {isBM(q)?"Saved":"Save"}
-                    </button>
-                  </div>
-                  
-                  {/* Options */}
-                  <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                    {opts?.map((opt, idx) => {
-                      const isSel=answers[currentQ]===idx, isOk=q?.correct===idx;
-                      let bg=C.inp, border=C.border, tc=C.text;
-                      if (answered && !mockMode) {
-                        if (isOk)      { bg=`${C.ok}11`;  border=C.ok;  tc=C.text; }
-                        else if (isSel){ bg=`${C.err}11`; border=C.err; tc=C.text; }
-                      } else if (isSel && mockMode) { bg=`${C.acc}11`; border=C.acc; tc=C.acc; }
-                      
-                      const letter = ["A","B","C","D"][idx];
-                      const letterColor = ((answered && !mockMode && (isOk || isSel)) || (isSel && mockMode)) ? "#fff" : C.muted;
-                      
-                      return (
-                        <button key={idx} onClick={()=>selectAnswer(idx)} disabled={answered} className="opt"
-                          style={{background:bg,border:`1px solid ${border}`,borderRadius:6,padding:"14px 16px",color:tc,fontSize:14,display:"flex",alignItems:"center",gap:14}}>
-                          <span style={{width:24,height:24,borderRadius:4,flexShrink:0,background:answered&&!mockMode&&isOk?C.ok:answered&&!mockMode&&isSel?C.err:(isSel&&mockMode?C.acc:C.card),border:`1px solid ${answered&&!mockMode?(isOk?C.ok:isSel?C.err:C.border):(isSel&&mockMode?C.acc:C.border)}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:600,fontSize:12,color:letterColor}}>
-                            {letter}
-                          </span>
-                          <span style={{lineHeight:1.4}}>{opt}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Explanation */}
-                {showExp && !mockMode && (
-                  <div style={{background:dark?"#064e3b":"#f0fdf4",border:`1px solid ${C.ok}44`,borderRadius:8,padding:16,marginBottom:16,animation:"fadeUp 0.3s ease"}}>
-                    <div style={{fontSize:11,color:C.ok,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.explanation}</div>
-                    <p style={{color:C.text,fontSize:14,lineHeight:1.6}}>{lang==="hi"&&q?.explanation_hi ? q.explanation_hi : q?.explanation}</p>
-                  </div>
-                )}
-
-                {answered && (
-                  <button onClick={nextQ} style={{width:"100%",background:C.acc,border:"none",borderRadius:6,padding:"16px",color:"#fff",fontWeight:600,fontSize:15,cursor:"pointer",marginTop:8,boxShadow:"0 4px 12px rgba(37,99,235,0.2)"}}>
-                    {currentQ<questions.length-1 ? t.nextQuestion : t.finishQuiz}
-                  </button>
-                )}
-
-                {/* Dot navigator */}
-                <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:24,justifyContent:"center",paddingTop:20,borderTop:`1px solid ${C.border}`}}>
-                  {questions.map((_,i)=>(
-                    <div key={i} onClick={()=>{if(i<=currentQ){setCurrentQ(i);setShowExp(!mockMode&&answers[i]!==undefined);}}}
-                      style={{width:30,height:30,borderRadius:4,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:500,
-                        color:answers[i]!==undefined ? "#fff" : C.muted,
-                        background:answers[i]===undefined?(i===currentQ?C.border:C.card):mockMode?C.acc:answers[i]===questions[i]?.correct?C.ok:C.err,
-                        border:`1px solid ${i===currentQ?C.text:(answers[i]!==undefined?'transparent':C.border)}`
-                      }}>
-                      {i+1}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-        }
-      </div>
-    );
+    return <QuizPage ms={ms} css={css} C={C} t={t} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goTopic(selectedTopic)} onHome={onHome} headerProps={headerProps} questions={questions} currentQ={currentQ} answers={answers} lang={lang} mockMode={mockMode} showExp={showExp} selectAnswer={selectAnswer} nextQ={nextQ} setCurrentQ={setCurrentQ} setShowExp={setShowExp} toggleBM={toggleBM} isBM={isBM} selectedQuiz={selectedQuiz} />;
   }
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // RESULT SCREEN
-  // ════════════════════════════════════════════════════════════════════════════
   if (screen === "result") {
-    const pct = Math.round((score / questions.length) * 100);
-    const lbl = pct>=80?t.excellent:pct>=60?t.goodJob:pct>=40?t.keepPracticing:t.needStudy;
-    return (
-      <div style={ms}><style>{css}</style>
-        <Hdr back onBack={()=>setScreen("topic")}/>
-        <div style={{padding:"32px 16px",textAlign:"center",animation:"fadeUp 0.4s ease",maxWidth:600,margin:"0 auto"}}>
-          <div style={{fontSize:12,color:C.muted,textTransform:"uppercase",letterSpacing:"1px",fontWeight:600,marginBottom:8}}>Assessment Complete</div>
-          <h2 style={{fontSize:24,fontWeight:700,color:C.text,marginBottom:8,letterSpacing:"-0.5px"}}>{lbl}</h2>
-          <p style={{color:C.muted,fontSize:14,marginBottom:24}}>{lang==="hi"&&selectedQuiz?.title_hi ? selectedQuiz.title_hi : selectedQuiz?.title}</p>
-          
-          {mockMode && <div style={{display:"inline-block",fontSize:12,background:C.inp,color:C.text,padding:"4px 12px",borderRadius:4,fontWeight:600,border:`1px solid ${C.border}`,marginBottom:24}}>{t.mockMode}</div>}
-
-          {/* Score Display */}
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:32,marginBottom:24,boxShadow:"0 4px 20px rgba(0,0,0,0.03)"}}>
-            <div style={{fontSize:48,fontWeight:700,color:pct>=60?C.ok:C.err,lineHeight:1,marginBottom:8}}>{pct}%</div>
-            <div style={{fontSize:13,color:C.muted,fontWeight:500}}>{t.accuracy}</div>
-            
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginTop:32,paddingTop:24,borderTop:`1px solid ${C.border}`}}>
-              <div><div style={{fontSize:20,fontWeight:700,color:C.text}}>{score}/{questions.length}</div><div style={{fontSize:11,color:C.muted,marginTop:4,textTransform:"uppercase"}}>{t.score}</div></div>
-              <div><div style={{fontSize:20,fontWeight:700,color:C.err}}>{questions.length-score}</div><div style={{fontSize:11,color:C.muted,marginTop:4,textTransform:"uppercase"}}>{t.wrong}</div></div>
-              <div><div style={{fontSize:18,fontWeight:600,color:C.text,fontFamily:"monospace"}}>{fmt(timeTaken)}</div><div style={{fontSize:11,color:C.muted,marginTop:4,textTransform:"uppercase"}}>{t.timeTaken}</div></div>
-            </div>
-          </div>
-
-          {/* Mock mode answer review */}
-          {mockMode && (
-            <div style={{textAlign:"left",marginBottom:32}}>
-              <h3 style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.answerReview}</h3>
-              {questions.map((q,i)=>{
-                const ok=answers[i]===q.correct;
-                return (
-                  <div key={i} style={{background:C.card,borderLeft:`4px solid ${ok?C.ok:C.err}`,borderTop:`1px solid ${C.border}`,borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,borderRadius:"0 8px 8px 0",padding:16,marginBottom:12}}>
-                    <div style={{display:"flex",gap:12,marginBottom:10}}>
-                      <span style={{color:ok?C.ok:C.err,fontWeight:700,fontSize:14}}>{ok?"✓":"✗"}</span>
-                      <p style={{fontSize:14,color:C.text,flex:1,fontWeight:500}}>{lang==="hi"&&q.question_hi?q.question_hi:q.question}</p>
-                    </div>
-                    <div style={{fontSize:13,color:C.ok,background:`${C.ok}11`,padding:"8px 12px",borderRadius:4,marginBottom:ok?0:6}}>
-                      <span style={{fontWeight:600,marginRight:8}}>Correct:</span>
-                      {lang==="hi"&&q.options_hi?q.options_hi[q.correct]:q.options[q.correct]}
-                    </div>
-                    {!ok && <div style={{fontSize:13,color:C.err,background:`${C.err}11`,padding:"8px 12px",borderRadius:4}}>
-                      <span style={{fontWeight:600,marginRight:8}}>Your Answer:</span>
-                      {lang==="hi"&&q.options_hi?q.options_hi[answers[i]]||"Skipped":q.options[answers[i]]||"Skipped"}
-                    </div>}
-                    {q.explanation && <div style={{fontSize:13,color:C.text,marginTop:12,paddingTop:12,borderTop:`1px dashed ${C.border}`}}><strong style={{color:C.muted}}>Exp:</strong> {lang==="hi"&&q.explanation_hi?q.explanation_hi:q.explanation}</div>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            <button onClick={()=>startQuiz(selectedQuiz)} style={{background:C.acc,border:"none",borderRadius:6,padding:"14px",color:"#fff",fontWeight:600,fontSize:14,cursor:"pointer",width:"100%"}}>{t.retry}</button>
-            <div style={{display:"flex",gap:12}}>
-              <button onClick={()=>setScreen("topic")} style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:6,padding:"12px",color:C.text,fontWeight:500,fontSize:14,cursor:"pointer"}}>{t.moreQuizzes}</button>
-              <button onClick={()=>{setTab("analytics");setScreen("main");fetchHistory();}} style={{flex:1,background:C.inp,border:`1px solid ${C.border}`,borderRadius:6,padding:"12px",color:C.text,fontWeight:500,fontSize:14,cursor:"pointer"}}>{t.analytics}</button>
-            </div>
-          </div>
-        </div>
-        <Nav/>
-      </div>
-    );
+    return <ResultPage ms={ms} css={css} C={C} t={t} score={score} questions={questions} lang={lang} selectedQuiz={selectedQuiz} mockMode={mockMode} timeTaken={timeTaken} fmt={fmt} answers={answers} onRetry={() => startQuiz(selectedQuiz)} onMoreQuizzes={() => goTopic(selectedTopic)} onAnalytics={() => { fetchHistory(); goMain("analytics"); }} onBack={() => goTopic(selectedTopic)} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} />;
   }
 
-  // ════════════════════════════════════════════════════════════════════════════
-  // MAIN TABS
-  // ════════════════════════════════════════════════════════════════════════════
   if (screen === "main") {
-
-    const HomeTab = () => (
-      <div style={{animation:"fadeUp 0.3s ease"}}>
-        <div style={{padding:"24px 16px",background:`linear-gradient(180deg, ${C.hdr}, ${C.inp})`,borderBottom:`1px solid ${C.border}`}}>
-          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
-            <Av ini={userAvatar} size={48} pic={userPic} color={C.acc} />
-            <div>
-              <div style={{fontSize:12,color:C.muted,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.5px"}}>Welcome back,</div>
-              <div style={{fontWeight:700,fontSize:18,color:C.text,letterSpacing:"-0.5px"}}>{userName}</div>
-            </div>
-          </div>
-          <div className="glass" style={{background:`linear-gradient(135deg, ${C.acc}, ${C.acc2})`,borderRadius:14,padding:"22px",color:"#fff",boxShadow:"0 16px 35px rgba(37,99,235,0.28)",animation:"popIn .28s ease"}}>
-            <div style={{fontSize:18,fontWeight:700,marginBottom:4}}>{t.prepareSmarter}</div>
-            <div style={{fontSize:13,opacity:0.9,fontWeight:400}}>{t.scoreHigher}</div>
-            {profile && (
-              <div style={{display:"flex",gap:16,marginTop:14,paddingTop:14,borderTop:"1px solid rgba(255,255,255,0.2)"}}>
-                <div style={{textAlign:"center"}}><div style={{fontWeight:700,fontSize:16}}>{profile.avg_accuracy||0}%</div><div style={{fontSize:10,opacity:0.8}}>ACCURACY</div></div>
-                <div style={{textAlign:"center"}}><div style={{fontWeight:700,fontSize:16}}>{profile.best_streak||0}🔥</div><div style={{fontSize:10,opacity:0.8}}>BEST STREAK</div></div>
-                <div style={{textAlign:"center"}}><div style={{fontWeight:700,fontSize:16}}>{profile.total_score||0}</div><div style={{fontSize:10,opacity:0.8}}>TOTAL PTS</div></div>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div style={{padding:"24px 16px", maxWidth: 800, margin: "0 auto"}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:12,marginBottom:28}}>
-            {[
-              [subjects.length||STATIC_DATA.subjects.length, t.subjects],
-              [Object.values(STATIC_DATA.topics).reduce((a,v)=>a+v.length,0), t.topics],
-              [profile?.total_attempts ?? history.length, "My Tests"],
-            ].map(([n,l])=>(
-              <div key={l} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"16px 8px",textAlign:"center"}}>
-                <div style={{fontSize:20,fontWeight:700,color:C.text}}>{n}</div>
-                <div style={{fontSize:11,color:C.muted,fontWeight:500,marginTop:4,textTransform:"uppercase",letterSpacing:"0.5px"}}>{l}</div>
-              </div>
-            ))}
-          </div>
-          
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <h2 style={{fontSize:14,fontWeight:600,color:C.text,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.chooseSubject}</h2>
-          </div>
-          
-          {dataLoading
-            ? <Spinner/>
-            : subjects.length===0
-              ? <Empty icon="📚" title={t.noSubjects} desc={t.noSubjectsDesc}/>
-              : (() => {
-                  const grouped = {};
-                  subjects.forEach(sub => {
-                    const p = sub.paper || "General";
-                    if (!grouped[p]) grouped[p] = [];
-                    grouped[p].push(sub);
-                  });
-                  return Object.entries(grouped).map(([paperName, subs]) => (
-                    <div key={paperName} style={{marginBottom:28}}>
-                      <div style={{fontSize:11,fontWeight:700,color:C.acc,textTransform:"uppercase",letterSpacing:"1px",marginBottom:12,padding:"4px 0",borderBottom:`1px solid ${C.border}`}}>{paperName}</div>
-                      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:12}}>
-                        {subs.map(sub=>(
-                          <div key={sub.id} className="card-h" onClick={()=>openSubject(sub)}
-                            style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:16}}>
-                            <div style={{width:36,height:36,borderRadius:8,background:C.inp,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,marginBottom:10,border:`1px solid ${C.border}`}}>{sub.icon||"📚"}</div>
-                            <div style={{fontWeight:600,fontSize:13,color:C.text,lineHeight:1.4}}>{lang==="hi"&&sub.name_hi ? sub.name_hi : sub.name}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ));
-                })()
-          }
-
-          <h2 style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.recentAttempts}</h2>
-          {history.length===0
-            ? <Empty icon="⏱" title={t.noHistory} desc={t.noHistoryDesc}/>
-            : <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {history.slice(0,5).map((h,i)=>(
-                  <div key={i} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <div style={{flex:1,paddingRight:12}}>
-                      <div style={{fontWeight:600,fontSize:14,color:C.text,marginBottom:4}}>{h.quizzes?.title||"Assessment"}</div>
-                      <div style={{fontSize:12,color:C.muted}}>
-                        {h.subjects?.name||""} {h.topics?.name ? `· ${h.topics.name}` : ""}
-                      </div>
-                    </div>
-                    <div style={{textAlign:"right",paddingLeft:12,borderLeft:`1px solid ${C.border}`}}>
-                      <div style={{fontWeight:700,color:h.accuracy>=60?C.ok:C.err,fontSize:16}}>{h.accuracy}%</div>
-                      <div style={{fontSize:11,color:C.muted,marginTop:2}}>{h.score}/{h.total}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-          }
-        </div>
-      </div>
-    );
-
-    const AnalyticsTab = () => {
-      const subjData = {};
-      history.forEach(h => {
-        const sName = lang === "hi" && h.subjects?.name_hi ? h.subjects.name_hi : (h.subjects?.name || "Other");
-        if (!subjData[sName]) subjData[sName] = { name: sName, attempts: 0, accSum: 0 };
-        subjData[sName].attempts += 1;
-        subjData[sName].accSum += h.accuracy;
-      });
-      
-      const subjAnalysis = Object.values(subjData)
-        .map(s => ({ name: s.name, avg: Math.round(s.accSum / s.attempts), attempts: s.attempts }))
-        .sort((a,b) => b.avg - a.avg);
-
-      return (
-        <div style={{padding:"24px 16px",animation:"fadeUp 0.3s ease",maxWidth:800,margin:"0 auto"}}>
-          <h2 style={{fontSize:18,fontWeight:700,color:C.text,marginBottom:20,letterSpacing:"-0.5px"}}>{t.performanceOverview}</h2>
-          {history.length===0
-            ? <Empty icon="📊" title={t.noHistory} desc={t.noHistoryDesc}/>
-            : <>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12,marginBottom:32}}>
-                  {[
-                    [`${Math.round(history.reduce((a,h)=>a+h.accuracy,0)/history.length)}%`, "Avg Accuracy", C.text],
-                    [history.length, "Tests Taken", C.text],
-                    [`${Math.max(...history.map(h=>h.score))}/${history[0]?.total||20}`, "High Score", C.ok],
-                    [fmt(Math.round(history.reduce((a,h)=>a+(h.time_taken||0),0)/history.length)), "Avg Time", C.text],
-                  ].map(([vl,lb,cl])=>(
-                    <div key={lb} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"20px 16px"}}>
-                      <div style={{fontSize:24,fontWeight:700,color:cl,marginBottom:4}}>{vl}</div>
-                      <div style={{fontSize:12,color:C.muted,fontWeight:500}}>{lb}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {subjAnalysis.length > 0 && (
-                  <>
-                    <h3 style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.deeperAnalysis}</h3>
-                    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:20,marginBottom:32}}>
-                      <div style={{fontSize:12,color:C.muted,marginBottom:20,fontWeight:500}}>{t.subjectWise}</div>
-                      {subjAnalysis.map((s, i) => (
-                        <div key={i} style={{marginBottom:16}}>
-                          <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:8}}>
-                            <span style={{fontWeight:600,color:C.text}}>{s.name} <span style={{color:C.muted,fontWeight:400,marginLeft:4}}>({s.attempts} tests)</span></span>
-                            <span style={{fontWeight:700,color:C.text}}>{s.avg}%</span>
-                          </div>
-                          <div style={{height:6,background:C.inp,borderRadius:3,overflow:"hidden"}}>
-                            <div className="bar" style={{width:`${s.avg}%`,height:"100%",background:s.avg>=60?C.ok:C.err,borderRadius:3}}/>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                <h3 style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:16,textTransform:"uppercase",letterSpacing:"0.5px"}}>{t.quizHistory}</h3>
-                <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  {history.map((h,i)=>(
-                    <div key={i} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <div style={{flex:1}}>
-                        <div style={{fontWeight:600,fontSize:14,color:C.text,marginBottom:4}}>{h.quizzes?.title||"Assessment"}</div>
-                        <div style={{fontSize:12,color:C.muted}}>
-                          {new Date(h.created_at).toLocaleDateString("en-IN")} · {h.subjects?.name}
-                        </div>
-                      </div>
-                      <div style={{textAlign:"right",paddingLeft:16}}>
-                        <div style={{fontWeight:700,fontSize:16,color:h.accuracy>=60?C.ok:C.err}}>{h.accuracy}%</div>
-                        <div style={{fontSize:11,color:C.muted,marginTop:2}}>{h.score}/{h.total}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-          }
-        </div>
-      );
-    };
-
-    const LeaderboardTab = () => {
-      const medals = ["🥇","🥈","🥉"];
-      const myId = user?.id;
-      return (
-        <div style={{padding:"24px 16px",animation:"fadeUp 0.3s ease",maxWidth:800,margin:"0 auto"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-            <h2 style={{fontSize:18,fontWeight:700,color:C.text,letterSpacing:"-0.5px"}}>{t.leaderboard}</h2>
-            <button onClick={fetchLeaderboard} style={{background:C.inp,border:`1px solid ${C.border}`,color:C.muted,borderRadius:6,padding:"6px 12px",fontSize:12,cursor:"pointer",fontWeight:500}}>↻ Refresh</button>
-          </div>
-
-          {lbLoading
-            ? <Spinner/>
-            : leaderboard.length === 0
-              ? <Empty icon="🏆" title="No Rankings Yet" desc="Complete a quiz to appear on the leaderboard"/>
-              : (
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {leaderboard.map((p, i) => {
-                    const isMe = p.user_id === myId;
-                    return (
-                      <div key={p.user_id} style={{
-                        background: isMe ? `${C.acc}0D` : C.card,
-                        border: `1px solid ${isMe ? C.acc : C.border}`,
-                        borderRadius:10,padding:"14px 16px",
-                        display:"flex",alignItems:"center",gap:14
-                      }}>
-                        {/* Rank */}
-                        <div style={{width:32,textAlign:"center",fontWeight:700,fontSize:i<3?20:14,color:i<3?["#f59e0b","#94a3b8","#b45309"][i]:C.muted,flexShrink:0}}>
-                          {i<3 ? medals[i] : `#${p.rank}`}
-                        </div>
-                        {/* Avatar */}
-                        <Av ini={(p.display_name||"?").split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2)} size={38} pic={p.avatar_url} color={C.acc}/>
-                        {/* Name + attempts */}
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontWeight:600,fontSize:14,color:C.text,display:"flex",alignItems:"center",gap:6}}>
-                            {p.display_name||"Anonymous"}
-                            {isMe && <span style={{fontSize:10,background:C.acc,color:"#fff",padding:"1px 6px",borderRadius:4,fontWeight:700}}>YOU</span>}
-                          </div>
-                          <div style={{fontSize:12,color:C.muted,marginTop:2}}>{p.total_attempts} tests · {p.total_score} pts</div>
-                        </div>
-                        {/* Accuracy */}
-                        <div style={{textAlign:"right",flexShrink:0}}>
-                          <div style={{fontWeight:700,fontSize:18,color:p.avg_accuracy>=60?C.ok:C.err}}>{p.avg_accuracy}%</div>
-                          <div style={{fontSize:10,color:C.muted,textTransform:"uppercase"}}>accuracy</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )
-          }
-        </div>
-      );
-    };
-
-    const BookmarksTab = () => (
-      <div style={{padding:"24px 16px",animation:"fadeUp 0.3s ease",maxWidth:800,margin:"0 auto"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
-          <h2 style={{fontSize:18,fontWeight:700,color:C.text,letterSpacing:"-0.5px"}}>{t.savedQuestions}</h2>
-          <span style={{fontSize:12,color:C.muted,background:C.card,padding:"4px 10px",borderRadius:12,border:`1px solid ${C.border}`}}>{bookmarks.length} Saved</span>
-        </div>
-        
-        {bookmarks.length===0
-          ? <Empty icon="🔖" title={t.noBookmarks} desc={t.noBookmarksDesc}/>
-          : <div style={{display:"flex",flexDirection:"column",gap:16}}>
-              {bookmarks.map(q=>(
-                <div key={q.id} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:20}}>
-                  <p style={{fontSize:15,color:C.text,lineHeight:1.6,marginBottom:16,fontWeight:500}}>{lang==="hi"&&q.question_hi?q.question_hi:q.question}</p>
-                  <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-                    {(lang==="hi"&&q.options_hi?q.options_hi:q.options).map((opt,i)=>(
-                      <div key={i} style={{fontSize:13,padding:"10px 12px",borderRadius:6,background:i===q.correct?`${C.ok}11`:C.inp,color:i===q.correct?C.text:C.muted,border:`1px solid ${i===q.correct?C.ok:C.border}`,display:"flex",alignItems:"center",gap:10}}>
-                        <span style={{fontWeight:600,color:i===q.correct?C.ok:C.muted}}>{["A","B","C","D"][i]}.</span> {opt}
-                      </div>
-                    ))}
-                  </div>
-                  {q.explanation && <div style={{fontSize:13,color:C.text,background:`${C.acc}0A`,padding:"12px",borderRadius:6,borderLeft:`3px solid ${C.acc}`,marginBottom:16}}><strong style={{color:C.acc}}>Exp:</strong> {lang==="hi"&&q.explanation_hi?q.explanation_hi:q.explanation}</div>}
-                  <button onClick={()=>toggleBM(q)} style={{background:C.inp,border:`1px solid ${C.border}`,color:C.err,borderRadius:4,padding:"6px 12px",fontSize:13,fontWeight:500,cursor:"pointer",transition:"background 0.2s"}}>Remove Bookmark</button>
-                </div>
-              ))}
-            </div>
-        }
-      </div>
-    );
-
-    const ProfileTab = () => {
-      const totalAttempts = profile?.total_attempts ?? history.length;
-      const avgAcc = profile?.avg_accuracy ?? (history.length ? Math.round(history.reduce((a,h)=>a+h.accuracy,0)/history.length) : 0);
-      const totalScore = profile?.total_score ?? history.reduce((a,h)=>a+h.score,0);
-      const bestStreak = profile?.best_streak ?? 0;
-      const memberSince = profile?.created_at ? new Date(profile.created_at).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "—";
-      const lastSeen = profile?.last_seen_at ? new Date(profile.last_seen_at).toLocaleDateString("en-IN",{day:"numeric",month:"short"}) : "—";
-      const provider = profile?.provider || "google";
-
-      return (
-        <div style={{padding:"24px 16px",animation:"fadeUp 0.3s ease",maxWidth:600,margin:"0 auto"}}>
-          {/* Avatar + name card */}
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:28,marginBottom:16,textAlign:"center"}}>
-            <div style={{position:"relative",display:"inline-block",marginBottom:12}}>
-              <Av ini={userAvatar} size={80} pic={userPic} />
-              <div style={{position:"absolute",bottom:-4,right:-4,width:20,height:20,borderRadius:"50%",background:"#fff",border:`2px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>
-                {provider==="google"?"G":"?"}
-              </div>
-            </div>
-            <div style={{fontWeight:700,fontSize:20,color:C.text,letterSpacing:"-0.5px"}}>{userName}</div>
-            <div style={{color:C.muted,fontSize:13,marginTop:4}}>{userEmail}</div>
-            <div style={{fontSize:11,color:C.muted,marginTop:4}}>Member since {memberSince} · Last active {lastSeen}</div>
-
-            {/* Stats grid */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginTop:24,paddingTop:20,borderTop:`1px solid ${C.border}`}}>
-              {[
-                [totalAttempts,  "Tests",     C.text],
-                [`${avgAcc}%`,   "Accuracy",  avgAcc>=60?C.ok:avgAcc>0?C.err:C.text],
-                [totalScore,     "Score",     C.acc],
-                [bestStreak,     "Streak 🔥", "#f97316"],
-              ].map(([val,lbl,cl])=>(
-                <div key={lbl}>
-                  <div style={{fontWeight:700,fontSize:20,color:cl}}>{val}</div>
-                  <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",marginTop:4,letterSpacing:"0.5px"}}>{lbl}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Settings */}
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-            <div style={{padding:"10px 16px",background:C.inp,borderBottom:`1px solid ${C.border}`}}>
-              <span style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:"1px"}}>Preferences</span>
-            </div>
-            {[
-              [t.darkMode,   toggleDark, dark?"Enabled":"Disabled"],
-              [t.language,   toggleLang, lang==="en"?"English":"हिंदी"],
-            ].map(([lb,fn,vl],i)=>(
-              <div key={lb} onClick={fn} style={{padding:"14px 16px",borderBottom:i===0?`1px solid ${C.border}`:"none",display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}}>
-                <span style={{fontWeight:500,color:C.text,fontSize:14}}>{lb}</span>
-                <span style={{fontSize:12,color:C.muted,background:C.inp,padding:"4px 10px",borderRadius:4,fontWeight:600,border:`1px solid ${C.border}`}}>{vl}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Account info */}
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden",marginBottom:16}}>
-            <div style={{padding:"10px 16px",background:C.inp,borderBottom:`1px solid ${C.border}`}}>
-              <span style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:"1px"}}>Account</span>
-            </div>
-            {[
-              ["Sign-in Provider", provider.charAt(0).toUpperCase()+provider.slice(1)],
-              ["User ID",          (user?.id||"").slice(0,16)+"..."],
-              ["Joined",           memberSince],
-            ].map(([lb,vl])=>(
-              <div key={lb} style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontSize:13,color:C.muted}}>{lb}</span>
-                <span style={{fontSize:13,color:C.text,fontWeight:500,fontFamily:lb==="User ID"?"monospace":"inherit"}}>{vl}</span>
-              </div>
-            ))}
-          </div>
-
-          <button onClick={signOut} style={{width:"100%",background:C.card,border:`1px solid ${C.err}44`,color:C.err,borderRadius:8,padding:"14px",fontWeight:600,fontSize:14,cursor:"pointer"}}>
-            Sign Out
-          </button>
-        </div>
-      );
-    };
-
-    return (
-      <div style={ms}><style>{css}</style>
-        <Hdr/>
-        <ErrorBanner msg={dataError}/>
-        {tab==="home"      && <HomeTab/>}
-        {tab==="analytics" && <AnalyticsTab/>}
-        {tab==="leaderboard"&& <LeaderboardTab/>}
-        {tab==="bookmarks" && <BookmarksTab/>}
-        {tab==="profile"   && <ProfileTab/>}
-        <Nav/>
-      </div>
-    );
+    return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={onHome} onTabNavigate={onTabNavigate} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} fetchLeaderboard={fetchLeaderboard} lbLoading={lbLoading} leaderboard={leaderboard} bookmarks={bookmarks} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} />;
   }
-
   return null;
 }
-
-
-
