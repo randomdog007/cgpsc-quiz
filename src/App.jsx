@@ -467,7 +467,9 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) {
         setUser(session.user);
-        goMain("home", true);
+        if (event === "SIGNED_IN") {   // ← only navigate on real login
+          goMain("home", true);
+        }
         fetchProfile(session.user);
         fetchHistory(session.user);
       } else {
