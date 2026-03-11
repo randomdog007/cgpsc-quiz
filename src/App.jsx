@@ -639,7 +639,7 @@ export default function App() {
         question_hi: formatText(q.question_hi || q.question),
         options:     [q.option_a, q.option_b, q.option_c, q.option_d].map(formatText),
         options_hi:  [q.option_a_hi || q.option_a, q.option_b_hi || q.option_b, q.option_c_hi || q.option_c, q.option_d_hi || q.option_d].map(formatText),
-        correct:     q.correct_option-1,
+        correct:     q.correct_option,
         explanation:    formatText(q.explanation    || ""),
         explanation_hi: formatText(q.explanation_hi || q.explanation || ""),
       }));
