@@ -326,6 +326,10 @@ const T = {
   hi: { appName:"CGPSC परीक्षा",tagline:"तैयारी पोर्टल",prepareSmarter:"व्यवस्थित अध्ययन",scoreHigher:"अपनी प्रगति ट्रैक करें।",chooseSubject:"विषय चुनें",subjects:"विषय",topics:"टॉपिक्स",chooseTopic:"टॉपिक चुनें",quizzes:"परीक्षण",questions:"प्रश्न",startQuiz:"टेस्ट शुरू करें →",back:"← वापस",home:"होम",analytics:"विश्लेषण",leaderboard:"रैंकिंग",bookmarks:"सहेजे गए",profile:"प्रोफ़ाइल",signInGoogle:"Google से साइन इन करें",signInMsg:"परीक्षण और प्रगति के लिए साइन इन करें।",mockMode:"परीक्षा मोड",mockModeDesc:"कठोर टाइमर और कोई तुरंत फीडबैक नहीं।",previousYear:"केवल पिछले वर्ष",allDifficulty:"सभी स्तर",search:"परीक्षण खोजें...",explanation:"व्याख्या",nextQuestion:"अगला प्रश्न →",finishQuiz:"टेस्ट सबमिट करें",retry:"पुनः प्रयास करें",moreQuizzes:"अधिक टेस्ट",excellent:"उत्कृष्ट प्रदर्शन!",goodJob:"अच्छा प्रयास!",keepPracticing:"सुधार की आवश्यकता है",needStudy:"पुनरीक्षण आवश्यक है",score:"अंक",accuracy:"सटीकता",correct:"सही",wrong:"गलत",timeTaken:"लिया गया समय",yourRank:"आपकी रैंक",savedQuestions:"सहेजे गए प्रश्न",noBookmarks:"कोई प्रश्न सहेजा नहीं गया",noBookmarksDesc:"रिवीजन के लिए प्रश्न बुकमार्क करें",performanceOverview:"प्रदर्शन अवलोकन",subjectWise:"विषय-वार विश्लेषण",deeperAnalysis:"गहन विश्लेषण",strongAreas:"म मजबूत क्षेत्र",weakAreas:"सुधार वाले क्षेत्र",recentAttempts:"हाल की गतिविधि",quizHistory:"टेस्ट इतिहास",signOut:"साइन आउट",darkMode:"डार्क मोड",language:"भाषा",loading:"लोड हो रहा है...",quizOf:"में से",question:"प्रश्न",answerReview:"उत्तर कुंजी और समीक्षा",remove:"हटाएं",signingIn:"प्रमाणीकरण हो रहा है...",noSubjects:"कोई विषय उपलब्ध नहीं",noSubjectsDesc:"डेटाबेस में विषय प्रविष्टियों की आवश्यकता है",noTopics:"कोई टॉपिक उपलब्ध नहीं",noTopicsDesc:"इस विषय के लिए डेटाबेस में टॉपिक की आवश्यकता है",noQuizzes:"कोई टेस्ट उपलब्ध नहीं",noQuizzesDesc:"इस टॉपिक के लिए डेटाबेस में क्विज़ की आवश्यकता है",noQuestions:"कोई प्रश्न उपलब्ध नहीं",noQuestionsDesc:"टेस्ट में अभी कोई प्रश्न नहीं है",noHistory:"कोई टेस्ट इतिहास नहीं",noHistoryDesc:"विश्लेषण देखने के लिए परीक्षण पूरा करें",filterNoMatch:"वर्तमान फ़िल्टर से कोई टेस्ट मेल नहीं खाता" }
 };
 
+// Converts literal "\n" strings (from CSV import) into real newline characters.
+// Apply to any text field before rendering so \n shows as line breaks, not text.
+const formatText = (str) => (str ? String(str).replace(/\\n/g, "\n") : str);
+
 export default function App() {
   const [lang, setLang]           = useState("en");
   const [dark, setDark]           = useState(false); 
@@ -631,13 +635,13 @@ export default function App() {
       const filtered = (data || []).filter(q => idsMatch(q.quiz_id, quiz.id));
       const formatted = filtered.map(q => ({
         id:          q.id,
-        question:    q.question,
-        question_hi: q.question_hi || q.question,
-        options:     [q.option_a, q.option_b, q.option_c, q.option_d],
-        options_hi:  [q.option_a_hi || q.option_a, q.option_b_hi || q.option_b, q.option_c_hi || q.option_c, q.option_d_hi || q.option_d],
+        question:    formatText(q.question),
+        question_hi: formatText(q.question_hi || q.question),
+        options:     [q.option_a, q.option_b, q.option_c, q.option_d].map(formatText),
+        options_hi:  [q.option_a_hi || q.option_a, q.option_b_hi || q.option_b, q.option_c_hi || q.option_c, q.option_d_hi || q.option_d].map(formatText),
         correct:     q.correct_option-1,
-        explanation:    q.explanation    || "",
-        explanation_hi: q.explanation_hi || q.explanation || "",
+        explanation:    formatText(q.explanation    || ""),
+        explanation_hi: formatText(q.explanation_hi || q.explanation || ""),
       }));
       setQuestions(formatted);
     } catch (e) { setQuestions([]); }
