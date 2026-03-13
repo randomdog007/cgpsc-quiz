@@ -372,8 +372,20 @@ export default function App() {
   const [diff, setDiff]           = useState("All");
   const [search, setSearch]       = useState("");
   const [bookmarks, setBookmarks] = useState([]);
-  const timerRef = useRef(null);
+  const timerRef    = useRef(null);
+  const quizStartTs = useRef(null);
   const t = T[lang];
+
+  // ── NAV + QUIZ PERSISTENCE ───────────────────────────────────────────────────
+  // Keeps the user's position across tab-switches, screen-locks, and app resumes
+  const saveNav  = (p) => { try { const c=JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); sessionStorage.setItem("cgpsc_nav",JSON.stringify({...c,...p})); } catch(_){} };
+  const loadNav  = ()  => { try { return JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); } catch { return {}; } };
+  const clearNav = ()  => { try { sessionStorage.removeItem("cgpsc_nav"); } catch(_){} };
+
+  const QUIZ_KEY       = "cgpsc_quiz";
+  const saveQuizState  = (p) => { try { const c=JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"{}"); sessionStorage.setItem(QUIZ_KEY,JSON.stringify({...c,...p,savedAt:Date.now()})); } catch(_){} };
+  const loadQuizState  = ()  => { try { return JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"null"); } catch { return null; } };
+  const clearQuizState = ()  => { try { sessionStorage.removeItem(QUIZ_KEY); } catch(_){} };
 
   // ── PROFESSIONAL EXAM THEME COLORS ──────────────────────────────────────────
   const C = dark
@@ -396,21 +408,25 @@ export default function App() {
     setTab(nextTab);
     setScreen("main");
     syncUrl(mainPath(nextTab), replace);
+    saveNav({ screen: "main", tab: nextTab, subjectId: null, topicId: null });
   };
   const goSubject = (subject, replace = false) => {
     if (subject) setSelectedSubject(subject);
     setScreen("subject");
     syncUrl(subject ? `/subject/${subject.id}` : "/", replace);
+    if (subject) saveNav({ screen: "subject", subjectId: subject.id, topicId: null });
   };
   const goTopic = (topic, replace = false) => {
     if (topic) setSelectedTopic(topic);
     setScreen("topic");
     syncUrl(topic ? `/topic/${topic.id}` : "/", replace);
+    if (topic) saveNav({ screen: "topic", topicId: topic.id });
   };
   const goQuiz = (quiz, replace = false) => {
     if (quiz) setSelectedQuiz(quiz);
     setScreen("quiz");
     syncUrl(quiz ? `/quiz/${quiz.id}` : "/", replace);
+    if (quiz) saveNav({ screen: "quiz", quizId: quiz.id });
   };
   const goResult = (quiz = selectedQuiz, replace = false) => {
     setScreen("result");
@@ -450,6 +466,55 @@ export default function App() {
     goMain("home", true);
   };
 
+  // Resume a saved in-progress quiz after any interruption
+  const resumeQuizFromStorage = (qs, subject, topic) => {
+    if (subject) setSelectedSubject(subject);
+    if (topic)   setSelectedTopic(topic);
+    const quiz = qs.quiz;
+    setSelectedQuiz(quiz);
+    setQuestions(qs.questions);
+    setCurrentQ(qs.currentQ ?? 0);
+    setAnswers(qs.answers ?? {});
+    setMockMode(qs.mockMode ?? false);
+    setShowExp(false);
+    setScore(0);
+    // Deduct wall-clock time elapsed while app was away
+    const elapsed = qs.savedAt ? Math.floor((Date.now() - qs.savedAt) / 1000) : 0;
+    const remaining = Math.max((qs.timer ?? 1200) - elapsed, 0);
+    setTimer(remaining);
+    quizStartTs.current = Date.now() - ((qs.totalSecs ?? 1200) - remaining) * 1000;
+    setScreen("quiz");
+    syncUrl(`/quiz/${quiz.id}`);
+    saveNav({ screen: "quiz", quizId: quiz.id });
+  };
+
+  // Restore nav position from sessionStorage (survives tab-switch / screen-lock)
+  const restoreFromNav = (saved) => {
+    const allTopics = Object.values(STATIC_DATA.topics).flat();
+    const subject = saved.subjectId != null ? STATIC_DATA.subjects.find(s => String(s.id) === String(saved.subjectId)) : null;
+    const topic   = saved.topicId   != null ? allTopics.find(t => String(t.id) === String(saved.topicId))             : null;
+    if (subject) setSelectedSubject(subject);
+    if (topic)   setSelectedTopic(topic);
+    if (saved.screen === "subject" && subject) {
+      openSubject(subject);
+    } else if (saved.screen === "topic" && topic) {
+      if (subject) setSelectedSubject(subject);
+      openTopic(topic);
+    } else if (saved.screen === "quiz") {
+      const qs = loadQuizState();
+      if (qs && qs.questions?.length > 0 && String(qs.quizId) === String(saved.quizId)) {
+        resumeQuizFromStorage(qs, subject, topic);
+      } else if (topic) {
+        if (subject) setSelectedSubject(subject);
+        openTopic(topic);
+      } else {
+        goMain(saved.tab || "home", true);
+      }
+    } else {
+      goMain(saved.tab || "home", true);
+    }
+  };
+
   // ════════════════════════════════════════════════════════════════════════════
   // AUTH
   // ════════════════════════════════════════════════════════════════════════════
@@ -457,24 +522,39 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        restorePathAfterAuth(window.location.pathname);
         fetchProfile(session.user);
         fetchHistory(session.user);
+        // Prefer sessionStorage nav — more reliable than URL on mobile
+        const saved = loadNav();
+        if (saved.screen && saved.screen !== "login") {
+          setTimeout(() => restoreFromNav(saved), 50);
+        } else {
+          restorePathAfterAuth(window.location.pathname);
+        }
       }
       setAuthLoading(false);
     }).catch(() => setAuthLoading(false));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) {
+        const alreadyIn = !!user;
         setUser(session.user);
-        if (event === "SIGNED_IN") {   // ← only navigate on real login
-          goMain("home", true);
-        }
         fetchProfile(session.user);
         fetchHistory(session.user);
+        // Only redirect on a genuine first login — NOT on every tab-focus resume
+        if (!alreadyIn) {
+          const saved = loadNav();
+          if (saved.screen && saved.screen !== "login") {
+            setTimeout(() => restoreFromNav(saved), 50);
+          } else {
+            goMain("home", true);
+          }
+        }
       } else {
         setUser(null);
         setProfile(null);
+        clearNav();
+        clearQuizState();
         goLogin(true);
       }
     });
@@ -508,7 +588,7 @@ export default function App() {
     if (error) { alert("Sign in failed: " + error.message); setSigningIn(false); }
   };
 
-  const signOut = async () => { await supabase.auth.signOut(); };
+  const signOut = async () => { clearNav(); clearQuizState(); await supabase.auth.signOut(); };
 
   const toggleDark = () => {
     const next = !dark;
@@ -580,6 +660,7 @@ export default function App() {
     setSelectedSubject(subject);
     setScreen("subject");
     syncUrl(`/subject/${subject.id}`);
+    saveNav({ screen: "subject", subjectId: subject.id, topicId: null });
     setDataLoading(true);
     setDataError(null);
     try {
@@ -600,6 +681,7 @@ export default function App() {
     setDiff("All");
     setPrevYear(false);
     goTopic(topic);
+    saveNav({ screen: "topic", topicId: topic.id });
     setDataLoading(true);
     setDataError(null);
     try {
@@ -624,13 +706,16 @@ export default function App() {
   const startQuiz = async (quiz) => {
     setDataLoading(true);
     setDataError(null);
+    clearQuizState(); // wipe any previous saved quiz
     goQuiz(quiz);
     setSelectedQuiz(quiz);
     setCurrentQ(0);
     setAnswers({});
     setShowExp(false);
-    setTimer((quiz.time_limit_mins || 20) * 60);
+    const totalSecs = (quiz.time_limit_mins || 20) * 60;
+    setTimer(totalSecs);
     setScore(0);
+    quizStartTs.current = Date.now();
     try {
       const { data, error } = await supabase.from("questions").select("*").eq("quiz_id", quiz.id).order("sort_order").limit(200);
       if (error) { setDataError("Could not load questions: " + error.message); setDataLoading(false); return; }
@@ -646,6 +731,13 @@ export default function App() {
         explanation_hi: formatText(q.explanation_hi || q.explanation || ""),
       }));
       setQuestions(formatted);
+      // Persist full quiz snapshot for resumption after any interruption
+      saveQuizState({
+        quizId: quiz.id, quiz, questions: formatted,
+        currentQ: 0, answers: {}, timer: totalSecs, totalSecs,
+        mockMode, startedAt: Date.now(),
+      });
+      saveNav({ screen: "quiz", quizId: quiz.id });
     } catch (e) { setQuestions([]); }
     setDataLoading(false);
   };
@@ -701,19 +793,28 @@ export default function App() {
   useEffect(() => {
     clearInterval(timerRef.current);
     if (screen === "quiz" && !dataLoading) {
-      timerRef.current = setInterval(() => setTimer(prev => prev > 0 ? prev - 1 : 0), 1000);
+      timerRef.current = setInterval(() => {
+        setTimer(prev => {
+          const next = prev > 0 ? prev - 1 : 0;
+          if (next % 5 === 0) saveQuizState({ timer: next }); // persist every 5s
+          return next;
+        });
+      }, 1000);
     }
     return () => clearInterval(timerRef.current);
   }, [screen, dataLoading]);
 
   const selectAnswer = (idx) => {
     if (answers[currentQ] !== undefined) return;
-    setAnswers(prev => ({ ...prev, [currentQ]: idx }));
+    const newAnswers = { ...answers, [currentQ]: idx };
+    setAnswers(newAnswers);
     if (!mockMode) setShowExp(true);
+    saveQuizState({ answers: newAnswers, currentQ });
   };
 
   const finishQuiz = () => {
     clearInterval(timerRef.current);
+    clearQuizState(); // quiz done — wipe persisted state
     const correct = questions.filter((q, i) => answers[i] === q.correct).length;
     const totalSecs = (selectedQuiz?.time_limit_mins || 20) * 60;
     const taken = Math.max(totalSecs - timer, 0);
@@ -727,7 +828,9 @@ export default function App() {
   const nextQ = () => {
     setShowExp(false);
     if (currentQ < questions.length - 1) {
-      setCurrentQ(q => q + 1);
+      const next = currentQ + 1;
+      setCurrentQ(next);
+      saveQuizState({ currentQ: next });
       return;
     }
     finishQuiz();
