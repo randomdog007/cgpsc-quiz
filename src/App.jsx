@@ -109,6 +109,7 @@ const mockSupabase = {
     // Each table returns its own correct mock dataset so the preview works end-to-end
     const mockData =
       table === "profiles"      ? [PREVIEW_PROFILE]      :
+      table === "saved_questions" ? [] :
       table === "subjects"      ? STATIC_DATA.subjects    :
       table === "topics"        ? Object.values(STATIC_DATA.topics).flat() :
       table === "quizzes"       ? PREVIEW_QUIZZES         :
@@ -345,7 +346,7 @@ export default function App() {
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState(null);
 
-  // ── PROFILE ─────────────────────────────────────────────────────────────────
+  // ── PROFILE ──────────────────────────────────────────────────────────────────
   const [profile, setProfile]         = useState(null);
   const [lbLoading, setLbLoading]     = useState(false);
 
@@ -364,18 +365,9 @@ export default function App() {
   const [diff, setDiff]           = useState("All");
   const [search, setSearch]       = useState("");
   const [bookmarks, setBookmarks] = useState([]);
-  const timerRef    = useRef(null);
-  const quizStartTs = useRef(null);
+  const [bmLoading, setBmLoading] = useState(false);
+  const timerRef = useRef(null);
   const t = T[lang];
-
-  // ── NAV + QUIZ PERSISTENCE ───────────────────────────────────────────────────
-  const saveNav  = (p) => { try { const x=JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); sessionStorage.setItem("cgpsc_nav",JSON.stringify({...x,...p})); } catch(_){} };
-  const loadNav  = ()  => { try { return JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); } catch { return {}; } };
-  const clearNav = ()  => { try { sessionStorage.removeItem("cgpsc_nav"); } catch(_){} };
-  const QUIZ_KEY       = "cgpsc_quiz";
-  const saveQuizState  = (p) => { try { const x=JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"{}"); sessionStorage.setItem(QUIZ_KEY,JSON.stringify({...x,...p,savedAt:Date.now()})); } catch(_){} };
-  const loadQuizState  = ()  => { try { return JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"null"); } catch { return null; } };
-  const clearQuizState = ()  => { try { sessionStorage.removeItem(QUIZ_KEY); } catch(_){} };
 
   // ── PROFESSIONAL EXAM THEME COLORS ──────────────────────────────────────────
   const C = dark
@@ -398,25 +390,21 @@ export default function App() {
     setTab(nextTab);
     setScreen("main");
     syncUrl(mainPath(nextTab), replace);
-    saveNav({ screen: "main", tab: nextTab, subjectId: null, topicId: null });
   };
   const goSubject = (subject, replace = false) => {
     if (subject) setSelectedSubject(subject);
     setScreen("subject");
     syncUrl(subject ? `/subject/${subject.id}` : "/", replace);
-    if (subject) saveNav({ screen: "subject", subjectId: subject.id, topicId: null });
   };
   const goTopic = (topic, replace = false) => {
     if (topic) setSelectedTopic(topic);
     setScreen("topic");
     syncUrl(topic ? `/topic/${topic.id}` : "/", replace);
-    if (topic) saveNav({ screen: "topic", topicId: topic.id });
   };
   const goQuiz = (quiz, replace = false) => {
     if (quiz) setSelectedQuiz(quiz);
     setScreen("quiz");
     syncUrl(quiz ? `/quiz/${quiz.id}` : "/", replace);
-    if (quiz) saveNav({ screen: "quiz", quizId: quiz.id });
   };
   const goResult = (quiz = selectedQuiz, replace = false) => {
     setScreen("result");
@@ -456,52 +444,6 @@ export default function App() {
     goMain("home", true);
   };
 
-  const resumeQuizFromStorage = (qs, subject, topic) => {
-    if (subject) setSelectedSubject(subject);
-    if (topic)   setSelectedTopic(topic);
-    const quiz = qs.quiz;
-    setSelectedQuiz(quiz);
-    setQuestions(qs.questions);
-    setCurrentQ(qs.currentQ ?? 0);
-    setAnswers(qs.answers ?? {});
-    setMockMode(qs.mockMode ?? false);
-    setShowExp(false);
-    setScore(0);
-    const elapsed   = qs.savedAt ? Math.floor((Date.now() - qs.savedAt) / 1000) : 0;
-    const remaining = Math.max((qs.timer ?? 1200) - elapsed, 0);
-    setTimer(remaining);
-    quizStartTs.current = Date.now() - ((qs.totalSecs ?? 1200) - remaining) * 1000;
-    setScreen("quiz");
-    syncUrl(`/quiz/${quiz.id}`);
-    saveNav({ screen: "quiz", quizId: quiz.id });
-  };
-
-  const restoreFromNav = (saved) => {
-    const allTopics = Object.values(STATIC_DATA.topics).flat();
-    const subject = saved.subjectId != null ? STATIC_DATA.subjects.find(s => String(s.id) === String(saved.subjectId)) : null;
-    const topic   = saved.topicId   != null ? allTopics.find(t => String(t.id) === String(saved.topicId))             : null;
-    if (subject) setSelectedSubject(subject);
-    if (topic)   setSelectedTopic(topic);
-    if (saved.screen === "subject" && subject) {
-      openSubject(subject);
-    } else if (saved.screen === "topic" && topic) {
-      if (subject) setSelectedSubject(subject);
-      openTopic(topic);
-    } else if (saved.screen === "quiz") {
-      const qs = loadQuizState();
-      if (qs && qs.questions?.length > 0 && String(qs.quizId) === String(saved.quizId)) {
-        resumeQuizFromStorage(qs, subject, topic);
-      } else if (topic) {
-        if (subject) setSelectedSubject(subject);
-        openTopic(topic);
-      } else {
-        goMain(saved.tab || "home", true);
-      }
-    } else {
-      goMain(saved.tab || "home", true);
-    }
-  };
-
   // ════════════════════════════════════════════════════════════════════════════
   // AUTH
   // ════════════════════════════════════════════════════════════════════════════
@@ -511,9 +453,10 @@ export default function App() {
         setUser(session.user);
         fetchProfile(session.user);
         fetchHistory(session.user);
-        const saved = loadNav();
+        fetchBookmarks(session.user);
+        const saved = loadNav ? loadNav() : {};
         if (saved.screen && saved.screen !== "login") {
-          setTimeout(() => restoreFromNav(saved), 50);
+          setTimeout(() => restoreFromNav && restoreFromNav(saved), 50);
         } else {
           restorePathAfterAuth(window.location.pathname);
         }
@@ -527,19 +470,11 @@ export default function App() {
         setUser(session.user);
         fetchProfile(session.user);
         fetchHistory(session.user);
-        if (!alreadyIn) {
-          const saved = loadNav();
-          if (saved.screen && saved.screen !== "login") {
-            setTimeout(() => restoreFromNav(saved), 50);
-          } else {
-            goMain("home", true);
-          }
-        }
+        fetchBookmarks(session.user);
+        if (!alreadyIn) goMain("home", true);
       } else {
         setUser(null);
         setProfile(null);
-        clearNav();
-        clearQuizState();
         goLogin(true);
       }
     });
@@ -573,7 +508,7 @@ export default function App() {
     if (error) { alert("Sign in failed: " + error.message); setSigningIn(false); }
   };
 
-  const signOut = async () => { clearNav(); clearQuizState(); await supabase.auth.signOut(); };
+  const signOut = async () => { await supabase.auth.signOut(); };
 
   const toggleDark = () => {
     const next = !dark;
@@ -644,7 +579,6 @@ export default function App() {
     setSelectedSubject(subject);
     setScreen("subject");
     syncUrl(`/subject/${subject.id}`);
-    saveNav({ screen: "subject", subjectId: subject.id, topicId: null });
     setDataLoading(true);
     setDataError(null);
     try {
@@ -665,7 +599,6 @@ export default function App() {
     setDiff("All");
     setPrevYear(false);
     goTopic(topic);
-    saveNav({ screen: "topic", topicId: topic.id });
     setDataLoading(true);
     setDataError(null);
     try {
@@ -690,16 +623,13 @@ export default function App() {
   const startQuiz = async (quiz) => {
     setDataLoading(true);
     setDataError(null);
-    clearQuizState();
     goQuiz(quiz);
     setSelectedQuiz(quiz);
     setCurrentQ(0);
     setAnswers({});
     setShowExp(false);
-    const totalSecs = (quiz.time_limit_mins || 20) * 60;
-    setTimer(totalSecs);
+    setTimer((quiz.time_limit_mins || 20) * 60);
     setScore(0);
-    quizStartTs.current = Date.now();
     try {
       const { data, error } = await supabase.from("questions").select("*").eq("quiz_id", quiz.id).order("sort_order").limit(200);
       if (error) { setDataError("Could not load questions: " + error.message); setDataLoading(false); return; }
@@ -715,12 +645,6 @@ export default function App() {
         explanation_hi: formatText(q.explanation_hi || q.explanation || ""),
       }));
       setQuestions(formatted);
-      saveQuizState({
-        quizId: quiz.id, quiz, questions: formatted,
-        currentQ: 0, answers: {}, timer: totalSecs, totalSecs,
-        mockMode, startedAt: Date.now(),
-      });
-      saveNav({ screen: "quiz", quizId: quiz.id });
     } catch (e) { setQuestions([]); }
     setDataLoading(false);
   };
@@ -765,28 +689,19 @@ export default function App() {
   useEffect(() => {
     clearInterval(timerRef.current);
     if (screen === "quiz" && !dataLoading) {
-      timerRef.current = setInterval(() => {
-        setTimer(prev => {
-          const next = prev > 0 ? prev - 1 : 0;
-          if (next % 5 === 0) saveQuizState({ timer: next });
-          return next;
-        });
-      }, 1000);
+      timerRef.current = setInterval(() => setTimer(prev => prev > 0 ? prev - 1 : 0), 1000);
     }
     return () => clearInterval(timerRef.current);
   }, [screen, dataLoading]);
 
   const selectAnswer = (idx) => {
     if (answers[currentQ] !== undefined) return;
-    const newAnswers = { ...answers, [currentQ]: idx };
-    setAnswers(newAnswers);
+    setAnswers(prev => ({ ...prev, [currentQ]: idx }));
     if (!mockMode) setShowExp(true);
-    saveQuizState({ answers: newAnswers, currentQ });
   };
 
   const finishQuiz = () => {
     clearInterval(timerRef.current);
-    clearQuizState();
     const correct = questions.filter((q, i) => answers[i] === q.correct).length;
     const totalSecs = (selectedQuiz?.time_limit_mins || 20) * 60;
     const taken = Math.max(totalSecs - timer, 0);
@@ -800,30 +715,91 @@ export default function App() {
   const nextQ = () => {
     setShowExp(false);
     if (currentQ < questions.length - 1) {
-      const next = currentQ + 1;
-      setCurrentQ(next);
-      saveQuizState({ currentQ: next });
+      setCurrentQ(q => q + 1);
       return;
     }
     finishQuiz();
   };
 
-  const toggleBM = (q) => {
+  // ── Saved Questions — persisted to Supabase per user ──────────────────────────
+  const fetchBookmarks = async (currentUser) => {
+    const uid = (currentUser || user)?.id;
+    if (!uid) return;
+    setBmLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("saved_questions")
+        .select("*")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false });
+      if (!error && data) {
+        setBookmarks(data.map(row => ({
+          id:              row.question_id,
+          _rowId:          row.id,
+          question:        row.question_text,
+          question_hi:     row.question_text_hi,
+          options:         row.options    ? JSON.parse(row.options)    : [],
+          options_hi:      row.options_hi ? JSON.parse(row.options_hi) : [],
+          correct:         row.correct_option,
+          explanation:     row.explanation,
+          explanation_hi:  row.explanation_hi,
+          _subjectId:      row.subject_id,
+          _subjectName:    row.subject_name,
+          _subjectName_hi: row.subject_name_hi,
+          _topicName:      row.topic_name,
+          _topicName_hi:   row.topic_name_hi,
+        })));
+      }
+    } catch (e) {}
+    setBmLoading(false);
+  };
+
+  const toggleBM = async (q) => {
     if (!q) return;
-    // Attach current subject/topic context so bookmarks can be grouped
-    const enriched = {
-      ...q,
-      _subjectId:   selectedSubject?.id,
-      _subjectName: selectedSubject?.name,
-      _subjectName_hi: selectedSubject?.name_hi,
-      _topicName:   selectedTopic?.name,
-      _topicName_hi: selectedTopic?.name_hi,
-    };
-    setBookmarks(prev =>
-      prev.find(b => b.id === q.id)
-        ? prev.filter(b => b.id !== q.id)
-        : [...prev, enriched]
-    );
+    const uid = user?.id;
+    const alreadySaved = bookmarks.find(b => b.id === q.id);
+    if (alreadySaved) {
+      // Optimistic remove
+      setBookmarks(prev => prev.filter(b => b.id !== q.id));
+      if (uid && alreadySaved._rowId) {
+        try { await supabase.from("saved_questions").delete().eq("id", alreadySaved._rowId); } catch (e) {}
+      }
+    } else {
+      const enriched = {
+        ...q,
+        _rowId:          null,
+        _subjectId:      selectedSubject?.id,
+        _subjectName:    selectedSubject?.name,
+        _subjectName_hi: selectedSubject?.name_hi,
+        _topicName:      selectedTopic?.name,
+        _topicName_hi:   selectedTopic?.name_hi,
+      };
+      // Optimistic add
+      setBookmarks(prev => [enriched, ...prev]);
+      if (uid) {
+        try {
+          const { data, error } = await supabase.from("saved_questions").insert({
+            user_id:          uid,
+            question_id:      q.id,
+            question_text:    q.question      || null,
+            question_text_hi: q.question_hi   || null,
+            options:          JSON.stringify(q.options    || []),
+            options_hi:       JSON.stringify(q.options_hi || []),
+            correct_option:   q.correct,
+            explanation:      q.explanation    || null,
+            explanation_hi:   q.explanation_hi || null,
+            subject_id:       selectedSubject?.id       || null,
+            subject_name:     selectedSubject?.name      || null,
+            subject_name_hi:  selectedSubject?.name_hi   || null,
+            topic_name:       selectedTopic?.name        || null,
+            topic_name_hi:    selectedTopic?.name_hi     || null,
+          }).select("id").single();
+          if (!error && data) {
+            setBookmarks(prev => prev.map(b => b.id === q.id ? { ...b, _rowId: data.id } : b));
+          }
+        } catch (e) {}
+      }
+    }
   };
   const isBM      = (q)  => q && bookmarks.some(b => b.id === q.id);
   const fmt       = (s)  => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -952,7 +928,7 @@ export default function App() {
   }
 
   if (screen === "main") {
-    return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={onHome} onTabNavigate={onTabNavigate} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} bookmarks={bookmarks} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} />;
+    return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={onHome} onTabNavigate={onTabNavigate} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} bookmarks={bookmarks} bmLoading={bmLoading} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} />;
   }
   return null;
 }

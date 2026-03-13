@@ -10,7 +10,7 @@ export default function MainPage(props) {
     ms, css, C, t, tab, lang, dark, dataError, onClearError,
     onHome, onTabNavigate, headerProps, userAvatar, userPic, userName,
     profile, subjects, history, dataLoading, openSubject,
-    bookmarks, toggleBM, signOut, toggleDark, toggleLang, userEmail,
+    bookmarks, bmLoading, toggleBM, signOut, toggleDark, toggleLang, userEmail,
   } = props;
 
   return (
@@ -188,10 +188,10 @@ export default function MainPage(props) {
               <span style={{ fontSize: 12, color: C.muted, background: C.card, padding: "4px 10px", borderRadius: 12, border: `1px solid ${C.border}` }}>{bookmarks.length} saved</span>
             </div>
 
-            {/* Session-only notice */}
-            <div style={{ background: `${C.acc}0D`, border: `1px solid ${C.acc}30`, borderRadius: 8, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 15 }}>💡</span>
-              <span style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>Saved questions are for this session only — they clear on page refresh.</span>
+            {/* Sync indicator */}
+            <div style={{ background: `${C.ok}0D`, border: `1px solid ${C.ok}30`, borderRadius: 8, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 15 }}>{bmLoading ? "⏳" : "☁️"}</span>
+              <span style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>{bmLoading ? "Loading saved questions…" : "Saved questions sync to your account and are available across devices."}</span>
             </div>
 
             {bookmarks.length === 0 ? (
