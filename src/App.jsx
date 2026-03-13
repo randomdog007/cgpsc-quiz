@@ -57,12 +57,6 @@ const PREVIEW_PROFILE = {
   last_seen_at: new Date().toISOString(),
 };
 
-const PREVIEW_LEADERBOARD = [
-  { user_id:"preview-user",   display_name:"Aspirant",       avatar_url:null, total_attempts:12, avg_accuracy:74, total_score:187, best_streak:5, rank:1 },
-  { user_id:"user-2",         display_name:"Ravi Kumar",     avatar_url:null, total_attempts:20, avg_accuracy:68, total_score:210, best_streak:8, rank:2 },
-  { user_id:"user-3",         display_name:"Priya Sharma",   avatar_url:null, total_attempts:15, avg_accuracy:61, total_score:155, best_streak:4, rank:3 },
-  { user_id:"user-4",         display_name:"Suresh Yadav",   avatar_url:null, total_attempts:8,  avg_accuracy:55, total_score:98,  best_streak:2, rank:4 },
-];
 
 
 // ── MOCK QUIZ ATTEMPTS for preview ───────────────────────────────────────────
@@ -115,7 +109,6 @@ const mockSupabase = {
     // Each table returns its own correct mock dataset so the preview works end-to-end
     const mockData =
       table === "profiles"      ? [PREVIEW_PROFILE]      :
-      table === "leaderboard"   ? PREVIEW_LEADERBOARD     :
       table === "subjects"      ? STATIC_DATA.subjects    :
       table === "topics"        ? Object.values(STATIC_DATA.topics).flat() :
       table === "quizzes"       ? PREVIEW_QUIZZES         :
@@ -322,8 +315,8 @@ const STATIC_DATA = {
 
 // ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
 const T = {
-  en: { appName:"CGPSC EXAM",tagline:"Preparation Portal",prepareSmarter:"Structured Learning",scoreHigher:"Track your progress daily.",chooseSubject:"Select Subject",subjects:"Subjects",topics:"Topics",chooseTopic:"Select Topic",quizzes:"Assessments",questions:"Questions",startQuiz:"Start Test →",back:"← Back",home:"Home",analytics:"Analytics",leaderboard:"Rankings",bookmarks:"Saved",profile:"Profile",signInGoogle:"Continue with Google",signInMsg:"Sign in to access assessments and track performance.",mockMode:"Exam Mode",mockModeDesc:"Strict timer & no instant feedback.",previousYear:"Previous Year Only",allDifficulty:"All Levels",search:"Search assessments...",explanation:"EXPLANATION",nextQuestion:"Next Question →",finishQuiz:"Submit Test",retry:"Retake Test",moreQuizzes:"More Tests",excellent:"Excellent Performance!",goodJob:"Good Effort!",keepPracticing:"Needs Improvement",needStudy:"Review Required",score:"Score",accuracy:"Accuracy",correct:"Correct",wrong:"Incorrect",timeTaken:"Time Taken",yourRank:"Current Rank",savedQuestions:"Saved Questions",noBookmarks:"No saved questions",noBookmarksDesc:"Bookmark questions for revision",performanceOverview:"Performance Overview",subjectWise:"Subject Breakdown",deeperAnalysis:"Analytical Breakdown",strongAreas:"Strong Areas",weakAreas:"Areas to Improve",recentAttempts:"Recent Activity",quizHistory:"Test History",signOut:"Sign Out",darkMode:"Dark Mode",language:"Language",loading:"Loading...",quizOf:"of",question:"Question",answerReview:"Answer Key & Review",remove:"Remove",signingIn:"Authenticating...",noSubjects:"No subjects available",noSubjectsDesc:"Database requires subject entries",noTopics:"No topics available",noTopicsDesc:"Database requires topic entries for this subject",noQuizzes:"No tests available",noQuizzesDesc:"Database requires quiz entries for this topic",noQuestions:"No questions available",noQuestionsDesc:"Test contains no questions yet",noHistory:"No test history",noHistoryDesc:"Complete an assessment to view analytics",filterNoMatch:"No tests match the current filters" },
-  hi: { appName:"CGPSC परीक्षा",tagline:"तैयारी पोर्टल",prepareSmarter:"व्यवस्थित अध्ययन",scoreHigher:"अपनी प्रगति ट्रैक करें।",chooseSubject:"विषय चुनें",subjects:"विषय",topics:"टॉपिक्स",chooseTopic:"टॉपिक चुनें",quizzes:"परीक्षण",questions:"प्रश्न",startQuiz:"टेस्ट शुरू करें →",back:"← वापस",home:"होम",analytics:"विश्लेषण",leaderboard:"रैंकिंग",bookmarks:"सहेजे गए",profile:"प्रोफ़ाइल",signInGoogle:"Google से साइन इन करें",signInMsg:"परीक्षण और प्रगति के लिए साइन इन करें।",mockMode:"परीक्षा मोड",mockModeDesc:"कठोर टाइमर और कोई तुरंत फीडबैक नहीं।",previousYear:"केवल पिछले वर्ष",allDifficulty:"सभी स्तर",search:"परीक्षण खोजें...",explanation:"व्याख्या",nextQuestion:"अगला प्रश्न →",finishQuiz:"टेस्ट सबमिट करें",retry:"पुनः प्रयास करें",moreQuizzes:"अधिक टेस्ट",excellent:"उत्कृष्ट प्रदर्शन!",goodJob:"अच्छा प्रयास!",keepPracticing:"सुधार की आवश्यकता है",needStudy:"पुनरीक्षण आवश्यक है",score:"अंक",accuracy:"सटीकता",correct:"सही",wrong:"गलत",timeTaken:"लिया गया समय",yourRank:"आपकी रैंक",savedQuestions:"सहेजे गए प्रश्न",noBookmarks:"कोई प्रश्न सहेजा नहीं गया",noBookmarksDesc:"रिवीजन के लिए प्रश्न बुकमार्क करें",performanceOverview:"प्रदर्शन अवलोकन",subjectWise:"विषय-वार विश्लेषण",deeperAnalysis:"गहन विश्लेषण",strongAreas:"म मजबूत क्षेत्र",weakAreas:"सुधार वाले क्षेत्र",recentAttempts:"हाल की गतिविधि",quizHistory:"टेस्ट इतिहास",signOut:"साइन आउट",darkMode:"डार्क मोड",language:"भाषा",loading:"लोड हो रहा है...",quizOf:"में से",question:"प्रश्न",answerReview:"उत्तर कुंजी और समीक्षा",remove:"हटाएं",signingIn:"प्रमाणीकरण हो रहा है...",noSubjects:"कोई विषय उपलब्ध नहीं",noSubjectsDesc:"डेटाबेस में विषय प्रविष्टियों की आवश्यकता है",noTopics:"कोई टॉपिक उपलब्ध नहीं",noTopicsDesc:"इस विषय के लिए डेटाबेस में टॉपिक की आवश्यकता है",noQuizzes:"कोई टेस्ट उपलब्ध नहीं",noQuizzesDesc:"इस टॉपिक के लिए डेटाबेस में क्विज़ की आवश्यकता है",noQuestions:"कोई प्रश्न उपलब्ध नहीं",noQuestionsDesc:"टेस्ट में अभी कोई प्रश्न नहीं है",noHistory:"कोई टेस्ट इतिहास नहीं",noHistoryDesc:"विश्लेषण देखने के लिए परीक्षण पूरा करें",filterNoMatch:"वर्तमान फ़िल्टर से कोई टेस्ट मेल नहीं खाता" }
+  en: { appName:"CGPSC EXAM",tagline:"Preparation Portal",prepareSmarter:"Structured Learning",scoreHigher:"Track your progress daily.",chooseSubject:"Select Subject",subjects:"Subjects",topics:"Topics",chooseTopic:"Select Topic",quizzes:"Assessments",questions:"Questions",startQuiz:"Start Test →",back:"← Back",home:"Home",analytics:"Analytics",bookmarks:"Saved",profile:"Profile",signInGoogle:"Continue with Google",signInMsg:"Sign in to access assessments and track performance.",mockMode:"Exam Mode",mockModeDesc:"Strict timer & no instant feedback.",previousYear:"Previous Year Only",allDifficulty:"All Levels",search:"Search assessments...",explanation:"EXPLANATION",nextQuestion:"Next Question →",finishQuiz:"Submit Test",retry:"Retake Test",moreQuizzes:"More Tests",excellent:"Excellent Performance!",goodJob:"Good Effort!",keepPracticing:"Needs Improvement",needStudy:"Review Required",score:"Score",accuracy:"Accuracy",correct:"Correct",wrong:"Incorrect",timeTaken:"Time Taken",yourRank:"Current Rank",savedQuestions:"Saved Questions",noBookmarks:"No saved questions",noBookmarksDesc:"Bookmark questions for revision",performanceOverview:"Performance Overview",subjectWise:"Subject Breakdown",deeperAnalysis:"Analytical Breakdown",strongAreas:"Strong Areas",weakAreas:"Areas to Improve",recentAttempts:"Recent Activity",quizHistory:"Test History",signOut:"Sign Out",darkMode:"Dark Mode",language:"Language",loading:"Loading...",quizOf:"of",question:"Question",answerReview:"Answer Key & Review",remove:"Remove",signingIn:"Authenticating...",noSubjects:"No subjects available",noSubjectsDesc:"Database requires subject entries",noTopics:"No topics available",noTopicsDesc:"Database requires topic entries for this subject",noQuizzes:"No tests available",noQuizzesDesc:"Database requires quiz entries for this topic",noQuestions:"No questions available",noQuestionsDesc:"Test contains no questions yet",noHistory:"No test history",noHistoryDesc:"Complete an assessment to view analytics",filterNoMatch:"No tests match the current filters" },
+  hi: { appName:"CGPSC परीक्षा",tagline:"तैयारी पोर्टल",prepareSmarter:"व्यवस्थित अध्ययन",scoreHigher:"अपनी प्रगति ट्रैक करें।",chooseSubject:"विषय चुनें",subjects:"विषय",topics:"टॉपिक्स",chooseTopic:"टॉपिक चुनें",quizzes:"परीक्षण",questions:"प्रश्न",startQuiz:"टेस्ट शुरू करें →",back:"← वापस",home:"होम",analytics:"विश्लेषण",bookmarks:"सहेजे गए",profile:"प्रोफ़ाइल",signInGoogle:"Google से साइन इन करें",signInMsg:"परीक्षण और प्रगति के लिए साइन इन करें।",mockMode:"परीक्षा मोड",mockModeDesc:"कठोर टाइमर और कोई तुरंत फीडबैक नहीं।",previousYear:"केवल पिछले वर्ष",allDifficulty:"सभी स्तर",search:"परीक्षण खोजें...",explanation:"व्याख्या",nextQuestion:"अगला प्रश्न →",finishQuiz:"टेस्ट सबमिट करें",retry:"पुनः प्रयास करें",moreQuizzes:"अधिक टेस्ट",excellent:"उत्कृष्ट प्रदर्शन!",goodJob:"अच्छा प्रयास!",keepPracticing:"सुधार की आवश्यकता है",needStudy:"पुनरीक्षण आवश्यक है",score:"अंक",accuracy:"सटीकता",correct:"सही",wrong:"गलत",timeTaken:"लिया गया समय",yourRank:"आपकी रैंक",savedQuestions:"सहेजे गए प्रश्न",noBookmarks:"कोई प्रश्न सहेजा नहीं गया",noBookmarksDesc:"रिवीजन के लिए प्रश्न बुकमार्क करें",performanceOverview:"प्रदर्शन अवलोकन",subjectWise:"विषय-वार विश्लेषण",deeperAnalysis:"गहन विश्लेषण",strongAreas:"म मजबूत क्षेत्र",weakAreas:"सुधार वाले क्षेत्र",recentAttempts:"हाल की गतिविधि",quizHistory:"टेस्ट इतिहास",signOut:"साइन आउट",darkMode:"डार्क मोड",language:"भाषा",loading:"लोड हो रहा है...",quizOf:"में से",question:"प्रश्न",answerReview:"उत्तर कुंजी और समीक्षा",remove:"हटाएं",signingIn:"प्रमाणीकरण हो रहा है...",noSubjects:"कोई विषय उपलब्ध नहीं",noSubjectsDesc:"डेटाबेस में विषय प्रविष्टियों की आवश्यकता है",noTopics:"कोई टॉपिक उपलब्ध नहीं",noTopicsDesc:"इस विषय के लिए डेटाबेस में टॉपिक की आवश्यकता है",noQuizzes:"कोई टेस्ट उपलब्ध नहीं",noQuizzesDesc:"इस टॉपिक के लिए डेटाबेस में क्विज़ की आवश्यकता है",noQuestions:"कोई प्रश्न उपलब्ध नहीं",noQuestionsDesc:"टेस्ट में अभी कोई प्रश्न नहीं है",noHistory:"कोई टेस्ट इतिहास नहीं",noHistoryDesc:"विश्लेषण देखने के लिए परीक्षण पूरा करें",filterNoMatch:"वर्तमान फ़िल्टर से कोई टेस्ट मेल नहीं खाता" }
 };
 
 // Converts literal "\n" strings (from CSV import) into real newline characters.
@@ -352,9 +345,8 @@ export default function App() {
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState(null);
 
-  // ── PROFILE & LEADERBOARD ───────────────────────────────────────────────────
+  // ── PROFILE ─────────────────────────────────────────────────────────────────
   const [profile, setProfile]         = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
   const [lbLoading, setLbLoading]     = useState(false);
 
   // ── QUIZ STATE ──────────────────────────────────────────────────────────────
@@ -377,13 +369,11 @@ export default function App() {
   const t = T[lang];
 
   // ── NAV + QUIZ PERSISTENCE ───────────────────────────────────────────────────
-  // Keeps the user's position across tab-switches, screen-locks, and app resumes
-  const saveNav  = (p) => { try { const c=JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); sessionStorage.setItem("cgpsc_nav",JSON.stringify({...c,...p})); } catch(_){} };
+  const saveNav  = (p) => { try { const x=JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); sessionStorage.setItem("cgpsc_nav",JSON.stringify({...x,...p})); } catch(_){} };
   const loadNav  = ()  => { try { return JSON.parse(sessionStorage.getItem("cgpsc_nav")||"{}"); } catch { return {}; } };
   const clearNav = ()  => { try { sessionStorage.removeItem("cgpsc_nav"); } catch(_){} };
-
   const QUIZ_KEY       = "cgpsc_quiz";
-  const saveQuizState  = (p) => { try { const c=JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"{}"); sessionStorage.setItem(QUIZ_KEY,JSON.stringify({...c,...p,savedAt:Date.now()})); } catch(_){} };
+  const saveQuizState  = (p) => { try { const x=JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"{}"); sessionStorage.setItem(QUIZ_KEY,JSON.stringify({...x,...p,savedAt:Date.now()})); } catch(_){} };
   const loadQuizState  = ()  => { try { return JSON.parse(sessionStorage.getItem(QUIZ_KEY)||"null"); } catch { return null; } };
   const clearQuizState = ()  => { try { sessionStorage.removeItem(QUIZ_KEY); } catch(_){} };
 
@@ -439,7 +429,7 @@ export default function App() {
       goMain("home", true);
       return;
     }
-    if (["/analytics", "/leaderboard", "/bookmarks", "/profile"].includes(path)) {
+    if (["/analytics", "/bookmarks", "/profile"].includes(path)) {
       setScreen("main");
       setTab(path.slice(1));
       return;
@@ -466,7 +456,6 @@ export default function App() {
     goMain("home", true);
   };
 
-  // Resume a saved in-progress quiz after any interruption
   const resumeQuizFromStorage = (qs, subject, topic) => {
     if (subject) setSelectedSubject(subject);
     if (topic)   setSelectedTopic(topic);
@@ -478,8 +467,7 @@ export default function App() {
     setMockMode(qs.mockMode ?? false);
     setShowExp(false);
     setScore(0);
-    // Deduct wall-clock time elapsed while app was away
-    const elapsed = qs.savedAt ? Math.floor((Date.now() - qs.savedAt) / 1000) : 0;
+    const elapsed   = qs.savedAt ? Math.floor((Date.now() - qs.savedAt) / 1000) : 0;
     const remaining = Math.max((qs.timer ?? 1200) - elapsed, 0);
     setTimer(remaining);
     quizStartTs.current = Date.now() - ((qs.totalSecs ?? 1200) - remaining) * 1000;
@@ -488,7 +476,6 @@ export default function App() {
     saveNav({ screen: "quiz", quizId: quiz.id });
   };
 
-  // Restore nav position from sessionStorage (survives tab-switch / screen-lock)
   const restoreFromNav = (saved) => {
     const allTopics = Object.values(STATIC_DATA.topics).flat();
     const subject = saved.subjectId != null ? STATIC_DATA.subjects.find(s => String(s.id) === String(saved.subjectId)) : null;
@@ -524,7 +511,6 @@ export default function App() {
         setUser(session.user);
         fetchProfile(session.user);
         fetchHistory(session.user);
-        // Prefer sessionStorage nav — more reliable than URL on mobile
         const saved = loadNav();
         if (saved.screen && saved.screen !== "login") {
           setTimeout(() => restoreFromNav(saved), 50);
@@ -541,7 +527,6 @@ export default function App() {
         setUser(session.user);
         fetchProfile(session.user);
         fetchHistory(session.user);
-        // Only redirect on a genuine first login — NOT on every tab-focus resume
         if (!alreadyIn) {
           const saved = loadNav();
           if (saved.screen && saved.screen !== "login") {
@@ -567,7 +552,7 @@ export default function App() {
       const path = window.location.pathname;
       if (path === "/login") { setScreen("login"); return; }
       if (path === "/" || path === "") { setScreen("main"); setTab("home"); return; }
-      if (["/analytics", "/leaderboard", "/bookmarks", "/profile"].includes(path)) {
+      if (["/analytics", "/bookmarks", "/profile"].includes(path)) {
         setScreen("main");
         setTab(path.slice(1));
         return;
@@ -613,7 +598,6 @@ export default function App() {
 
   useEffect(() => {
     if (screen === "main" && tab === "home") fetchSubjects();
-    if (screen === "main" && tab === "leaderboard") fetchLeaderboard();
   }, [screen, tab]);
 
   // ── Profile ───────────────────────────────────────────────────────────────
@@ -706,7 +690,7 @@ export default function App() {
   const startQuiz = async (quiz) => {
     setDataLoading(true);
     setDataError(null);
-    clearQuizState(); // wipe any previous saved quiz
+    clearQuizState();
     goQuiz(quiz);
     setSelectedQuiz(quiz);
     setCurrentQ(0);
@@ -731,7 +715,6 @@ export default function App() {
         explanation_hi: formatText(q.explanation_hi || q.explanation || ""),
       }));
       setQuestions(formatted);
-      // Persist full quiz snapshot for resumption after any interruption
       saveQuizState({
         quizId: quiz.id, quiz, questions: formatted,
         currentQ: 0, answers: {}, timer: totalSecs, totalSecs,
@@ -774,18 +757,7 @@ export default function App() {
     } catch (e) {}
   };
 
-  // ── Leaderboard ───────────────────────────────────────────────────────────
-  const fetchLeaderboard = async () => {
-    setLbLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("leaderboard")
-        .select("*")
-        .limit(50);
-      if (!error && data) setLeaderboard(data);
-    } catch (e) {}
-    setLbLoading(false);
-  };
+
 
   // ════════════════════════════════════════════════════════════════════════════
   // TIMER & QUIZ LOGIC
@@ -796,7 +768,7 @@ export default function App() {
       timerRef.current = setInterval(() => {
         setTimer(prev => {
           const next = prev > 0 ? prev - 1 : 0;
-          if (next % 5 === 0) saveQuizState({ timer: next }); // persist every 5s
+          if (next % 5 === 0) saveQuizState({ timer: next });
           return next;
         });
       }, 1000);
@@ -814,7 +786,7 @@ export default function App() {
 
   const finishQuiz = () => {
     clearInterval(timerRef.current);
-    clearQuizState(); // quiz done — wipe persisted state
+    clearQuizState();
     const correct = questions.filter((q, i) => answers[i] === q.correct).length;
     const totalSecs = (selectedQuiz?.time_limit_mins || 20) * 60;
     const taken = Math.max(totalSecs - timer, 0);
@@ -836,7 +808,23 @@ export default function App() {
     finishQuiz();
   };
 
-  const toggleBM  = (q)  => setBookmarks(prev => prev.find(b => b.id === q.id) ? prev.filter(b => b.id !== q.id) : [...prev, q]);
+  const toggleBM = (q) => {
+    if (!q) return;
+    // Attach current subject/topic context so bookmarks can be grouped
+    const enriched = {
+      ...q,
+      _subjectId:   selectedSubject?.id,
+      _subjectName: selectedSubject?.name,
+      _subjectName_hi: selectedSubject?.name_hi,
+      _topicName:   selectedTopic?.name,
+      _topicName_hi: selectedTopic?.name_hi,
+    };
+    setBookmarks(prev =>
+      prev.find(b => b.id === q.id)
+        ? prev.filter(b => b.id !== q.id)
+        : [...prev, enriched]
+    );
+  };
   const isBM      = (q)  => q && bookmarks.some(b => b.id === q.id);
   const fmt       = (s)  => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
   
@@ -899,7 +887,7 @@ export default function App() {
 
   const Nav = () => (
     <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,background:C.hdr,borderTop:`1px solid ${C.border}`,display:"flex",justifyContent:"space-around",padding:"10px 0",boxShadow:"0 -4px 12px rgba(0,0,0,0.03)"}}>
-      {[["home","▢",t.home],["analytics","📊",t.analytics],["leaderboard","🏆",t.leaderboard],["bookmarks","🔖",t.bookmarks],["profile","👤",t.profile]].map(([id,icon,label])=>(
+      {[["home","🏠",t.home],["analytics","📊",t.analytics],["bookmarks","🔖",t.bookmarks],["profile","👤",t.profile]].map(([id,icon,label])=>(
         <button key={id} onClick={()=>{setTab(id);setScreen("main");}} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 8px",display:"flex",flexDirection:"column",alignItems:"center",gap:4,opacity:tab===id?1:0.6,transition:"all 0.2s"}}>
           <span style={{fontSize:18,color:tab===id?C.acc:C.muted}}>{icon}</span>
           <span style={{fontSize:10,color:tab===id?C.acc:C.muted,fontWeight:tab===id?600:500}}>{label}</span>
@@ -964,7 +952,7 @@ export default function App() {
   }
 
   if (screen === "main") {
-    return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={onHome} onTabNavigate={onTabNavigate} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} fetchLeaderboard={fetchLeaderboard} lbLoading={lbLoading} leaderboard={leaderboard} bookmarks={bookmarks} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} />;
+    return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={onHome} onTabNavigate={onTabNavigate} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} bookmarks={bookmarks} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} />;
   }
   return null;
 }
