@@ -358,7 +358,8 @@ export default function App() {
   const [answers, setAnswers]     = useState({});
   const [showExp, setShowExp]     = useState(false);
   const [timer, setTimer]         = useState(1200);
-  const [score, setScore]         = useState(0);
+  const [score, setScore]           = useState(0);
+  const [marksScored, setMarksScored] = useState(0);  // +2 correct, -0.66 wrong, 0 skipped
   const [timeTaken, setTimeTaken] = useState(0);
   const [mockMode, setMockMode]   = useState(false);
   const [prevYear, setPrevYear]   = useState(false);
@@ -705,6 +706,7 @@ export default function App() {
     const totalSecs = (quiz.time_limit_mins || 20) * 60;
     setTimer(totalSecs);
     setScore(0);
+    setMarksScored(0);
     quizStartTs.current = Date.now();
     try {
       const { data, error } = await supabase.from("questions").select("*").eq("quiz_id", quiz.id).order("sort_order").limit(200);
@@ -744,7 +746,7 @@ export default function App() {
     } catch (e) {}
   };
 
-  const saveAttempt = async (quizId, scoreVal, totalVal, timeSecs) => {
+  const saveAttempt = async (quizId, scoreVal, totalVal, timeSecs, marksVal, maxMarksVal, wrongVal, skippedVal) => {
     const uid = user?.id;
     if (!uid) return;
     try {
@@ -757,6 +759,10 @@ export default function App() {
         total:      totalVal,
         time_taken: timeSecs,
         accuracy:   totalVal > 0 ? Math.round((scoreVal / totalVal) * 100) : 0,
+        marks:      marksVal   ?? null,
+        max_marks:  maxMarksVal ?? null,
+        wrong:      wrongVal   ?? null,
+        skipped:    skippedVal ?? null,
       });
       // Refresh profile stats (the DB trigger updates them, re-fetch to sync UI)
       await fetchProfile(user);
@@ -793,14 +799,30 @@ export default function App() {
   const finishQuiz = () => {
     clearInterval(timerRef.current);
     clearQuizState();
-    const correct = questions.filter((q, i) => answers[i] === q.correct).length;
+    const correct  = questions.filter((q, i) => answers[i] !== undefined && answers[i] === q.correct).length;
+    const wrong    = questions.filter((q, i) => answers[i] !== undefined && answers[i] !== q.correct).length;
+    const skipped  = questions.length - correct - wrong;
+    const marks    = parseFloat(((correct * 2) - (wrong * 0.66)).toFixed(2));
+    const maxMarks = questions.length * 2;
     const totalSecs = (selectedQuiz?.time_limit_mins || 20) * 60;
     const taken = Math.max(totalSecs - timer, 0);
     setScore(correct);
+    setMarksScored(marks);
     setTimeTaken(taken);
-    if (selectedQuiz?.id) saveAttempt(selectedQuiz.id, correct, questions.length, taken);
+    if (selectedQuiz?.id) saveAttempt(selectedQuiz.id, correct, questions.length, taken, marks, maxMarks, wrong, skipped);
     fetchHistory(user);
     goResult(selectedQuiz);
+  };
+
+  const skipQ = () => {
+    setShowExp(false);
+    if (currentQ < questions.length - 1) {
+      const next = currentQ + 1;
+      setCurrentQ(next);
+      saveQuizState({ currentQ: next });
+    } else {
+      finishQuiz();
+    }
   };
 
   const nextQ = () => {
@@ -1010,11 +1032,11 @@ export default function App() {
   }
 
   if (screen === "quiz") {
-    return <QuizPage ms={ms} css={css} C={C} t={t} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goTopic(selectedTopic)} onHome={onHome} headerProps={headerProps} questions={questions} currentQ={currentQ} answers={answers} lang={lang} mockMode={mockMode} showExp={showExp} selectAnswer={selectAnswer} nextQ={nextQ} setCurrentQ={setCurrentQ} setShowExp={setShowExp} toggleBM={toggleBM} isBM={isBM} selectedQuiz={selectedQuiz} />;
+    return <QuizPage ms={ms} css={css} C={C} t={t} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goTopic(selectedTopic)} onHome={onHome} headerProps={headerProps} questions={questions} currentQ={currentQ} answers={answers} lang={lang} mockMode={mockMode} showExp={showExp} selectAnswer={selectAnswer} nextQ={nextQ} skipQ={skipQ} setCurrentQ={setCurrentQ} setShowExp={setShowExp} toggleBM={toggleBM} isBM={isBM} selectedQuiz={selectedQuiz} />;
   }
 
   if (screen === "result") {
-    return <ResultPage ms={ms} css={css} C={C} t={t} score={score} questions={questions} lang={lang} selectedQuiz={selectedQuiz} mockMode={mockMode} timeTaken={timeTaken} fmt={fmt} answers={answers} onRetry={() => startQuiz(selectedQuiz)} onMoreQuizzes={() => goTopic(selectedTopic)} onAnalytics={() => { fetchHistory(); goMain("analytics"); }} onBack={() => goTopic(selectedTopic)} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} />;
+    return <ResultPage ms={ms} css={css} C={C} t={t} score={score} marksScored={marksScored} questions={questions} lang={lang} selectedQuiz={selectedQuiz} mockMode={mockMode} timeTaken={timeTaken} fmt={fmt} answers={answers} onRetry={() => startQuiz(selectedQuiz)} onMoreQuizzes={() => goTopic(selectedTopic)} onAnalytics={() => { fetchHistory(); goMain("analytics"); }} onBack={() => goTopic(selectedTopic)} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} />;
   }
 
   if (screen === "main") {
