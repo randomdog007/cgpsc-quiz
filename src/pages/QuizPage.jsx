@@ -16,14 +16,14 @@ export default function QuizPage(props) {
   const opts     = lang === "hi" && q?.options_hi ? q.options_hi : q?.options;
   const qTxt     = lang === "hi" && q?.question_hi ? q.question_hi : q?.question;
 
-  // Live marks tally
-  const correct    = questions.filter((_, i) => answers[i] !== undefined && answers[i] === questions[i]?.correct).length;
-  const wrong      = questions.filter((_, i) => answers[i] !== undefined && answers[i] !== questions[i]?.correct).length;
-  const liveMarks  = parseFloat(((correct * 2) - (wrong * 0.66)).toFixed(2));
+  // Live marks — only shown in practice mode
+  const correct   = questions.filter((_, i) => answers[i] !== undefined && answers[i] === questions[i]?.correct).length;
+  const wrong     = questions.filter((_, i) => answers[i] !== undefined && answers[i] !== questions[i]?.correct).length;
+  const liveMarks = parseFloat(((correct * 2) - (wrong * 0.66)).toFixed(2));
 
   const dotColor = (i) => {
     if (answers[i] === undefined) return i === currentQ ? C.border : C.card;
-    if (mockMode) return C.acc;
+    if (mockMode) return C.acc; // exam mode: just show "attempted" in accent, no right/wrong
     return answers[i] === questions[i]?.correct ? C.ok : C.err;
   };
 
@@ -46,12 +46,22 @@ export default function QuizPage(props) {
               Q. {currentQ + 1} <span style={{ color: C.muted, fontWeight: 400 }}>/ {questions.length}</span>
             </span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {/* Marking scheme hint — always visible */}
               <span style={{ fontSize: 10, color: C.muted, background: C.card, padding: "2px 8px", borderRadius: 4, border: `1px solid ${C.border}` }}>
                 +2 / −0.66 / 0
               </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: liveMarks >= 0 ? C.ok : C.err, background: C.card, padding: "3px 10px", borderRadius: 4, border: `1px solid ${liveMarks >= 0 ? C.ok : C.err}44` }}>
-                {liveMarks >= 0 ? "+" : ""}{liveMarks} pts
-              </span>
+              {/* Live marks — ONLY in practice mode */}
+              {!mockMode && (
+                <span style={{ fontSize: 12, fontWeight: 700, color: liveMarks >= 0 ? C.ok : C.err, background: C.card, padding: "3px 10px", borderRadius: 4, border: `1px solid ${liveMarks >= 0 ? C.ok : C.err}44` }}>
+                  {liveMarks >= 0 ? "+" : ""}{liveMarks} pts
+                </span>
+              )}
+              {/* Exam mode: show answered count instead */}
+              {mockMode && (
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.muted, background: C.card, padding: "3px 10px", borderRadius: 4, border: `1px solid ${C.border}` }}>
+                  {Object.keys(answers).length}/{questions.length} answered
+                </span>
+              )}
             </div>
           </div>
 
@@ -82,6 +92,7 @@ export default function QuizPage(props) {
                   if (isOk)       { bg = `${C.ok}11`;  border = C.ok;  }
                   else if (isSel) { bg = `${C.err}11`; border = C.err; }
                 } else if (isSel && mockMode) {
+                  // exam mode: show selection in accent only, no reveal
                   bg = `${C.acc}11`; border = C.acc; tc = C.acc;
                 }
                 const letterBg    = answered && !mockMode && isOk  ? C.ok
@@ -102,7 +113,7 @@ export default function QuizPage(props) {
             </div>
           </div>
 
-          {/* Explanation */}
+          {/* Explanation — practice mode only */}
           {showExp && !mockMode && (
             <div style={{ background: `${C.ok}11`, border: `1px solid ${C.ok}44`, borderRadius: 8, padding: 16, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
               <div style={{ fontSize: 11, color: C.ok, fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{t.explanation}</div>
@@ -112,12 +123,14 @@ export default function QuizPage(props) {
 
           {/* Action buttons */}
           <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+            {/* Skip — only when not yet answered */}
             {!answered && (
               <button onClick={skipQ}
                 style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, borderRadius: 6, padding: "14px", color: C.muted, fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
-                {currentQ < questions.length - 1 ? "Skip →" : "Skip & Finish"}
+                {currentQ < questions.length - 1 ? "Skip →" : "Skip & Submit"}
               </button>
             )}
+            {/* Next / Submit — after answering */}
             {answered && (
               <button onClick={nextQ}
                 style={{ flex: 1, background: C.acc, border: "none", borderRadius: 6, padding: "16px", color: "#fff", fontWeight: 600, fontSize: 15, cursor: "pointer", boxShadow: "0 4px 12px rgba(37,99,235,0.2)" }}>
@@ -126,7 +139,7 @@ export default function QuizPage(props) {
             )}
           </div>
 
-          {/* Question navigator */}
+          {/* Question navigator dots */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 24, justifyContent: "center", paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
             {questions.map((_, i) => (
               <div key={i} onClick={() => { setCurrentQ(i); setShowExp(!mockMode && answers[i] !== undefined); }}
