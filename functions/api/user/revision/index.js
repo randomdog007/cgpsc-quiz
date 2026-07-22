@@ -12,7 +12,7 @@ export async function onRequestGet(context) {
   const limit = Math.min(parseInt(url.searchParams.get('limit')) || 20, 50);
 
   // ── Fetch due questions ──
-  const { results: dueQuestions } = await env.DB.prepare(`
+  const { results: dueQuestions } = await env.cgpsc_quiz_db.prepare(`
     SELECT
       wq.question_id,
       wq.quiz_id,
@@ -39,14 +39,14 @@ export async function onRequestGet(context) {
   `).bind(user.id, limit).all();
 
   // ── Get total due count (for badge/counter) ──
-  const countResult = await env.DB.prepare(`
+  const countResult = await env.cgpsc_quiz_db.prepare(`
     SELECT COUNT(*) as due_count
     FROM wrong_questions
     WHERE user_id = ? AND next_revision <= datetime('now')
   `).bind(user.id).first();
 
   // ── Get streak info ──
-  const profile = await env.DB.prepare(`
+  const profile = await env.cgpsc_quiz_db.prepare(`
     SELECT current_streak, best_streak, last_seen_at
     FROM profiles WHERE id = ?
   `).bind(user.id).first();

@@ -36,7 +36,7 @@ export async function onRequestPost(context) {
   // ═══════════════════════════════════════════
   // 3. FETCH QUIZ METADATA (tiny D1 read)
   // ═══════════════════════════════════════════
-  const quiz = await env.DB.prepare(`
+  const quiz = await env.cgpsc_quiz_db.prepare(`
     SELECT
       q.id, q.version, q.is_premium, q.is_published,
       q.total_questions, q.topic_id,
@@ -128,7 +128,7 @@ export async function onRequestPost(context) {
   // ═══════════════════════════════════════════
   // 7. SAVE ATTEMPT
   // ═══════════════════════════════════════════
-  await env.DB.prepare(`
+  await env.cgpsc_quiz_db.prepare(`
     INSERT INTO quiz_attempts
       (user_id, quiz_id, subject_id, topic_id, subtopic_id,
        score, total, accuracy, time_taken,
@@ -158,7 +158,7 @@ export async function onRequestPost(context) {
   const correctQuestions = results.filter(r => r.isCorrect);
 
   for (const w of wrongQuestions) {
-    await env.DB.prepare(`
+    await env.cgpsc_quiz_db.prepare(`
       INSERT INTO wrong_questions (user_id, question_id, quiz_id, next_revision, interval_days)
       VALUES (?, ?, ?, datetime('now', '+1 day'), 1)
       ON CONFLICT(user_id, question_id) DO UPDATE SET
@@ -171,7 +171,7 @@ export async function onRequestPost(context) {
   }
 
   for (const c of correctQuestions) {
-    await env.DB.prepare(`
+    await env.cgpsc_quiz_db.prepare(`
       UPDATE wrong_questions
       SET
         interval_days = MIN(interval_days * CAST(ease_factor AS INTEGER), 90),
@@ -184,7 +184,7 @@ export async function onRequestPost(context) {
   // ═══════════════════════════════════════════
   // 9. UPDATE PROFILE STATS
   // ═══════════════════════════════════════════
-  await env.DB.prepare(`
+  await env.cgpsc_quiz_db.prepare(`
     UPDATE profiles SET
       total_attempts = total_attempts + 1,
       total_score    = total_score + ?,
@@ -220,7 +220,7 @@ export async function onRequestPost(context) {
 
 async function checkPremiumAccess(env, userId, quizId) {
   // Check subscription tier first
-  const profile = await env.DB.prepare(
+  const profile = await env.cgpsc_quiz_db.prepare(
     `SELECT tier, tier_expiry FROM profiles WHERE id = ?`
   ).bind(userId).first();
 
@@ -230,7 +230,7 @@ async function checkPremiumAccess(env, userId, quizId) {
   }
 
   // Check per-quiz purchase
-  const purchase = await env.DB.prepare(
+  const purchase = await env.cgpsc_quiz_db.prepare(
     `SELECT id FROM purchases WHERE user_id = ? AND quiz_id = ?`
   ).bind(userId, quizId).first();
 

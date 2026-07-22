@@ -9,7 +9,7 @@ export async function onRequestGet(context) {
   }
 
   // 1. Tiny D1 lookup: just id + version
-  const quiz = await env.DB.prepare(
+  const quiz = await env.cgpsc_quiz_db.prepare(
     `SELECT id, version, is_premium FROM quizzes WHERE id = ? AND is_published = 1`
   ).bind(quizId).first();
 

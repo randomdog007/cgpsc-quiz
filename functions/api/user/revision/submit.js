@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
 
   // ── Fetch correct answers from DB (server-side only) ──
   const placeholders = questionIds.map(() => '?').join(',');
-  const { results: correctAnswers } = await env.DB.prepare(`
+  const { results: correctAnswers } = await env.cgpsc_quiz_db.prepare(`
     SELECT id, correct_option, explanation, explanation_hi
     FROM questions
     WHERE id IN (${placeholders})
@@ -37,7 +37,7 @@ export async function onRequestPost(context) {
   }
 
   // ── Fetch current spaced repetition state ──
-  const { results: wrStates } = await env.DB.prepare(`
+  const { results: wrStates } = await env.cgpsc_quiz_db.prepare(`
     SELECT question_id, wrong_count, ease_factor, interval_days
     FROM wrong_questions
     WHERE user_id = ? AND question_id IN (${placeholders})
@@ -86,7 +86,7 @@ export async function onRequestPost(context) {
     }
 
     // ── Update wrong_questions ──
-    await env.DB.prepare(`
+    await env.cgpsc_quiz_db.prepare(`
       UPDATE wrong_questions SET
         wrong_count   = CASE WHEN ? = 0 THEN wrong_count + 1 ELSE wrong_count END,
         ease_factor   = ?,
@@ -121,7 +121,7 @@ export async function onRequestPost(context) {
   await updateStreak(env, user.id);
 
   // ── Get remaining due count ──
-  const remaining = await env.DB.prepare(`
+  const remaining = await env.cgpsc_quiz_db.prepare(`
     SELECT COUNT(*) as cnt
     FROM wrong_questions
     WHERE user_id = ? AND next_revision <= datetime('now')
@@ -141,7 +141,7 @@ export async function onRequestPost(context) {
 // Streak Logic
 // ──────────────────────────────────────────────
 async function updateStreak(env, userId) {
-  const profile = await env.DB.prepare(
+  const profile = await env.cgpsc_quiz_db.prepare(
     `SELECT current_streak, best_streak, last_seen_at FROM profiles WHERE id = ?`
   ).bind(userId).first();
 
@@ -168,7 +168,7 @@ async function updateStreak(env, userId) {
 
   const newBest = Math.max(newStreak, profile.best_streak || 0);
 
-  await env.DB.prepare(`
+  await env.cgpsc_quiz_db.prepare(`
     UPDATE profiles SET
       current_streak = ?,
       best_streak    = ?,

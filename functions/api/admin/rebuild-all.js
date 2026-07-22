@@ -9,7 +9,7 @@ export async function onRequestPost(context) {
     return new Response('Forbidden', { status: 403 });
   }
 
-  const { results: quizzes } = await env.DB.prepare(
+  const { results: quizzes } = await env.cgpsc_quiz_db.prepare(
     `SELECT id FROM quizzes WHERE is_published = 1 ORDER BY id`
   ).all();
 

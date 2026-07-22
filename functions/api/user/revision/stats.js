@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
     return Response.json({ error: 'Login required' }, { status: 401 });
   }
 
-  const stats = await env.DB.prepare(`
+  const stats = await env.cgpsc_quiz_db.prepare(`
     SELECT
       COUNT(*)                                          AS total_tracked,
       SUM(CASE WHEN next_revision <= datetime('now')
@@ -25,7 +25,7 @@ export async function onRequestGet(context) {
   `).bind(user.id).first();
 
   // ── Hardest questions (most wrong attempts) ──
-  const { results: hardest } = await env.DB.prepare(`
+  const { results: hardest } = await env.cgpsc_quiz_db.prepare(`
     SELECT
       wq.question_id,
       wq.wrong_count,
@@ -44,7 +44,7 @@ export async function onRequestGet(context) {
   `).bind(user.id).all();
 
   // ── Subject-wise breakdown ──
-  const { results: bySubject } = await env.DB.prepare(`
+  const { results: bySubject } = await env.cgpsc_quiz_db.prepare(`
     SELECT
       s.name       AS subject_name,
       s.name_hi    AS subject_name_hi,
@@ -62,7 +62,7 @@ export async function onRequestGet(context) {
   `).bind(user.id).all();
 
   // ── Revision activity (last 14 days) ──
-  const { results: activity } = await env.DB.prepare(`
+  const { results: activity } = await env.cgpsc_quiz_db.prepare(`
     SELECT
       date(last_wrong_at) AS day,
       COUNT(*)            AS revised_count

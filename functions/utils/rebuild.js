@@ -1,6 +1,6 @@
 export async function rebuildQuizInternal(env, quizId) {
   // 1. Fetch quiz metadata
-  const quiz = await env.DB.prepare(`
+  const quiz = await env.cgpsc_quiz_db.prepare(`
     SELECT
       q.id, q.version, q.title, q.title_hi,
       q.description, q.description_hi,
@@ -22,7 +22,7 @@ export async function rebuildQuizInternal(env, quizId) {
   }
 
   // 2. Fetch all questions
-  const { results: questions } = await env.DB.prepare(`
+  const { results: questions } = await env.cgpsc_quiz_db.prepare(`
     SELECT
       id, sort_order,
       question, question_hi,
