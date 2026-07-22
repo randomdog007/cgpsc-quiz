@@ -1,7 +1,7 @@
 const ITEMS = [
   ["home",      "🏠", "HOME"],
+  ["revision",  "🧠", "REVISION"],
   ["analytics", "📊", "STATS"],
-  ["leaderboard", "🏆", "RANKS"],
   ["bookmarks", "🔖", "SAVED"],
   ["profile",   "👤", "PROFILE"],
 ];

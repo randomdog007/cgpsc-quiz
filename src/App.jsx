@@ -1002,7 +1002,10 @@ export default function App() {
 
   const headerProps = { screen, dataLoading, timer, fmt, toggleLang, toggleDark, lang, dark };
   const onHome = () => goMain("home");
-  const onTabNavigate = (nextTab) => goMain(nextTab);
+  const onTabNavigate = (nextTab) => {
+    if (nextTab === "revision") goRevision();
+    else goMain(nextTab);
+  };
 
   if (screen === "login") {
     return <LoginPage dark={dark} css={css} C={C} t={t} signingIn={signingIn} signIn={signIn} />;
@@ -1029,7 +1032,7 @@ export default function App() {
   }
 
   if (screen === "revision") {
-    return <RevisionPage ms={ms} css={css} C={C} t={t} lang={lang} onBack={() => goMain("home")} onHome={onHome} supabase={supabase} />;
+    return <RevisionPage ms={ms} css={css} C={C} t={t} lang={lang} onBack={() => goMain("home")} onHome={onHome} supabase={supabase} onTabNavigate={onTabNavigate} tab="revision" />;
   }
 
   if (screen === "main") {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import BottomNav from "../components/layout/BottomNav";
 import Header from "../components/layout/Header";
 import Spinner from "../components/ui/Spinner";
 import { createRevisionController } from '../revision/revision-controller';
@@ -8,7 +9,7 @@ import RevisionCard from '../components/revision/RevisionCard';
 import RevisionFeedback from '../components/revision/RevisionFeedback';
 import RevisionResults from '../components/revision/RevisionResults';
 
-export default function RevisionPage({ ms, css, C, t, onBack, onHome, supabase }) {
+export default function RevisionPage({ ms, css, C, t, onBack, onHome, supabase, onTabNavigate, tab }) {
   const [state, setState] = useState(null);
 
   const controller = useCallback(
@@ -100,6 +101,7 @@ export default function RevisionPage({ ms, css, C, t, onBack, onHome, supabase }
       <div style={{ flex: 1, overflowY: "auto" }}>
         {renderPhase()}
       </div>
+      <BottomNav tab={tab} C={C} onNavigate={onTabNavigate} />
     </div>
   );
 }
