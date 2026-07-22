@@ -176,15 +176,15 @@ export const supabase = {
   from: (table) => new QueryBuilder(table),
   auth: mockSupabaseAuth
 };  
-// Auto-refresh token to prevent expiration during long sessions  
-setInterval(async () = 
-  const user = firebaseAuth.currentUser;  
-  if (user) {  
-    try {  
-      const token = await user.getIdToken(true);  
-      localStorage.setItem('firebase_id_token', token);  
-    } catch (e) {  
-      console.warn('Token refresh failed:', e);  
-    }  
-  }  
+// Auto-refresh token to prevent expiration during long sessions
+setInterval(async () => {
+  const user = firebaseAuth.currentUser;
+  if (user) {
+    try {
+      const token = await user.getIdToken(true);
+      localStorage.setItem('firebase_id_token', token);
+    } catch (e) {
+      console.warn('Token refresh failed:', e);
+    }
+  }
 }, 50 * 60 * 1000); // refresh every 50 mins 
