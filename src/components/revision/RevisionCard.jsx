@@ -3,9 +3,14 @@ import React from 'react';
 export default function RevisionCard({ question, index, total, selected, lang, onSelect, onConfirm, onSkip, onToggleLang }) {
   if (!question) return null;
 
-  const text = lang === 'hi' && question.textHi ? question.textHi : question.text;
-  const options = [question.options?.a, question.options?.b, question.options?.c, question.options?.d];
-  const optionsHi = [question.optionsHi?.a, question.optionsHi?.b, question.optionsHi?.c, question.optionsHi?.d];
+  const formatText = (str) => {
+    if (!str) return '';
+    return str.replace(/\\n/g, '\n').replace(/\/n/g, '\n');
+  };
+
+  const text = formatText(lang === 'hi' && question.textHi ? question.textHi : question.text);
+  const options = [question.options?.a, question.options?.b, question.options?.c, question.options?.d].map(formatText);
+  const optionsHi = [question.optionsHi?.a, question.optionsHi?.b, question.optionsHi?.c, question.optionsHi?.d].map(formatText);
 
   return (
     <div style={{ padding: "24px 16px", maxWidth: 600, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
@@ -42,7 +47,7 @@ export default function RevisionCard({ question, index, total, selected, lang, o
                 }}
               >
                 <span style={{ fontWeight: 600, color: isSelected ? "#3b82f6" : "#64748b" }}>{["A","B","C","D"][i]}</span>
-                <span style={{ color: isSelected ? "#1e40af" : "#334155" }}>{optText}</span>
+                <span style={{ color: isSelected ? "#1e40af" : "#334155", whiteSpace: "pre-wrap" }}>{optText}</span>
               </button>
             );
           })}

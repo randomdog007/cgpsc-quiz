@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import Header from "../components/layout/Header";
 import Spinner from "../components/ui/Spinner";
 import EmptyState from "../components/ui/EmptyState";
@@ -11,10 +12,25 @@ export default function QuizPage(props) {
     toggleBM, isBM, selectedQuiz,
   } = props;
 
-  const q        = questions[currentQ];
+  const q = questions[currentQ];
   const answered = answers[currentQ] !== undefined;
-  const opts     = lang === "hi" && q?.options_hi ? q.options_hi : q?.options;
-  const qTxt     = lang === "hi" && q?.question_hi ? q.question_hi : q?.question;
+
+  const formatText = (str) => {
+    if (!str) return '';
+    return str.replace(/\\n/g, '\n').replace(/\/n/g, '\n');
+  };
+
+  const qTxt = useMemo(() => {
+    if (!q) return "";
+    const txt = lang === 'en' ? q.question : (q.question_hi || q.question);
+    return formatText(txt);
+  }, [q, lang]);
+
+  const opts = useMemo(() => {
+    if (!q) return [];
+    const arr = lang === 'en' ? q.options : (q.options_hi || q.options);
+    return arr.map(formatText);
+  }, [q, lang]);
 
   // Live marks — only shown in practice mode
   const correct   = questions.filter((_, i) => answers[i] !== undefined && answers[i] === questions[i]?.correct).length;

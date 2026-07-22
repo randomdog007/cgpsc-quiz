@@ -38,9 +38,12 @@ export default function RevisionResults({ results, lang, onLoadMore, onDone }) {
                   Next revision in {res.newInterval} day(s)
                 </span>
               </div>
-              <p style={{ fontSize: 14, color: "#334155", marginBottom: 12 }}>
+              <p style={{ fontSize: 14, color: "#334155", marginBottom: 12, whiteSpace: "pre-wrap" }}>
                 <strong>Explanation:</strong><br />
-                {lang === 'hi' && res.explanationHi ? res.explanationHi : res.explanation}
+                {(() => {
+                  const rawExp = lang === 'hi' && res.explanationHi ? res.explanationHi : res.explanation;
+                  return rawExp ? rawExp.replace(/\\n/g, '\n').replace(/\/n/g, '\n') : '';
+                })()}
               </p>
             </div>
           );
