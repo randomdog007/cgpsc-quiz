@@ -631,11 +631,19 @@ export default function App() {
       const headers = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await fetch(`/api/quiz/${quiz.id}`, { headers });
+      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const res = await fetch(`${apiUrl}/api/quiz/${quiz.id}`, { headers });
       if (!res.ok) {
+        console.error(`Quiz API error: ${res.status} ${res.statusText}`);
         throw new Error(`API returned ${res.status}`);
       }
       const publicData = await res.json();
+      
+      // Validate response has questions
+      if (!publicData.questions || publicData.questions.length === 0) {
+        console.warn(`Quiz ${quiz.id} has no questions`);
+        throw new Error('No questions available for this quiz');
+      }
       
       let qData = publicData.questions || [];
       if (qData.length > 0) {
@@ -666,7 +674,8 @@ export default function App() {
       });
       saveNav({ screen: "quiz", quizId: quiz.id });
     } catch (e) { 
-      setDataError("Could not load questions from API");
+      console.error("Failed to load quiz questions:", e);
+      setDataError(`Could not load questions: ${e.message}. Please try again or check your connection.`);
       setQuestions([]); 
     }
     setDataLoading(false);
