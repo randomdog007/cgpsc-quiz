@@ -200,7 +200,7 @@ export async function onRequestPost(context) {
   // ═══════════════════════════════════════════
   // 10. RETURN RESULTS
   // ═══════════════════════════════════════════
-  return Response.json({
+  return new Response(JSON.stringify({
     quizId,
     score:    correct,
     total,
@@ -211,6 +211,8 @@ export async function onRequestPost(context) {
     maxMarks,
     timeTaken: timeTaken || 0,
     results
+  }), {
+    headers: { 'Content-Type': 'application/json' }
   });
 }
 
