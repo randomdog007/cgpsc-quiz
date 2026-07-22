@@ -75,12 +75,18 @@ export async function onRequestPost(context) {
     if (isCorrect) {
       // Correct: push further out
       newEase = Math.min(state.ease_factor + 0.1, 3.0);
-      newInterval = Math.min(
-        Math.round(state.interval_days * newEase),
-        90  // cap at 90 days
-      );
+      if (state.interval_days === 0) {
+        newInterval = 1;
+      } else if (state.interval_days === 1) {
+        newInterval = 3;
+      } else {
+        newInterval = Math.min(
+          Math.round(state.interval_days * newEase),
+          90  // cap at 90 days
+        );
+      }
     } else {
-      // Wrong or skipped: reset to 0 days for testing
+      // Wrong or skipped: reset to 0 days
       newEase = Math.max(state.ease_factor - 0.2, 1.3);
       newInterval = 0;
     }

@@ -30,11 +30,32 @@ export default function RevisionDashboard({ stats, dueCount, onStart }) {
           style={{ 
             width: "100%", padding: 16, background: dueCount > 0 ? "#3b82f6" : "#cbd5e1", 
             color: "#fff", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600,
-            cursor: dueCount > 0 ? "pointer" : "default"
+            cursor: dueCount > 0 ? "pointer" : "default",
+            marginBottom: 24
           }}
         >
           {dueCount > 0 ? `Start Revision (${dueCount})` : "All Caught Up!"}
         </button>
+
+        {stats.pendingByInterval && stats.pendingByInterval.length > 0 && (
+          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
+            <div style={{ padding: "12px 16px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", fontWeight: 600, color: "#334155" }}>
+              Pending Questions by Interval
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {stats.pendingByInterval.map((item, idx) => (
+                <div key={idx} style={{ display: "flex", justifyContent: "space-between", padding: "12px 16px", borderBottom: idx < stats.pendingByInterval.length - 1 ? "1px solid #e2e8f0" : "none" }}>
+                  <span style={{ color: "#64748b", fontWeight: 500 }}>
+                    {item.interval === 0 ? "0 days (New / Failed)" : `${item.interval} days`}
+                  </span>
+                  <span style={{ fontWeight: 700, color: "#334155", background: "#f1f5f9", padding: "2px 8px", borderRadius: 12, fontSize: 14 }}>
+                    {item.count} q
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

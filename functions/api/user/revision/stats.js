@@ -73,6 +73,17 @@ export async function onRequestGet(context) {
     ORDER BY day
   `).bind(user.id).all();
 
+  // ── Pending questions grouped by interval ──
+  const { results: pendingByInterval } = await env.cgpsc_quiz_db.prepare(`
+    SELECT
+      interval_days,
+      COUNT(*) AS count
+    FROM wrong_questions
+    WHERE user_id = ? AND next_revision <= datetime('now')
+    GROUP BY interval_days
+    ORDER BY interval_days ASC
+  `).bind(user.id).all();
+
   return Response.json({
     totalTracked:  stats?.total_tracked || 0,
     dueToday:      stats?.due_today || 0,
@@ -99,6 +110,10 @@ export async function onRequestGet(context) {
     activity: activity.map(a => ({
       day:     a.day,
       revised: a.revised_count
+    })),
+    pendingByInterval: pendingByInterval.map(p => ({
+      interval: p.interval_days,
+      count: p.count
     }))
   });
 }
