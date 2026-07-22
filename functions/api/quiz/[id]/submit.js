@@ -1,5 +1,5 @@
-import { authenticate } from '../../../../utils/auth.js';
-import { rebuildQuizInternal } from '../../../../utils/rebuild.js';
+import { authenticate } from '../../../utils/auth.js';
+import { rebuildQuizInternal } from '../../../utils/rebuild.js';
 
 export async function onRequestPost(context) {
   const { request, env, params } = context;

@@ -1,4 +1,4 @@
-import { rebuildQuizInternal } from '../../../utils/rebuild.js';
+import { rebuildQuizInternal } from '../../utils/rebuild.js';
 
 export async function onRequestGet(context) {
   const { request, env, params } = context;

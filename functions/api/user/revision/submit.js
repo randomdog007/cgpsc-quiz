@@ -1,4 +1,4 @@
-import { authenticate } from '../../../../utils/auth.js';
+import { authenticate } from '../../../utils/auth.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;

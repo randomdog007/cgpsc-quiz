@@ -1,4 +1,4 @@
-import { rebuildQuizInternal } from '../../../utils/rebuild.js';
+import { rebuildQuizInternal } from '../../utils/rebuild.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
