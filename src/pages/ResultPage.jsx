@@ -44,7 +44,7 @@ export default function ResultPage(props) {
       <style>{css}</style>
       <Header back onBack={onBack} onHome={onHome} C={C} t={t} lang={lang} {...headerProps} />
 
-      <div style={{ padding: "24px 16px", maxWidth: 700, margin: "0 auto", animation: "fadeUp 0.4s ease" }}>
+      <div style={{ padding: "16px", maxWidth: 700, margin: "0 auto", animation: "fadeUp 0.4s ease" }}>
 
         {/* ── Title ── */}
         <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -55,20 +55,20 @@ export default function ResultPage(props) {
         </div>
 
         {/* ── Marks card ── */}
-        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 20px", marginBottom: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-          <div style={{ textAlign: "center", marginBottom: 20 }}>
-            <div style={{ fontSize: 50, fontWeight: 800, color: marks >= 0 ? C.ok : C.err, lineHeight: 1, marginBottom: 4 }}>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "24px 20px", marginBottom: 16, boxShadow: C.shadow }}>
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <div style={{ fontSize: 56, fontWeight: 800, color: marks >= 0 ? C.ok : C.err, lineHeight: 1, marginBottom: 8, letterSpacing: "-1.5px" }}>
               {marks >= 0 ? "+" : ""}{marks}
             </div>
-            <div style={{ fontSize: 13, color: C.muted }}>out of {maxMarks} marks</div>
-            <div style={{ height: 8, background: C.border, borderRadius: 4, overflow: "hidden", marginTop: 12, marginBottom: 4 }}>
-              <div style={{ width: `${Math.max(0, Math.min(100, marksPct))}%`, height: "100%", background: marks >= 0 ? C.ok : C.err, borderRadius: 4, transition: "width 1s ease" }} />
+            <div style={{ fontSize: 14, color: C.muted, fontWeight: 500 }}>out of {maxMarks} marks</div>
+            <div style={{ height: 8, background: C.inp, borderRadius: 4, overflow: "hidden", marginTop: 24, marginBottom: 8, boxShadow: `inset 0 1px 2px rgba(0,0,0,0.05)` }}>
+              <div style={{ width: `${Math.max(0, Math.min(100, marksPct))}%`, height: "100%", background: marks >= 0 ? C.ok : C.err, borderRadius: 4, transition: "width 1.5s cubic-bezier(0.16, 1, 0.3, 1)" }} />
             </div>
-            <div style={{ fontSize: 11, color: C.muted }}>{marksPct}% of maximum marks</div>
+            <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{marksPct}% of maximum marks</div>
           </div>
 
           {/* Stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, paddingTop: 18, borderTop: `1px solid ${C.border}` }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
             {[
               { val: correct,        lbl: "Correct",  sub: "+2 each",   clr: C.ok    },
               { val: wrong,          lbl: "Wrong",    sub: "−0.66 each", clr: C.err   },
@@ -76,7 +76,7 @@ export default function ResultPage(props) {
               { val: fmt(timeTaken), lbl: "Time",     sub: "taken",     clr: C.text, mono: true },
             ].map(({ val, lbl: sl, sub, clr, mono }) => (
               <div key={sl} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: clr, fontFamily: mono ? "monospace" : "inherit" }}>{val}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: clr, fontFamily: mono ? "monospace" : "inherit" }}>{val}</div>
                 <div style={{ fontSize: 11, color: C.muted, marginTop: 3, fontWeight: 600 }}>{sl}</div>
                 <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>{sub}</div>
               </div>
@@ -85,30 +85,30 @@ export default function ResultPage(props) {
         </div>
 
         {/* ── Accuracy bar ── */}
-        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px 18px", marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Accuracy</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: pct >= 60 ? C.ok : C.err }}>{pct}%</span>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px", marginBottom: 20, boxShadow: C.shadow }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>Accuracy</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: pct >= 60 ? C.ok : C.err }}>{pct}%</span>
           </div>
-          <div style={{ height: 7, background: C.border, borderRadius: 4, overflow: "hidden" }}>
-            <div style={{ width: `${pct}%`, height: "100%", background: pct >= 60 ? C.ok : C.err, borderRadius: 4, transition: "width 1s ease" }} />
+          <div style={{ height: 8, background: C.inp, borderRadius: 4, overflow: "hidden", boxShadow: `inset 0 1px 2px rgba(0,0,0,0.05)` }}>
+            <div style={{ width: `${pct}%`, height: "100%", background: pct >= 60 ? C.ok : C.err, borderRadius: 4, transition: "width 1.5s cubic-bezier(0.16, 1, 0.3, 1)" }} />
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
-            <span style={{ fontSize: 11, color: C.muted }}>{correct}/{total} correct</span>
-            <span style={{ fontSize: 11, color: pct >= 60 ? C.ok : C.err }}>{pct >= 60 ? "✓ Pass" : "✗ Below pass mark"}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
+            <span style={{ fontSize: 12, color: C.muted, fontWeight: 500 }}>{correct}/{total} correct</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: pct >= 60 ? C.ok : C.err }}>{pct >= 60 ? "✓ Pass" : "✗ Below pass mark"}</span>
           </div>
         </div>
 
         {/* ── Actions ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
-          <button onClick={onRetry} style={{ background: C.acc, border: "none", borderRadius: 6, padding: "13px", color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 40 }}>
+          <button onClick={onRetry} className="btn-primary" style={{ padding: "16px", fontSize: 15 }}>
             {t.retry}
           </button>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={onMoreQuizzes} style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, borderRadius: 6, padding: "11px", color: C.text, fontWeight: 500, fontSize: 13, cursor: "pointer" }}>
+          <div style={{ display: "flex", gap: 12 }}>
+            <button onClick={onMoreQuizzes} className="btn-secondary" style={{ flex: 1, padding: "14px", fontSize: 14 }}>
               {t.moreQuizzes}
             </button>
-            <button onClick={onAnalytics} style={{ flex: 1, background: C.inp, border: `1px solid ${C.border}`, borderRadius: 6, padding: "11px", color: C.text, fontWeight: 500, fontSize: 13, cursor: "pointer" }}>
+            <button onClick={onAnalytics} className="btn-secondary" style={{ flex: 1, padding: "14px", fontSize: 14 }}>
               {t.analytics}
             </button>
           </div>
@@ -116,17 +116,17 @@ export default function ResultPage(props) {
 
         {/* ── Question Review ── */}
         <div>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 14, letterSpacing: "-0.3px" }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 20, letterSpacing: "-0.5px" }}>
             Question Review
           </h3>
 
           {/* Filter tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
             {filterBtns.map(({ key, label, count, clr }) => (
               <button key={key} onClick={() => setReviewFilter(key)}
-                style={{ background: reviewFilter === key ? C.acc : C.card, border: `1px solid ${reviewFilter === key ? C.acc : C.border}`, borderRadius: 20, padding: "5px 14px", fontSize: 12, fontWeight: 600, color: reviewFilter === key ? "#fff" : clr, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+                style={{ background: reviewFilter === key ? C.acc : C.card, border: `1px solid ${reviewFilter === key ? C.acc : C.border}`, borderRadius: 999, padding: "6px 16px", fontSize: 13, fontWeight: 600, color: reviewFilter === key ? "#fff" : clr, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s", boxShadow: reviewFilter === key ? `0 4px 12px ${C.acc}55` : C.shadow }}>
                 {label}
-                <span style={{ background: reviewFilter === key ? "rgba(255,255,255,0.25)" : C.inp, borderRadius: 10, padding: "1px 6px", fontSize: 11 }}>{count}</span>
+                <span style={{ background: reviewFilter === key ? "rgba(255,255,255,0.25)" : C.inp, borderRadius: 12, padding: "2px 8px", fontSize: 11 }}>{count}</span>
               </button>
             ))}
           </div>

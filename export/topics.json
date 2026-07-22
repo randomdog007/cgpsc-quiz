@@ -1,0 +1,970 @@
+[
+  {
+    "id": 101,
+    "subject_id": 1,
+    "name": "Pre-historic Age & Indus Valley Civilization",
+    "name_hi": "प्रागैतिहासिक काल और सिंधु घाटी सभ्यता",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 102,
+    "subject_id": 1,
+    "name": "Vedic Culture",
+    "name_hi": "वैदिक संस्कृति",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 103,
+    "subject_id": 1,
+    "name": "Major Ancient Empires (Mauryan, Gupta, etc.)",
+    "name_hi": "प्रमुख प्राचीन साम्राज्य (मौर्य, गुप्त आदि)",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 104,
+    "subject_id": 1,
+    "name": "Major Dynasties of South India",
+    "name_hi": "दक्षिण भारत के प्रमुख राजवंश",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 105,
+    "subject_id": 1,
+    "name": "Medieval India (Delhi Sultanate & Mughals)",
+    "name_hi": "मध्यकालीन भारत (दिल्ली सल्तनत और मुगल)",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 106,
+    "subject_id": 1,
+    "name": "Advent of Europeans & British Expansion",
+    "name_hi": "यूरोपियों का आगमन और ब्रिटिश विस्तार",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 107,
+    "subject_id": 1,
+    "name": "The Revolt of 1857",
+    "name_hi": "1857 का विद्रोह",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 108,
+    "subject_id": 1,
+    "name": "Socio-Religious Reform Movements",
+    "name_hi": "सामाजिक-धार्मिक सुधार आंदोलन",
+    "sort_order": 8,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 109,
+    "subject_id": 1,
+    "name": "Indian National Movement (Freedom Struggle)",
+    "name_hi": "भारतीय राष्ट्रीय आंदोलन (स्वतंत्रता संग्राम)",
+    "sort_order": 9,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 110,
+    "subject_id": 1,
+    "name": "Post-Independence Consolidation",
+    "name_hi": "स्वतंत्रता के बाद एकीकरण",
+    "sort_order": 10,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 201,
+    "subject_id": 2,
+    "name": "Physical Features & Geological Structure",
+    "name_hi": "भौतिक विशेषताएँ और भूवैज्ञानिक संरचना",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 202,
+    "subject_id": 2,
+    "name": "Drainage System (Rivers & Lakes)",
+    "name_hi": "अपवाह तंत्र (नदियाँ और झीलें)",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 203,
+    "subject_id": 2,
+    "name": "Climate, Soil, and Vegetation",
+    "name_hi": "जलवायु, मृदा और वनस्पति",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 204,
+    "subject_id": 2,
+    "name": "Demographics (Population, Census, Density)",
+    "name_hi": "जनसांख्यिकी (जनसंख्या, जनगणना, घनत्व)",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 205,
+    "subject_id": 2,
+    "name": "Indian Agriculture",
+    "name_hi": "भारतीय कृषि",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 206,
+    "subject_id": 2,
+    "name": "Minerals and Mining",
+    "name_hi": "खनिज और खनन",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 207,
+    "subject_id": 2,
+    "name": "Energy Resources (Renewable & Non-renewable)",
+    "name_hi": "ऊर्जा संसाधन (नवीकरणीय और गैर-नवीकरणीय)",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 208,
+    "subject_id": 2,
+    "name": "Industries and Transport Networks",
+    "name_hi": "उद्योग और परिवहन नेटवर्क",
+    "sort_order": 8,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 301,
+    "subject_id": 3,
+    "name": "Constitutional Development (1773–1950)",
+    "name_hi": "संवैधानिक विकास (1773–1950)",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 302,
+    "subject_id": 3,
+    "name": "Making of the Constitution & Preamble",
+    "name_hi": "संविधान निर्माण और उद्देशिका",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 303,
+    "subject_id": 3,
+    "name": "Fundamental Rights & Duties",
+    "name_hi": "मौलिक अधिकार और कर्तव्य",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 304,
+    "subject_id": 3,
+    "name": "Directive Principles of State Policy (DPSP)",
+    "name_hi": "राज्य के नीति निदेशक तत्व",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 305,
+    "subject_id": 3,
+    "name": "Union Executive, Legislature & Judiciary",
+    "name_hi": "संघीय कार्यपालिका, विधायिका और न्यायपालिका",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 306,
+    "subject_id": 3,
+    "name": "State Executive, Legislature & Judiciary",
+    "name_hi": "राज्य कार्यपालिका, विधायिका और न्यायपालिका",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 307,
+    "subject_id": 3,
+    "name": "Panchayati Raj & Municipalities",
+    "name_hi": "पंचायती राज और नगरपालिकाएँ",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 308,
+    "subject_id": 3,
+    "name": "Constitutional & Non-Constitutional Bodies",
+    "name_hi": "संवैधानिक और गैर-संवैधानिक निकाय",
+    "sort_order": 8,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 401,
+    "subject_id": 4,
+    "name": "Basic Economic Concepts & National Income",
+    "name_hi": "बुनियादी आर्थिक अवधारणाएँ और राष्ट्रीय आय",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 402,
+    "subject_id": 4,
+    "name": "Economic Planning & NITI Aayog",
+    "name_hi": "आर्थिक नियोजन और नीति आयोग",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 403,
+    "subject_id": 4,
+    "name": "Money, Banking & RBI (Monetary Policy)",
+    "name_hi": "मुद्रा, बैंकिंग और RBI",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 404,
+    "subject_id": 4,
+    "name": "Inflation & Taxation",
+    "name_hi": "मुद्रास्फीति और कराधान",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 405,
+    "subject_id": 4,
+    "name": "Union Budget & Fiscal Policy",
+    "name_hi": "केंद्रीय बजट और राजकोषीय नीति",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 406,
+    "subject_id": 4,
+    "name": "Agriculture, Industry and Services Sectors",
+    "name_hi": "कृषि, उद्योग और सेवा क्षेत्र",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 407,
+    "subject_id": 4,
+    "name": "Poverty, Unemployment & Rural Development",
+    "name_hi": "गरीबी, बेरोजगारी और ग्रामीण विकास",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 408,
+    "subject_id": 4,
+    "name": "Foreign Trade & International Organizations",
+    "name_hi": "विदेश व्यापार और अंतर्राष्ट्रीय संगठन",
+    "sort_order": 8,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 501,
+    "subject_id": 5,
+    "name": "Physics (Mechanics, Light, Sound, Electricity)",
+    "name_hi": "भौतिकी (यांत्रिकी, प्रकाश, ध्वनि, विद्युत)",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 502,
+    "subject_id": 5,
+    "name": "Chemistry (Elements, Compounds, Reactions)",
+    "name_hi": "रसायन विज्ञान (तत्व, यौगिक, अभिक्रियाएँ)",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 503,
+    "subject_id": 5,
+    "name": "Biology (Human Body, Diseases, Botany, Zoology)",
+    "name_hi": "जीव विज्ञान (मानव शरीर, रोग, वनस्पति, प्राणी)",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 504,
+    "subject_id": 5,
+    "name": "Space Technology & ISRO",
+    "name_hi": "अंतरिक्ष प्रौद्योगिकी और इसरो",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 505,
+    "subject_id": 5,
+    "name": "Information Technology & Computers",
+    "name_hi": "सूचना प्रौद्योगिकी और कंप्यूटर",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 506,
+    "subject_id": 5,
+    "name": "Defense Technology",
+    "name_hi": "रक्षा प्रौद्योगिकी",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 507,
+    "subject_id": 5,
+    "name": "Biotechnology",
+    "name_hi": "जैव प्रौद्योगिकी",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 601,
+    "subject_id": 6,
+    "name": "Nature of Indian Philosophy (Samkhya, Yoga, Buddhism, Jainism)",
+    "name_hi": "भारतीय दर्शन (सांख्य, योग, बौद्ध, जैन)",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 602,
+    "subject_id": 6,
+    "name": "Indian Architecture & Sculpture",
+    "name_hi": "भारतीय वास्तुकला और मूर्तिकला",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 603,
+    "subject_id": 6,
+    "name": "Indian Paintings",
+    "name_hi": "भारतीय चित्रकला",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 604,
+    "subject_id": 6,
+    "name": "Classical & Folk Dances of India",
+    "name_hi": "भारत के शास्त्रीय और लोक नृत्य",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 605,
+    "subject_id": 6,
+    "name": "Indian Music (Hindustani & Carnatic)",
+    "name_hi": "भारतीय संगीत (हिंदुस्तानी और कर्नाटक)",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 606,
+    "subject_id": 6,
+    "name": "Important Books & Authors (Ancient to Modern)",
+    "name_hi": "महत्वपूर्ण पुस्तकें और लेखक",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 701,
+    "subject_id": 7,
+    "name": "Ecosystems & Food Chains",
+    "name_hi": "पारिस्थितिकी तंत्र और खाद्य श्रृंखला",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1603,
+    "subject_id": 16,
+    "name": "Blood Relations",
+    "name_hi": "रक्त संबंध",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 702,
+    "subject_id": 7,
+    "name": "Biodiversity & Conservation",
+    "name_hi": "जैव विविधता और संरक्षण",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 703,
+    "subject_id": 7,
+    "name": "Environmental Pollution & Control",
+    "name_hi": "पर्यावरण प्रदूषण और नियंत्रण",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 704,
+    "subject_id": 7,
+    "name": "Climate Change & Global Warming",
+    "name_hi": "जलवायु परिवर्तन और ग्लोबल वार्मिंग",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 705,
+    "subject_id": 7,
+    "name": "National Parks, Sanctuaries & Biosphere Reserves",
+    "name_hi": "राष्ट्रीय उद्यान, अभयारण्य और जीवमंडल",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 706,
+    "subject_id": 7,
+    "name": "Environmental Laws, Treaties & Protocols",
+    "name_hi": "पर्यावरण कानून, संधियाँ और प्रोटोकॉल",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 801,
+    "subject_id": 8,
+    "name": "Recent National Events",
+    "name_hi": "हालिया राष्ट्रीय घटनाएँ",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 802,
+    "subject_id": 8,
+    "name": "Recent International Events",
+    "name_hi": "हालिया अंतर्राष्ट्रीय घटनाएँ",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 803,
+    "subject_id": 8,
+    "name": "Important Summits & Conferences",
+    "name_hi": "महत्वपूर्ण सम्मेलन और शिखर सम्मेलन",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 804,
+    "subject_id": 8,
+    "name": "Awards & Honors",
+    "name_hi": "पुरस्कार और सम्मान",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 805,
+    "subject_id": 8,
+    "name": "Sports Tournaments & Winners",
+    "name_hi": "खेल टूर्नामेंट और विजेता",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 806,
+    "subject_id": 8,
+    "name": "Important Days & Themes",
+    "name_hi": "महत्वपूर्ण दिवस और विषय",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 901,
+    "subject_id": 9,
+    "name": "Pre-historic & Ancient History of CG",
+    "name_hi": "छत्तीसगढ़ का प्रागैतिहासिक और प्राचीन इतिहास",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 902,
+    "subject_id": 9,
+    "name": "Major Regional Dynasties (Kalchuri, Somvanshi)",
+    "name_hi": "प्रमुख क्षेत्रीय राजवंश (कलचुरी, सोमवंशी)",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 903,
+    "subject_id": 9,
+    "name": "Maratha Rule in Chhattisgarh",
+    "name_hi": "छत्तीसगढ़ में मराठा शासन",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 904,
+    "subject_id": 9,
+    "name": "Zamindari System",
+    "name_hi": "जमींदारी व्यवस्था",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 905,
+    "subject_id": 9,
+    "name": "Revolt of 1857 in Chhattisgarh",
+    "name_hi": "छत्तीसगढ़ में 1857 का विद्रोह",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 906,
+    "subject_id": 9,
+    "name": "Tribal Revolts in Chhattisgarh",
+    "name_hi": "छत्तीसगढ़ में जनजातीय विद्रोह",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 907,
+    "subject_id": 9,
+    "name": "Contribution of CG to the National Freedom Movement",
+    "name_hi": "राष्ट्रीय स्वतंत्रता आंदोलन में CG का योगदान",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 908,
+    "subject_id": 9,
+    "name": "Formation of the Chhattisgarh State",
+    "name_hi": "छत्तीसगढ़ राज्य का गठन",
+    "sort_order": 8,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1001,
+    "subject_id": 10,
+    "name": "Location & Physical Features",
+    "name_hi": "स्थिति और भौतिक विशेषताएँ",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1002,
+    "subject_id": 10,
+    "name": "Drainage System (Rivers of CG)",
+    "name_hi": "अपवाह तंत्र (CG की नदियाँ)",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1003,
+    "subject_id": 10,
+    "name": "Climate & Soils",
+    "name_hi": "जलवायु और मृदा",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1004,
+    "subject_id": 10,
+    "name": "Forests & Wildlife Sanctuaries / National Parks",
+    "name_hi": "वन और वन्यजीव अभयारण्य / राष्ट्रीय उद्यान",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1005,
+    "subject_id": 10,
+    "name": "Demographics & Census of Chhattisgarh",
+    "name_hi": "जनसांख्यिकी और जनगणना",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1006,
+    "subject_id": 10,
+    "name": "Archaeological & Tourist Centers",
+    "name_hi": "पुरातात्विक और पर्यटन केंद्र",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1101,
+    "subject_id": 11,
+    "name": "Literature & Prominent Authors of CG",
+    "name_hi": "साहित्य और प्रमुख लेखक",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1102,
+    "subject_id": 11,
+    "name": "Folk Music & Folk Dances (Panthi, Raut Nacha, Pandwani)",
+    "name_hi": "लोक संगीत और नृत्य (पंथी, राउत नाचा, पंडवानी)",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1103,
+    "subject_id": 11,
+    "name": "Art & Craft of Chhattisgarh",
+    "name_hi": "छत्तीसगढ़ की कला और शिल्प",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1104,
+    "subject_id": 11,
+    "name": "Idioms, Proverbs, Puzzles (Janula) & Hana",
+    "name_hi": "मुहावरे, लोकोक्तियाँ, जानुला और हाना",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1105,
+    "subject_id": 11,
+    "name": "Fairs & Festivals (Madai, Hareli, Pola, etc.)",
+    "name_hi": "मेले और त्योहार (मड़ई, हरेली, पोला आदि)",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1201,
+    "subject_id": 12,
+    "name": "Major Tribes (Gond, Baiga, Halba, etc.)",
+    "name_hi": "प्रमुख जनजातियाँ (गोंड, बैगा, हल्बा आदि)",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1202,
+    "subject_id": 12,
+    "name": "Tribal Culture, Marriage, Family & Clan",
+    "name_hi": "जनजातीय संस्कृति, विवाह, परिवार और गोत्र",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1203,
+    "subject_id": 12,
+    "name": "Special Tribal Traditions & Customs",
+    "name_hi": "विशेष जनजातीय परंपराएँ और रीति-रिवाज",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1204,
+    "subject_id": 12,
+    "name": "Tribal Development Programs",
+    "name_hi": "जनजातीय विकास कार्यक्रम",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1301,
+    "subject_id": 13,
+    "name": "State Economy & Budget",
+    "name_hi": "राज्य की अर्थव्यवस्था और बजट",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1302,
+    "subject_id": 13,
+    "name": "Agriculture & Forest Produce",
+    "name_hi": "कृषि और वन उपज",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1303,
+    "subject_id": 13,
+    "name": "Mineral Resources (Coal, Iron Ore, Bauxite)",
+    "name_hi": "खनिज संसाधन (कोयला, लौह अयस्क, बॉक्साइट)",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1304,
+    "subject_id": 13,
+    "name": "Energy Resources & Power Generation",
+    "name_hi": "ऊर्जा संसाधन और विद्युत उत्पादन",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1305,
+    "subject_id": 13,
+    "name": "Major Industries in Chhattisgarh",
+    "name_hi": "छत्तीसगढ़ के प्रमुख उद्योग",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1306,
+    "subject_id": 13,
+    "name": "Water Resources & Irrigation Projects",
+    "name_hi": "जल संसाधन और सिंचाई परियोजनाएँ",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1401,
+    "subject_id": 14,
+    "name": "Administrative Structure of the State",
+    "name_hi": "राज्य की प्रशासनिक संरचना",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1402,
+    "subject_id": 14,
+    "name": "State Legislature, Executive & High Court",
+    "name_hi": "राज्य विधायिका, कार्यपालिका और उच्च न्यायालय",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1403,
+    "subject_id": 14,
+    "name": "Local Government & Panchayati Raj in CG",
+    "name_hi": "स्थानीय सरकार और पंचायती राज",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1501,
+    "subject_id": 15,
+    "name": "State Government Schemes & Policies",
+    "name_hi": "राज्य सरकार की योजनाएँ और नीतियाँ",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1502,
+    "subject_id": 15,
+    "name": "Recent Political & Economic Developments in CG",
+    "name_hi": "CG में हालिया राजनीतिक और आर्थिक विकास",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1503,
+    "subject_id": 15,
+    "name": "State Awards, Sports & Personalities in News",
+    "name_hi": "राज्य पुरस्कार, खेल और चर्चित व्यक्तित्व",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1601,
+    "subject_id": 16,
+    "name": "Series Completion (Number & Alphabet)",
+    "name_hi": "श्रृंखला पूर्णता (संख्या और वर्णमाला)",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1602,
+    "subject_id": 16,
+    "name": "Coding-Decoding",
+    "name_hi": "कोडिंग-डिकोडिंग",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1604,
+    "subject_id": 16,
+    "name": "Direction Sense",
+    "name_hi": "दिशा बोध",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1605,
+    "subject_id": 16,
+    "name": "Syllogism & Venn Diagrams",
+    "name_hi": "न्यायवाक्य और वेन आरेख",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1606,
+    "subject_id": 16,
+    "name": "Analogy & Classification",
+    "name_hi": "सादृश्यता और वर्गीकरण",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1607,
+    "subject_id": 16,
+    "name": "Clocks & Calendars",
+    "name_hi": "घड़ी और कैलेंडर",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1701,
+    "subject_id": 17,
+    "name": "Number System & Rational Numbers",
+    "name_hi": "संख्या प्रणाली और परिमेय संख्याएँ",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1702,
+    "subject_id": 17,
+    "name": "HCF & LCM",
+    "name_hi": "महत्तम समापवर्तक और लघुत्तम समापवर्त्य",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1703,
+    "subject_id": 17,
+    "name": "Percentage, Profit & Loss",
+    "name_hi": "प्रतिशत, लाभ और हानि",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1704,
+    "subject_id": 17,
+    "name": "Ratio & Proportion",
+    "name_hi": "अनुपात और समानुपात",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1705,
+    "subject_id": 17,
+    "name": "Simple & Compound Interest",
+    "name_hi": "साधारण और चक्रवृद्धि ब्याज",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1706,
+    "subject_id": 17,
+    "name": "Time, Speed & Distance (incl. Boats & Streams)",
+    "name_hi": "समय, चाल और दूरी",
+    "sort_order": 6,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1707,
+    "subject_id": 17,
+    "name": "Time & Work",
+    "name_hi": "समय और कार्य",
+    "sort_order": 7,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1708,
+    "subject_id": 17,
+    "name": "Averages & Probability",
+    "name_hi": "औसत और प्रायिकता",
+    "sort_order": 8,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1801,
+    "subject_id": 18,
+    "name": "Tables",
+    "name_hi": "सारणियाँ",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1802,
+    "subject_id": 18,
+    "name": "Bar Graphs",
+    "name_hi": "बार ग्राफ",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1803,
+    "subject_id": 18,
+    "name": "Line Charts",
+    "name_hi": "रेखा चार्ट",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1804,
+    "subject_id": 18,
+    "name": "Pie Charts",
+    "name_hi": "पाई चार्ट",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1805,
+    "subject_id": 18,
+    "name": "Data Sufficiency",
+    "name_hi": "आँकड़ा पर्याप्तता",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1901,
+    "subject_id": 19,
+    "name": "Situational Judgement",
+    "name_hi": "परिस्थितिजन्य निर्णय",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 1902,
+    "subject_id": 19,
+    "name": "Administrative Ethics & Interpersonal Skills",
+    "name_hi": "प्रशासनिक नैतिकता और पारस्परिक कौशल",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 2001,
+    "subject_id": 20,
+    "name": "Hindi Grammar (Sandhi, Samas, Upsarg, Pratyay)",
+    "name_hi": "हिंदी व्याकरण (संधि, समास, उपसर्ग, प्रत्यय)",
+    "sort_order": 1,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 2002,
+    "subject_id": 20,
+    "name": "Hindi Vocabulary (Synonyms, Antonyms, One-word)",
+    "name_hi": "हिंदी शब्द भंडार (पर्यायवाची, विलोम, एकार्थी)",
+    "sort_order": 2,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 2003,
+    "subject_id": 20,
+    "name": "Chhattisgarhi Language History & Development",
+    "name_hi": "छत्तीसगढ़ी भाषा का इतिहास और विकास",
+    "sort_order": 3,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 2004,
+    "subject_id": 20,
+    "name": "Chhattisgarhi Grammar & Vocabulary",
+    "name_hi": "छत्तीसगढ़ी व्याकरण और शब्द भंडार",
+    "sort_order": 4,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  },
+  {
+    "id": 2005,
+    "subject_id": 20,
+    "name": "Prominent Chhattisgarhi Authors & their Works",
+    "name_hi": "प्रमुख छत्तीसगढ़ी लेखक और उनकी रचनाएँ",
+    "sort_order": 5,
+    "created_at": "2026-03-07T06:06:43.119Z"
+  }
+]

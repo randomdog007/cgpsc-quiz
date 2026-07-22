@@ -7,7 +7,7 @@ export default function QuizPage(props) {
   const {
     ms, css, C, t, dataLoading, dataError, onClearError, onBack, onHome,
     headerProps, questions, currentQ, answers, lang, mockMode, showExp,
-    selectAnswer, nextQ, skipQ, setCurrentQ, setShowExp,
+    selectAnswer, clearAnswer, nextQ, skipQ, setCurrentQ, setShowExp,
     toggleBM, isBM, selectedQuiz,
   } = props;
 
@@ -28,7 +28,7 @@ export default function QuizPage(props) {
   };
 
   return (
-    <div style={ms}>
+    <div style={{ ...ms, height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", paddingBottom: 0 }}>
       <style>{css}</style>
       <Header back onBack={onBack} onHome={onHome} C={C} t={t} lang={lang} {...headerProps} />
       <ErrorBanner msg={dataError} C={C} onClose={onClearError} />
@@ -38,52 +38,52 @@ export default function QuizPage(props) {
       ) : questions.length === 0 ? (
         <EmptyState icon="📄" title={t.noQuestions} desc={`${t.noQuestionsDesc} ${selectedQuiz?.id}`} C={C} />
       ) : (
-        <div style={{ padding: "20px 16px", maxWidth: 800, margin: "0 auto" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "24px 16px 80px", maxWidth: 720, margin: "0 auto", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
 
-          {/* Header row */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>
-              Q. {currentQ + 1} <span style={{ color: C.muted, fontWeight: 400 }}>/ {questions.length}</span>
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {/* Marking scheme hint — always visible */}
-              <span style={{ fontSize: 10, color: C.muted, background: C.card, padding: "2px 8px", borderRadius: 4, border: `1px solid ${C.border}` }}>
-                +2 / −0.66 / 0
+            {/* Header row */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, alignItems: "center" }}>
+              <span style={{ fontSize: 14, color: C.text, fontWeight: 700, letterSpacing: "-0.2px" }}>
+                Question {currentQ + 1} <span style={{ color: C.muted, fontWeight: 500 }}>of {questions.length}</span>
               </span>
-              {/* Live marks — ONLY in practice mode */}
-              {!mockMode && (
-                <span style={{ fontSize: 12, fontWeight: 700, color: liveMarks >= 0 ? C.ok : C.err, background: C.card, padding: "3px 10px", borderRadius: 4, border: `1px solid ${liveMarks >= 0 ? C.ok : C.err}44` }}>
-                  {liveMarks >= 0 ? "+" : ""}{liveMarks} pts
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {/* Marking scheme hint */}
+                <span style={{ fontSize: 11, color: C.muted, background: C.inp, padding: "4px 8px", borderRadius: 6, fontWeight: 600 }}>
+                  +2 / −0.66
                 </span>
-              )}
-              {/* Exam mode: show answered count instead */}
-              {mockMode && (
-                <span style={{ fontSize: 12, fontWeight: 600, color: C.muted, background: C.card, padding: "3px 10px", borderRadius: 4, border: `1px solid ${C.border}` }}>
-                  {Object.keys(answers).length}/{questions.length} answered
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div style={{ height: 4, background: C.border, borderRadius: 2, marginBottom: 24, overflow: "hidden" }}>
-            <div style={{ width: `${((currentQ + 1) / questions.length) * 100}%`, height: "100%", background: C.acc, borderRadius: 2, transition: "width 0.3s" }} />
-          </div>
-
-          {/* Question card */}
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: 24, marginBottom: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-              <p style={{ fontSize: 16, lineHeight: 1.6, color: C.text, fontWeight: 500, marginRight: 16 }}>{qTxt}</p>
-              <button
-                onClick={() => q && toggleBM(q)}
-                style={{ background: "none", border: `1px solid ${isBM(q) ? C.acc : C.border}`, borderRadius: 4, padding: "4px 8px", cursor: "pointer", fontSize: 12, color: isBM(q) ? C.acc : C.muted, fontWeight: 500, flexShrink: 0 }}
-              >
-                {isBM(q) ? "Saved" : "Save"}
-              </button>
+                {/* Live marks — ONLY in practice mode */}
+                {!mockMode && (
+                  <span style={{ fontSize: 13, fontWeight: 700, color: liveMarks >= 0 ? C.ok : C.err, background: `${liveMarks >= 0 ? C.ok : C.err}15`, padding: "4px 10px", borderRadius: 6 }}>
+                    {liveMarks >= 0 ? "+" : ""}{liveMarks} pts
+                  </span>
+                )}
+                {/* Exam mode: show answered count instead */}
+                {mockMode && (
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.muted, background: C.card, padding: "4px 10px", borderRadius: 6, border: `1px solid ${C.border}` }}>
+                    {Object.keys(answers).length}/{questions.length} answered
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Options */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {/* Progress bar */}
+            <div style={{ height: 6, background: C.border, borderRadius: 3, marginBottom: 32, overflow: "hidden" }}>
+              <div style={{ width: `${((currentQ + 1) / questions.length) * 100}%`, height: "100%", background: C.acc, borderRadius: 3, transition: "width 0.5s cubic-bezier(0.16, 1, 0.3, 1)" }} />
+            </div>
+
+            {/* Question card */}
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "24px 20px", marginBottom: 24, boxShadow: C.shadow, flexShrink: 0 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+                <p style={{ fontSize: 16, lineHeight: 1.6, color: C.text, fontWeight: 600, marginRight: 16, letterSpacing: "-0.2px", whiteSpace: "pre-wrap" }}>{qTxt}</p>
+                <button
+                  onClick={() => q && toggleBM(q)}
+                  style={{ background: isBM(q) ? `${C.acc}15` : "transparent", border: `1px solid ${isBM(q) ? C.acc : C.border}`, borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 13, color: isBM(q) ? C.acc : C.muted, fontWeight: 600, flexShrink: 0, transition: "all 0.2s" }}
+                >
+                  {isBM(q) ? "★ Saved" : "☆ Save"}
+                </button>
+              </div>
+
+              {/* Options */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {opts?.map((opt, idx) => {
                 const isSel  = answers[currentQ] === idx;
                 const isOk   = q?.correct === idx;
@@ -101,12 +101,14 @@ export default function QuizPage(props) {
                                   : C.card;
                 const letterColor = (answered && !mockMode && (isOk || isSel)) || (isSel && mockMode) ? "#fff" : C.muted;
                 return (
-                  <button key={idx} onClick={() => selectAnswer(idx)} disabled={answered} className="opt"
-                    style={{ background: bg, border: `1px solid ${border}`, borderRadius: 6, padding: "14px 16px", color: tc, fontSize: 14, display: "flex", alignItems: "center", gap: 14 }}>
-                    <span style={{ width: 24, height: 24, borderRadius: 4, flexShrink: 0, background: letterBg, border: `1px solid ${answered && !mockMode ? (isOk ? C.ok : isSel ? C.err : C.border) : isSel && mockMode ? C.acc : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 12, color: letterColor }}>
-                      {["A","B","C","D"][idx]}
-                    </span>
-                    <span style={{ lineHeight: 1.4 }}>{opt}</span>
+                  <button key={idx} onClick={() => selectAnswer(idx)} className={`opt ${isSel ? 'selected' : ''}`}
+                    style={{ background: bg, border: `1px solid ${border}`, color: tc }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <span style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0, background: letterBg, border: `1px solid ${answered && !mockMode ? (isOk ? C.ok : isSel ? C.err : 'transparent') : isSel && mockMode ? 'transparent' : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: letterColor }}>
+                        {["A","B","C","D"][idx]}
+                      </span>
+                      <span style={{ lineHeight: 1.5, fontSize: 14, whiteSpace: "pre-wrap" }}>{opt}</span>
+                    </div>
                   </button>
                 );
               })}
@@ -115,46 +117,52 @@ export default function QuizPage(props) {
 
           {/* Explanation — practice mode only */}
           {showExp && !mockMode && (
-            <div style={{ background: `${C.ok}11`, border: `1px solid ${C.ok}44`, borderRadius: 8, padding: 16, marginBottom: 16, animation: "fadeUp 0.3s ease" }}>
-              <div style={{ fontSize: 11, color: C.ok, fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{t.explanation}</div>
-              <p style={{ color: C.text, fontSize: 14, lineHeight: 1.6 }}>{lang === "hi" && q?.explanation_hi ? q.explanation_hi : q?.explanation}</p>
+            <div style={{ background: `${C.ok}11`, border: `1px solid ${C.ok}33`, borderRadius: 12, padding: "20px 24px", marginBottom: 24, animation: "fadeUp 0.3s ease", boxShadow: `0 4px 12px ${C.ok}11` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ color: C.ok, fontSize: 18 }}>💡</span>
+                <span style={{ fontSize: 13, color: C.ok, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{t.explanation}</span>
+              </div>
+              <p style={{ color: C.text, fontSize: 15, lineHeight: 1.6, opacity: 0.9, whiteSpace: "pre-wrap" }}>{lang === "hi" && q?.explanation_hi ? q.explanation_hi : q?.explanation}</p>
             </div>
           )}
 
           {/* Action buttons */}
-          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+          <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
             {/* Skip — only when not yet answered */}
             {!answered && (
-              <button onClick={skipQ}
-                style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, borderRadius: 6, padding: "14px", color: C.muted, fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
-                {currentQ < questions.length - 1 ? "Skip →" : "Skip & Submit"}
+              <button onClick={skipQ} className="btn-secondary" style={{ flex: 1, padding: "16px", fontSize: 15 }}>
+                {currentQ < questions.length - 1 ? "Skip Question →" : "Skip & Submit"}
               </button>
             )}
-            {/* Next / Submit — after answering */}
+            {/* Next / Submit / Clear — after answering */}
             {answered && (
-              <button onClick={nextQ}
-                style={{ flex: 1, background: C.acc, border: "none", borderRadius: 6, padding: "16px", color: "#fff", fontWeight: 600, fontSize: 15, cursor: "pointer", boxShadow: "0 4px 12px rgba(37,99,235,0.2)" }}>
-                {currentQ < questions.length - 1 ? t.nextQuestion : t.finishQuiz}
-              </button>
+              <>
+                <button onClick={clearAnswer} className="btn-secondary" style={{ flex: 1, padding: "16px", fontSize: 15, border: `1px solid ${C.err}88`, color: C.err, background: `${C.err}11` }}>
+                  Clear
+                </button>
+                <button onClick={nextQ} className="btn-primary" style={{ flex: 2, padding: "18px", fontSize: 16, borderRadius: 12 }}>
+                  {currentQ < questions.length - 1 ? t.nextQuestion : t.finishQuiz}
+                </button>
+              </>
             )}
           </div>
 
           {/* Question navigator dots */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 24, justifyContent: "center", paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 32, justifyContent: "center", paddingTop: 32, borderTop: `1px solid ${C.border}` }}>
             {questions.map((_, i) => (
               <div key={i} onClick={() => { setCurrentQ(i); setShowExp(!mockMode && answers[i] !== undefined); }}
-                style={{ width: 30, height: 30, borderRadius: 4, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 500, color: answers[i] !== undefined ? "#fff" : C.muted, background: dotColor(i), border: `1px solid ${i === currentQ ? C.text : answers[i] !== undefined ? "transparent" : C.border}` }}>
+                style={{ width: 32, height: 32, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: answers[i] !== undefined ? "#fff" : C.muted, background: dotColor(i), border: `1px solid ${i === currentQ ? C.text : answers[i] !== undefined ? "transparent" : C.border}`, transition: "all 0.2s" }}>
                 {i + 1}
               </div>
             ))}
           </div>
 
           {/* Marking scheme legend */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20, paddingTop: 16 }}>
             {[["✓ Correct", "+2", C.ok], ["✗ Wrong", "−0.66", C.err], ["— Skipped", "0", C.muted]].map(([lbl, val, clr]) => (
-              <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: clr }}>{val}</span>
-                <span style={{ fontSize: 11, color: C.muted }}>{lbl}</span>
+              <div key={lbl} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: clr }}>{val}</span>
+                <span style={{ fontSize: 12, color: C.muted }}>{lbl}</span>
               </div>
             ))}
           </div>

@@ -1,6 +1,176 @@
-import { createClient } from '@supabase/supabase-js'
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "firebase/auth";
 
-const supabaseUrl = 'https://pjyjonyvwvllppoetbyb.supabase.co'       // paste from Step 5 above
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeWpvbnl2d3ZsbHBwb2V0YnliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDQyNjAsImV4cCI6MjA4ODI4MDI2MH0.qbwIQFqgQOP2jzo6fHk8wP5at_4NIOrtGq5tArtpgu4'   // paste from Step 5 above
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+const app = initializeApp(firebaseConfig);
+const firebaseAuth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+
+
+class QueryBuilder {
+  constructor(table) {
+    this.table = table;
+    this.params = new URLSearchParams();
+  }
+  
+  select(columns) { 
+    this.params.set('select', columns); 
+    return this; 
+  }
+  
+  eq(column, value) { 
+    this.params.append(`eq_${column}`, value); 
+    return this; 
+  }
+  
+  ilike(column, value) {
+    this.params.append(`ilike_${column}`, value);
+    return this;
+  }
+
+  search(query) {
+    this.params.set('search_query', query);
+    return this;
+  }
+  
+  order(column, options = {}) { 
+    this.params.set('order', column); 
+    if (options.ascending === false) {
+      this.params.set('desc', 'true');
+    }
+    return this; 
+  }
+  
+  limit(n) { 
+    this.params.set('limit', n); 
+    return this; 
+  }
+  
+  single() { 
+    this.params.set('single', 'true'); 
+    return this; 
+  }
+  
+  async insert(data) {
+    const res = await fetch(`/api/${this.table}`, { 
+      method: 'POST', 
+      body: JSON.stringify(data), 
+      headers: this.headers() 
+    });
+    return res.json();
+  }
+  
+  async update(data) {
+    const res = await fetch(`/api/${this.table}?${this.params.toString()}`, { 
+      method: 'PATCH', 
+      body: JSON.stringify(data), 
+      headers: this.headers() 
+    });
+    return res.json();
+  }
+  
+  async delete() {
+    const res = await fetch(`/api/${this.table}?${this.params.toString()}`, { 
+      method: 'DELETE', 
+      headers: this.headers() 
+    });
+    return res.json();
+  }
+  
+  then(resolve, reject) {
+    this.params.set('_t', Date.now());
+    fetch(`/api/${this.table}?${this.params.toString()}`, { headers: this.headers(), cache: 'no-store' })
+      .then(res => res.json())
+      .then(resolve)
+      .catch(reject);
+  }
+  
+  headers() {
+    const h = { 'Content-Type': 'application/json' };
+    const token = localStorage.getItem('firebase_id_token');
+    if (token) {
+      h['Authorization'] = `Bearer ${token}`;
+    }
+    return h;
+  }
+}
+
+const mockSupabaseAuth = {
+  getSession: async () => {
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+        unsubscribe();
+        if (user) {
+          const token = await user.getIdToken();
+          localStorage.setItem('firebase_id_token', token);
+          resolve({ 
+            data: { 
+              session: { 
+                user: { 
+                  id: user.uid, 
+                  email: user.email, 
+                  user_metadata: { full_name: user.displayName, avatar_url: user.photoURL } 
+                } 
+              } 
+            } 
+          });
+        } else {
+          localStorage.removeItem('firebase_id_token');
+          resolve({ data: { session: null } });
+        }
+      });
+    });
+  },
+  onAuthStateChange: (callback) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (user) {
+        const token = await user.getIdToken();
+        localStorage.setItem('firebase_id_token', token);
+        callback('SIGNED_IN', { 
+          user: { 
+            id: user.uid, 
+            email: user.email, 
+            user_metadata: { full_name: user.displayName, avatar_url: user.photoURL } 
+          } 
+        });
+      } else {
+        localStorage.removeItem('firebase_id_token');
+        callback('SIGNED_OUT', null);
+      }
+    });
+    return { data: { subscription: { unsubscribe } } };
+  },
+  signInWithOAuth: async ({ provider }) => {
+    try {
+      if (provider === 'google') {
+        const result = await signInWithPopup(firebaseAuth, googleProvider);
+        const token = await result.user.getIdToken();
+        localStorage.setItem('firebase_id_token', token);
+        return { data: result.user, error: null };
+      }
+      return { data: null, error: { message: "Unsupported provider" } };
+    } catch (error) {
+      return { data: null, error };
+    }
+  },
+  signOut: async () => {
+    await fbSignOut(firebaseAuth);
+    localStorage.removeItem('firebase_id_token');
+    return { error: null };
+  }
+};
+
+export const supabase = {
+  from: (table) => new QueryBuilder(table),
+  auth: mockSupabaseAuth
+};

@@ -1,0 +1,12 @@
+name = "cgpsc-quiz"
+pages_build_output_dir = "build"
+compatibility_date = "2024-04-05"
+
+[[d1_databases]]
+binding = "cgpsc_quiz_db"
+database_name = "cgpsc-quiz-db"
+database_id = "34bf919e-29d4-4ce4-a645-bd89df49e761"
+
+[[kv_namespaces]]
+binding = "QUIZ_KV"
+id = "cb8b30842888460d80717d414f428e9a"

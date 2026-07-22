@@ -1,0 +1,77 @@
+{
+  "routes": [
+    {
+      "routePath": "/api/user/revision/stats",
+      "mountPath": "/api/user/revision",
+      "method": "GET",
+      "module": [
+        "api/user/revision/stats.js:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/user/revision/submit",
+      "mountPath": "/api/user/revision",
+      "method": "POST",
+      "module": [
+        "api/user/revision/submit.js:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/admin/rebuild/:id",
+      "mountPath": "/api/admin/rebuild",
+      "method": "POST",
+      "module": [
+        "api/admin/rebuild/[id].js:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/quiz/:id/submit",
+      "mountPath": "/api/quiz/:id",
+      "method": "POST",
+      "module": [
+        "api/quiz/[id]/submit.js:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/admin/rebuild-all",
+      "mountPath": "/api/admin",
+      "method": "POST",
+      "module": [
+        "api/admin/rebuild-all.js:onRequestPost"
+      ]
+    },
+    {
+      "routePath": "/api/user/revision",
+      "mountPath": "/api/user/revision",
+      "method": "GET",
+      "module": [
+        "api/user/revision/index.js:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/quiz/:id",
+      "mountPath": "/api/quiz",
+      "method": "GET",
+      "module": [
+        "api/quiz/[id].js:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/api/:table",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/[table].js:onRequest"
+      ]
+    },
+    {
+      "routePath": "/api",
+      "mountPath": "/api",
+      "method": "",
+      "middleware": [
+        "api/_middleware.js:onRequest"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}
