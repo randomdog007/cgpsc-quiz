@@ -160,13 +160,13 @@ export async function onRequestPost(context) {
   for (const w of wrongQuestions) {
     await env.cgpsc_quiz_db.prepare(`
       INSERT INTO wrong_questions (user_id, question_id, quiz_id, next_revision, interval_days)
-      VALUES (?, ?, ?, datetime('now', '+1 day'), 1)
+      VALUES (?, ?, ?, datetime('now'), 1)
       ON CONFLICT(user_id, question_id) DO UPDATE SET
         wrong_count   = wrong_count + 1,
         last_wrong_at = CURRENT_TIMESTAMP,
         interval_days = 1,
         ease_factor   = MAX(1.3, ease_factor - 0.2),
-        next_revision = datetime('now', '+1 day')
+        next_revision = datetime('now')
     `).bind(user.id, w.questionId, quizId).run();
   }
 

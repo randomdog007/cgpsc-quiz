@@ -80,9 +80,9 @@ export async function onRequestPost(context) {
         90  // cap at 90 days
       );
     } else {
-      // Wrong or skipped: reset to 1 day
+      // Wrong or skipped: reset to 0 days for testing
       newEase = Math.max(state.ease_factor - 0.2, 1.3);
-      newInterval = 1;
+      newInterval = 0;
     }
 
     // ── Update wrong_questions ──
