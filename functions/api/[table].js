@@ -334,9 +334,7 @@ export async function onRequest(context) {
       const query = `DELETE FROM ${table} WHERE ${whereClauses.join(' AND ')}`;
       const { success } = await env.cgpsc_quiz_db.prepare(query).bind(...queryParams).run();
       return new Response(JSON.stringify({ data: null, error: success ? null : { message: "Delete failed" } }), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } });
-    }
-
-  } else {
+    } else {
       return new Response(JSON.stringify({ error: { message: 'Method not allowed' } }), { status: 405 });
     }
 
