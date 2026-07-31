@@ -129,7 +129,7 @@ function OnboardingGuide() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-        {recentMistakes.map((q, i) => (
+        {steps.map((s, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'var(--surface)', border: '1px solid var(--line-2)', borderRadius: 14 }}>
             <div style={{ fontSize: 28, flexShrink: 0, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--line-2)', borderRadius: 12 }}>
               {s.icon}

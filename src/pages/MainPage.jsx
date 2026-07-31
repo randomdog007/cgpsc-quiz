@@ -235,234 +235,224 @@ const MainPage = React.memo(function MainPage({
             
             {/* LEFT COLUMN */}
             <div>
-              {/* DESKTOP INLINE HEADER */}
-              <div className="desktop-flex" style={{ alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <svg style={{ width: 20, height: 20, fill: "var(--muted)" }}><use href="#ic-clock"></use></svg>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>{dateString}</span>
+              {/* DESKTOP INLINE HEADER & QUICK START */}
+              <div className="desktop-flex" style={{ alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+                <div>
+                  <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.5px", margin: 0 }}>
+                    {greeting}, {userName}. 👋
+                  </h1>
+                  <div style={{ fontSize: 13, color: "var(--muted)", fontWeight: 500, marginTop: 4 }}>Let's continue your success streak today!</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <button onClick={() => window.open('https://t.me/cgpscquiz', '_blank')} className="glass" style={{ width: 44, height: 44, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", padding: 0 }}>
-                    <svg style={{ width: 22, height: 22, fill: "currentColor" }} viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.33-.01-.98-.19-1.46-.35-.59-.19-1.05-.29-1.01-.61.02-.17.29-.36.81-.57 3.17-1.38 5.28-2.29 6.33-2.73 3-.1.26-1.5.46-1.5.38 0 .18.06.32.18.42.14.1.33.27.32.73z"/></svg>
+                  <button onClick={() => onStartQuiz(null, true)} className="glass active-state" style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, border: "1px solid var(--line)", background: "var(--surface)", cursor: "pointer", color: "var(--ink)", fontWeight: 700, fontSize: 13 }}>
+                    <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg> Quick Start
                   </button>
-                  <button onClick={toggleLang} className="glass" style={{ width: 44, height: 44, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontWeight: 700, fontSize: 16, padding: 0 }}>{lang === "en" ? "हिं" : "EN"}</button>
-                  <button onClick={toggleDark} className="glass" style={{ width: 44, height: 44, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontSize: 20, padding: 0 }}>{dark ? "☀️" : "🌙"}</button>
-                  <Avatar url={userPic || userAvatar} size={44} />
+                  <button onClick={onRevision} className="glass active-state" style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, border: "1px solid color-mix(in srgb, var(--teal) 30%, transparent)", background: "color-mix(in srgb, var(--teal) 10%, transparent)", cursor: "pointer", color: "var(--teal)", fontWeight: 700, fontSize: 13 }}>
+                    🧠 Revision
+                  </button>
+                  <div style={{ width: 1, height: 24, background: "var(--line-2)", margin: "0 4px" }} />
+                  <button onClick={toggleLang} className="glass" style={{ width: 40, height: 40, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontWeight: 700, fontSize: 14, padding: 0 }}>{lang === "en" ? "हिं" : "EN"}</button>
+                  <button onClick={toggleDark} className="glass" style={{ width: 40, height: 40, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontSize: 18, padding: 0 }}>{dark ? "☀️" : "🌙"}</button>
+                  <Avatar url={userPic || userAvatar} size={40} />
                 </div>
               </div>
 
               {/* MOBILE GREETING */}
-              <h1 className="greet mobile-only" style={{ marginTop: 0 }}>
+              <h1 className="greet mobile-only" style={{ marginTop: 0, marginBottom: 16 }}>
                 <small>{dateString}</small>
                 {greeting}, {userName}. 👋
               </h1>
 
-              {/* DESKTOP GREETING */}
-              <div className="desktop-only" style={{ marginBottom: 24 }}>
-                <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--ink)", letterSpacing: "-1px", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
-                  {greeting}, {userName}. <span>👋</span>
-                </h1>
-                <div style={{ fontSize: 14, color: "var(--muted)", fontWeight: 500 }}>Let's continue your success streak today!</div>
-              </div>
-              
-              {/* Promo Banner / Today's Revision & Rank */}
-              <div className="promo-grid">
-                {/* ── Revision Banner — Redesigned ── */}
-                <div
-                  className="hover-raise active-state"
-                  onClick={onRevision}
-                  style={{ background: revStats?.dueToday > 0
-                    ? "linear-gradient(135deg, #0c1a2e 0%, #0f2744 100%)"
-                    : "linear-gradient(135deg, #0a1f0a 0%, #0d2b0d 100%)",
-                    border: revStats?.dueToday > 0 ? "1px solid rgba(14,165,233,0.25)" : "1px solid rgba(16,185,129,0.25)",
-                    borderRadius: 12, padding: "12px 14px", cursor: "pointer",
-                    position: "relative", overflow: "hidden",
-                    display: "flex", flexDirection: "column", gap: 4 }}
-                >
-                  {/* Glow */}
-                  <div style={{ position: "absolute", top: -30, right: -30, width: 90, height: 90,
-                    background: revStats?.dueToday > 0 ? "#0ea5e9" : "#10b981",
-                    opacity: 0.08, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none" }} />
-
-                  {/* Header row */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <span style={{ fontSize: 13 }}>🧠</span>
-                      <span style={{ fontSize: 9, fontWeight: 800, color: revStats?.dueToday > 0 ? "#38bdf8" : "#34d399", textTransform: "uppercase", letterSpacing: "0.8px" }}>
-                        {revStats?.dueToday > 0 ? "Revision Due" : "All Clear"}
-                      </span>
-                    </div>
-                    {streakCount > 0 && (
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#fbbf24", display: "flex", alignItems: "center", gap: 2 }}>
-                        🔥{streakCount}
-                      </span>
+              {/* SEARCH BAR */}
+              <div style={{ position: "relative", marginBottom: 24, zIndex: 10 }}>
+                <svg style={{ position: "absolute", left: 14, top: 14, width: 16, height: 16, fill: "var(--muted)" }}><use href="#ic-search"></use></svg>
+                <input 
+                  type="text" 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  placeholder={t.search || "Search assessments, topics or subjects..."} 
+                  className="input-clean"
+                  style={{ fontSize: 14, padding: "14px 14px 14px 40px", width: "100%", borderRadius: 12, border: "1.5px solid var(--line)", background: "var(--surface)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}
+                />
+                {searchQuery && (
+                  <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 6, background: "var(--surface)", border: `1px solid var(--line)`, borderRadius: 12, padding: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", zIndex: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>{t.searchResults || "Search Results"}</div>
+                    {searchLoading ? <Spinner C={C} /> : searchResults.length === 0 ? <div style={{ fontSize: 13, color: "var(--muted)", textAlign: "center", padding: "16px 0" }}>{t.noQuizzesFound || "No quizzes found."}</div> : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {searchResults.map(q => (
+                          <div key={q.id} onClick={() => onStartQuiz(q)} className="hover-raise active-state" style={{ padding: 12, background: "var(--surface-2)", borderRadius: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: 14 }}>{lang === "hi" && q.title_hi ? q.title_hi : q.title}</div>
+                              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>{q.total_questions} Qs</div>
+                            </div>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--blue)" }}>Start →</div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-
-                  {/* Main number */}
-                  {revStats?.dueToday > 0 ? (
-                    <div>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                        <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-1px" }}>
-                          {revStats.dueToday}
-                        </span>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)" }}>Qs due</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#34d399", lineHeight: 1 }}>Done! ✓</div>
-                  )}
-
-                  {/* Bottom: mastery info + CTA */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
-                      {revStats?.mastered > 0 ? `${revStats.mastered} mastered` : "Build memory"}
-                    </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: revStats?.dueToday > 0 ? "#38bdf8" : "#34d399" }}>
-                      {revStats?.dueToday > 0 ? "Revise →" : "View →"}
-                    </span>
-                  </div>
-
-                  {/* Urgency bar — fills based on how many are due vs total tracked */}
-                  {revStats?.totalTracked > 0 && (
-                    <div style={{ height: 2, background: "rgba(255,255,255,0.1)", borderRadius: 1, marginTop: 2 }}>
-                      <div style={{
-                        height: "100%", borderRadius: 1,
-                        width: `${Math.min(100, Math.round((revStats.dueToday / revStats.totalTracked) * 100))}%`,
-                        background: revStats.dueToday > 0
-                          ? `linear-gradient(90deg, #0ea5e9, ${revStats.dueToday > revStats.totalTracked * 0.5 ? "#ef4444" : "#0ea5e9"})`
-                          : "#10b981",
-                        transition: "width 0.8s ease"
-                      }} />
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Rank Banner — Redesigned ── */}
-                <div
-                  className="hover-raise active-state"
-                  onClick={() => onTabNavigate("leaderboard")}
-                  style={{ background: "linear-gradient(135deg, #1a0c2e 0%, #2a1050 100%)",
-                    border: "1px solid rgba(139,92,246,0.25)",
-                    borderRadius: 12, padding: "12px 14px", cursor: "pointer",
-                    position: "relative", overflow: "hidden",
-                    display: "flex", flexDirection: "column", gap: 4 }}
-                >
-                  {/* Glow */}
-                  <div style={{ position: "absolute", top: -30, right: -30, width: 90, height: 90,
-                    background: "#8b5cf6", opacity: 0.1, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none" }} />
-
-                  {/* Header row */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <span style={{ fontSize: 13 }}>🏆</span>
-                      <span style={{ fontSize: 9, fontWeight: 800, color: "#c4b5fd", textTransform: "uppercase", letterSpacing: "0.8px" }}>
-                        Your Rank
-                      </span>
-                    </div>
-                    {userRank && (
-                      <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
-                        of {userRank.total}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Rank number */}
-                  {userRank ? (
-                    <div>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-                        <span style={{ fontSize: 9, fontWeight: 800, color: "#a78bfa", lineHeight: 1 }}>#</span>
-                        <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-1px" }}>
-                          {userRank.rank}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>Not ranked</div>
-                  )}
-
-                  {/* Bottom: score + CTA */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
-                      {userRank ? `${userRank.score.toLocaleString()} pts` : "Take quizzes to rank"}
-                    </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa" }}>Leaderboard →</span>
-                  </div>
-
-                  {/* Score bar — rough percentile visual */}
-                  {userRank && (
-                    <div style={{ height: 2, background: "rgba(255,255,255,0.1)", borderRadius: 1, marginTop: 2 }}>
-                      <div style={{
-                        height: "100%", borderRadius: 1,
-                        width: `${Math.max(5, Math.round((1 - userRank.rank / userRank.total) * 100))}%`,
-                        background: "linear-gradient(90deg, #8b5cf6, #c4b5fd)",
-                        transition: "width 0.8s ease"
-                      }} />
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
+
+              {/* MISSION CONTROL */}
+              {(() => {
+                const weakestTopic = history.reduce((acc, h) => {
+                  if (!acc[h.subject_id]) acc[h.subject_id] = { name: (lang === 'hi' && h.subjects?.name_hi) ? h.subjects.name_hi : h.subjects?.name, score: 0, total: 0 };
+                  acc[h.subject_id].score += (h.score || 0);
+                  acc[h.subject_id].total += (h.total || 0);
+                  return acc;
+                }, {});
+                let weakest = { name: "None", acc: 100 };
+                Object.values(weakestTopic).forEach(t => {
+                  const acc = t.total > 0 ? (t.score / t.total) * 100 : 100;
+                  if (acc < weakest.acc) weakest = { name: t.name, acc: Math.round(acc) };
+                });
+                
+                const todayQuizzes = history.filter(h => new Date(h.created_at).toDateString() === new Date().toDateString()).length;
+                const revDue = revStats?.dueToday > 0;
+                let completedTasks = 0;
+                if (!revDue) completedTasks++;
+                if (todayQuizzes >= 2) completedTasks++;
+                const missionProgress = Math.round((completedTasks / 2) * 100);
+
+                return (
+                  <>
+                    <div style={{ background: "var(--surface)", borderRadius: 20, padding: 24, border: "1px solid var(--line-2)", marginBottom: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", margin: 0, display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 20 }}>🎯</span> Today's Mission</h2>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)" }}>{dateString}</span>
+                      </div>
+                      
+                      <div style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+                        <div style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: 14 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{ width: 22, height: 22, borderRadius: "50%", background: !revDue ? "var(--teal)" : "var(--surface-2)", border: !revDue ? "none" : "1.5px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12 }}>{!revDue ? "✓" : ""}</div>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: !revDue ? "var(--muted)" : "var(--ink)", textDecoration: !revDue ? "line-through" : "none" }}>{revDue ? `Revise ${revStats.dueToday} questions` : "Daily revision complete"}</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{ width: 22, height: 22, borderRadius: "50%", background: todayQuizzes >= 2 ? "var(--teal)" : "var(--surface-2)", border: todayQuizzes >= 2 ? "none" : "1.5px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12 }}>{todayQuizzes >= 2 ? "✓" : ""}</div>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: todayQuizzes >= 2 ? "var(--muted)" : "var(--ink)", textDecoration: todayQuizzes >= 2 ? "line-through" : "none" }}>{todayQuizzes >= 2 ? "Quizzes solved" : `Solve 2 quizzes (${todayQuizzes}/2)`}</span>
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 2 }}>Completion</div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>{missionProgress}%</div>
+                          </div>
+                          <div style={{ width: 70, height: 70, position: "relative" }}>
+                            <svg viewBox="0 0 36 36" style={{ width: "100%", height: "100%" }}>
+                              <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--line-2)" strokeWidth="3.5" />
+                              <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--blue)" strokeWidth="3.5" strokeDasharray={`${missionProgress}, 100`} strokeLinecap="round" transform="rotate(-90 18 18)" style={{ transition: "stroke-dasharray 1s ease-out" }} />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ACTIONABLE HERO CARDS */}
+                    <div className="grid-responsive-3" style={{ gap: 12, marginBottom: 32 }}>
+                      {/* Daily Goal */}
+                      <div className="hover-raise active-state" style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Daily Goal</div>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)", marginBottom: 12 }}>{todayQuizzes}/5 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>Quizzes</span></div>
+                        </div>
+                        <div style={{ height: 4, background: "var(--line-2)", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ height: "100%", background: "var(--teal)", width: `${Math.min(100, (todayQuizzes / 5) * 100)}%` }} />
+                        </div>
+                      </div>
+
+                      {/* Current Streak */}
+                      <div className="hover-raise active-state" onClick={onRevision} style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 100%)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 16, padding: 16, cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Current Streak</div>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                            <span style={{ fontSize: 24, lineHeight: 1 }}>🔥</span>
+                            <span style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{streakCount}</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>days</span>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)" }}>{streakCount > 0 ? "Consistency is key" : "Start your streak today!"}</div>
+                      </div>
+
+                      {/* Weakest Topic */}
+                      <div className="hover-raise active-state" style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: 16, cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Weakest Topic</div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--crimson)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4 }}>{weakest.name !== "None" ? weakest.name : "Keep Practicing"}</div>
+                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--blue)" }}>Practice →</div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
 
               {/* Continue Rail */}
               {history.length > 0 && (
-                <div style={{ marginTop: 20 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>Continue where you left off</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--teal)", cursor: "pointer", textDecoration: "underline" }} onClick={() => onTabNavigate("history")}>View All</div>
+                <div style={{ marginBottom: 32 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "1px" }}>Continue Learning</div>
+                    <div className="active-state" style={{ fontSize: 12, fontWeight: 700, color: "var(--blue)", cursor: "pointer" }} onClick={() => onTabNavigate("history")}>View All →</div>
                   </div>
-                  <div className="rail">
-                    {history.slice(0,4).map((h, i) => (
-                      <div key={i} className="cont" onClick={() => onStartQuiz({id: h.quiz_id, title: h.quiz_title}, true)} style={{ cursor: "pointer", minWidth: 180, padding: 12, border: "1px solid var(--line-2)", background: "var(--surface)", borderRadius: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                          <div style={{ fontSize: 10, color: "var(--muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", width: "80%" }}>{lang === 'hi' && h.subjects?.name_hi ? h.subjects.name_hi : (h.subjects?.name || "Subject")}</div>
-                          <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--teal-soft)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <svg style={{ width: 10, height: 10 }} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  <div className="rail" style={{ paddingBottom: 8 }}>
+                    {history.slice(0,4).map((h, i) => {
+                      const acc = h.accuracy || 0;
+                      const status = acc < 60 ? "Needs Revision 🔴" : "On Track 🟢";
+                      const estTime = Math.max(1, Math.round((h.total || 10) * 0.8)) + " min";
+                      return (
+                        <div key={i} className="hover-raise active-state" onClick={() => onStartQuiz({id: h.quiz_id, title: h.quiz_title}, true)} style={{ cursor: "pointer", minWidth: 240, padding: 16, border: "1px solid var(--line-2)", background: "var(--surface)", borderRadius: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", width: "70%" }}>{lang === 'hi' && h.subjects?.name_hi ? h.subjects.name_hi : (h.subjects?.name || "Subject")}</div>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: acc < 60 ? "var(--crimson)" : "var(--teal)" }}>{status}</div>
+                          </div>
+                          
+                          <div style={{ fontSize: 15, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--ink)" }}>{lang === 'hi' && h.quizzes?.title_hi ? h.quizzes.title_hi : (h.quizzes?.title || "Quiz")}</div>
+                          
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>⏱ {estTime}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--blue)" }}>Continue →</span>
+                          </div>
+                          
+                          <div style={{ marginTop: 4 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, fontWeight: 600, color: "var(--muted)", marginBottom: 4 }}>
+                              <span>Score: {h.score}/{h.total}</span>
+                              <span>{acc}%</span>
+                            </div>
+                            <div style={{ height: 4, background: "var(--line-2)", borderRadius: 2 }}>
+                              <div style={{ height: "100%", background: acc < 60 ? "var(--crimson)" : "var(--teal)", width: `${acc}%`, borderRadius: 2 }}></div>
+                            </div>
                           </div>
                         </div>
-                        <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--ink)" }}>{lang === 'hi' && h.quizzes?.title_hi ? h.quizzes.title_hi : (h.quizzes?.title || "Quiz")}</div>
-                        <div style={{ fontSize: 10, color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
-                          <span>Score: {h.score}/{h.total}</span>
-                          <span>Acc: {h.accuracy}%</span>
-                        </div>
-                        <div style={{ height: 3, background: "var(--line-2)", borderRadius: 1.5, marginTop: 2 }}>
-                          <div style={{ height: "100%", background: "var(--teal)", width: `${h.accuracy}%`, borderRadius: 1.5 }}></div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Search Bar */}
-              <div style={{ marginTop: 20, marginBottom: 20, display: "flex", gap: 8 }}>
-                <div style={{ position: "relative", flex: 1 }}>
-                  <svg style={{ position: "absolute", left: 12, top: 12, width: 16, height: 16, fill: "var(--muted)" }}><use href="#ic-search"></use></svg>
-                  <input 
-                    type="text" 
-                    value={searchQuery} 
-                    onChange={(e) => setSearchQuery(e.target.value)} 
-                    placeholder={t.search || "Search assessments, topics or subjects..."} 
-                    className="input-clean"
-                    style={{ fontSize: 13, padding: "12px 12px 12px 36px", width: "100%", borderRadius: 10, border: "1px solid var(--line)", background: "var(--surface)" }}
-                  />
-                  {searchQuery && (
-                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4, background: "var(--surface)", border: `1px solid var(--line)`, borderRadius: 10, padding: 12, boxShadow: "var(--shadow-lg)", zIndex: 10 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>{t.searchResults || "Search Results"}</div>
-                      {searchLoading ? <Spinner C={C} /> : searchResults.length === 0 ? <div style={{ fontSize: 13, color: "var(--muted)", textAlign: "center", padding: "16px 0" }}>{t.noQuizzesFound || "No quizzes found."}</div> : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                          {searchResults.map(q => (
-                            <div key={q.id} onClick={() => onStartQuiz(q)} style={{ padding: 10, background: "var(--surface-2)", borderRadius: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div>
-                                <div style={{ fontWeight: 600, fontSize: 14 }}>{lang === "hi" && q.title_hi ? q.title_hi : q.title}</div>
-                                <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{q.total_questions} Qs</div>
-                              </div>
-                              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--blue)" }}>Start →</div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+              {/* Analytics Overview Grid */}
+              <div style={{ marginBottom: 32 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "1px" }}>Your Stats</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(70px, 1fr))", gap: 12 }}>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: 12, textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{history.length}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Qs Solved</div>
+                  </div>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: 12, textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{history.length > 0 ? Math.round(history.reduce((a,b)=>a+(b.accuracy||0),0)/history.length) : 0}%</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Avg Acc</div>
+                  </div>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: 12, textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{revStats?.mastered || 0}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Mastered</div>
+                  </div>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: 12, textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{streakCount}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Top Streak</div>
+                  </div>
                 </div>
               </div>
 
@@ -518,31 +508,31 @@ const MainPage = React.memo(function MainPage({
                   return idxA - idxB;
                 });
                 return (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 24, paddingBottom: 32 }}>
                     {sortedPapers.map(paper => (
                       <div key={paper}>
-                        <h3 className="mobile-only" style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", marginBottom: 10 }}>
+                        <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", marginBottom: 12 }}>
                           {lang === 'hi' ? (paper === 'Indian GS' ? 'भारतीय सामान्य अध्ययन' : paper === 'Chhattisgarh GS' ? 'छत्तीसगढ़ सामान्य अध्ययन' : paper === 'Current Affairs' ? 'समसामयिकी' : paper === 'Other' ? 'अन्य' : paper) : paper}
                         </h3>
-                        <div className="subjgrid">
-                          {/* We inject the parent paper name as the first card in desktop, or just render subjects normally. Let's render subjects normally. */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                           {groups[paper].map((sub) => {
                             const subHistory = history.filter(h => String(h.subject_id) === String(sub.id));
                             const accAvg = subHistory.length > 0 ? Math.round(subHistory.reduce((s, h) => s + (h.accuracy || 0), 0) / subHistory.length) : 0;
                             return (
-                              <div key={sub.id} className="subj" onClick={() => openSubject(sub)} style={{ cursor: "pointer", background: "var(--surface)", border: "1px solid var(--line-2)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
-                                <div className="ico" style={{ background: "color-mix(in srgb, var(--teal) 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, lineHeight: 1 }}>
+                              <div key={sub.id} className="hover-raise active-state" onClick={() => openSubject(sub)} style={{ cursor: "pointer", background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 12, padding: 16, display: "flex", alignItems: "center", gap: 16 }}>
+                                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "color-mix(in srgb, var(--teal) 10%, transparent)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
                                   {getSubjectIcon(sub.name)}
                                 </div>
-                                <div>
-                                  <div className="nm" style={{ fontSize: 13 }}>{lang === "hi" && sub.name_hi ? sub.name_hi : sub.name}</div>
-                                  <div className="meta" style={{ fontSize: 11 }}>{accAvg > 0 ? `${accAvg}% acc` : "Not started"}</div>
-                                </div>
-                                {accAvg > 0 && (
-                                  <div className="arc">
-                                    <svg className="ring" viewBox="0 0 36 36" style={{ width: 36, height: 36 }}><circle className="bg" cx="18" cy="18" r="15.9" fill="none" stroke="var(--line-2)" strokeWidth="3" /><circle className="fg" cx="18" cy="18" r="15.9" fill="none" stroke="var(--teal)" strokeWidth="3" strokeDasharray={`${accAvg}, 100`} strokeLinecap="round" transform="rotate(-90 18 18)" /></svg>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{lang === "hi" && sub.name_hi ? sub.name_hi : sub.name}</div>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: accAvg > 0 ? "var(--teal)" : "var(--muted)" }}>{accAvg > 0 ? `${accAvg}%` : "0%"}</div>
                                   </div>
-                                )}
+                                  <div style={{ height: 6, background: "var(--line-2)", borderRadius: 3, overflow: "hidden" }}>
+                                    <div style={{ height: "100%", background: accAvg > 0 ? "var(--teal)" : "transparent", width: `${accAvg}%`, borderRadius: 3, transition: "width 1s ease-out" }} />
+                                  </div>
+                                </div>
+                                <div style={{ color: "var(--blue)", fontWeight: 800, fontSize: 14 }}>→</div>
                               </div>
                             );
                           })}
