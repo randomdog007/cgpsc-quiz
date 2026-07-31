@@ -1,22 +1,165 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import Header from "../components/layout/Header";
 import BottomNav from "../components/layout/BottomNav";
+import Sidebar from "../components/layout/Sidebar";
 import Avatar from "../components/ui/Avatar";
 import Spinner from "../components/ui/Spinner";
 import EmptyState from "../components/ui/EmptyState";
 import ErrorBanner from "../components/ui/ErrorBanner";
 import LeaderboardView from "../components/LeaderboardView";
 
-export default function MainPage({
+// ── BookmarkCard: interactive flashcard with reveal-on-demand ───────────────
+function BookmarkCard({ q, qi, qText, opts, hasContent, letters, lang, t, toggleBM }) {
+  const [selected, setSelected] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [showExp, setShowExp]   = useState(false);
+
+  const reset = () => { setSelected(null); setRevealed(false); setShowExp(false); };
+
+  const topicLabel = lang === "hi" && q._topicName_hi ? q._topicName_hi : q._topicName;
+
+  return (
+    <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+      {/* Card Header */}
+      <div style={{ padding: "16px 18px 12px", borderBottom: "1px solid var(--line-2)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: topicLabel ? 8 : 0 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", letterSpacing: "0.5px", textTransform: "uppercase" }}>Q{qi + 1}</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {revealed && <button onClick={reset} style={{ fontSize: 11, color: "var(--muted)", background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 6, padding: "3px 10px", cursor: "pointer" }}>↺ Reset</button>}
+            <button onClick={() => toggleBM(q)} style={{ fontSize: 11, color: "var(--crimson)", background: "none", border: "1px solid color-mix(in srgb, var(--crimson) 30%, transparent)", borderRadius: 6, padding: "3px 10px", cursor: "pointer" }}>🗑 Remove</button>
+          </div>
+        </div>
+        {topicLabel && <span style={{ fontSize: 11, color: "var(--teal)", background: "color-mix(in srgb, var(--teal) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--teal) 20%, transparent)", borderRadius: 4, padding: "2px 8px" }}>{topicLabel}</span>}
+      </div>
+
+      {/* Question */}
+      <div style={{ padding: "16px 18px" }}>
+        {!hasContent ? (
+          <div style={{ color: "var(--muted)", fontSize: 13, fontStyle: "italic", padding: "12px 0" }}>Question data unavailable — re-save this bookmark during a quiz.</div>
+        ) : (
+          <>
+            <p style={{ fontSize: 15, color: "var(--ink)", lineHeight: 1.7, marginBottom: 16, fontWeight: 500 }}>{qText}</p>
+
+            {/* Options */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+              {opts.map((opt, idx) => {
+                const isCorrect = q.correct === idx;
+                const isSelected = selected === idx;
+                let bg = "var(--surface-2)", border = "var(--line)", color = "var(--ink)";
+                let letterBg = "#e8e8e8", letterColor = "#555";
+                if (revealed) {
+                  if (isCorrect) { bg = "color-mix(in srgb, var(--teal) 12%, transparent)"; border = "var(--teal)"; color = "var(--teal)"; letterBg = "var(--teal)"; letterColor = "#fff"; }
+                  else if (isSelected) { bg = "color-mix(in srgb, #d32f2f 10%, transparent)"; border = "#d32f2f"; color = "#d32f2f"; letterBg = "#d32f2f"; letterColor = "#fff"; }
+                } else if (isSelected) {
+                  bg = "color-mix(in srgb, var(--teal) 8%, transparent)"; border = "var(--teal)"; letterBg = "var(--teal)"; letterColor = "#fff";
+                }
+                return (
+                  <div key={idx}
+                    onClick={() => !revealed && setSelected(idx)}
+                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 8, background: bg, border: `1.5px solid ${border}`, cursor: revealed ? "default" : "pointer", transition: "all 0.18s" }}
+                  >
+                    <span style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0, background: letterBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: letterColor, transition: "all 0.18s" }}>{letters[idx]}</span>
+                    <span style={{ fontSize: 14, color: color, fontWeight: isCorrect && revealed ? 600 : 400, lineHeight: 1.4, flex: 1, transition: "color 0.18s" }}>{opt}</span>
+                    {revealed && isCorrect && <span style={{ fontSize: 16 }}>✅</span>}
+                    {revealed && isSelected && !isCorrect && <span style={{ fontSize: 16 }}>❌</span>}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Action row */}
+            {!revealed ? (
+              <button
+                onClick={() => setRevealed(true)}
+                disabled={selected === null}
+                style={{ width: "100%", padding: "12px", background: selected !== null ? "var(--teal)" : "var(--surface-2)", color: selected !== null ? "#fff" : "var(--muted)", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: selected !== null ? "pointer" : "not-allowed", transition: "all 0.2s" }}
+              >
+                {selected === null ? "Select an answer" : "Check Answer →"}
+              </button>
+            ) : (
+              <div>
+                <div style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 10, background: selected === q.correct ? "color-mix(in srgb, var(--teal) 10%, transparent)" : "color-mix(in srgb, #d32f2f 10%, transparent)", border: `1px solid ${selected === q.correct ? "var(--teal)" : "#d32f2f"}`, fontWeight: 700, fontSize: 14, color: selected === q.correct ? "var(--teal)" : "#d32f2f", textAlign: "center" }}>
+                  {selected === q.correct ? "🎉 Correct!" : `❌ Correct answer: ${letters[q.correct]}`}
+                </div>
+                {(q.explanation || q.explanation_hi) && (
+                  <div>
+                    <button onClick={() => setShowExp(s => !s)} style={{ fontSize: 12, color: "var(--teal)", background: "none", border: "none", cursor: "pointer", fontWeight: 600, marginBottom: 6 }}>
+                      {showExp ? "▾ Hide Explanation" : "▸ Show Explanation"}
+                    </button>
+                    {showExp && (
+                      <div style={{ background: "color-mix(in srgb, var(--teal) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--teal) 25%, transparent)", borderRadius: 8, padding: "12px 14px" }}>
+                        <p style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.65, margin: 0 }}>{lang === "hi" && q.explanation_hi ? q.explanation_hi : q.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+const MainPage = React.memo(function MainPage({
   ms, css, C, t, tab, lang, dark, dataError, onClearError, onHome, onTabNavigate,
   headerProps, userAvatar, userPic, userName, profile, subjects, history, dataLoading, openSubject,
   bookmarks, bmLoading, toggleBM, signOut, toggleDark, toggleLang, user, userEmail, onAdmin, onRevision, supabase, onStartQuiz
 }) {
+  const getSubjectIcon = (name) => {
+    const n = (name || "").toLowerCase();
+    if (n.includes("history") || n.includes("itihas")) return "🏛️";
+    if (n.includes("geography") || n.includes("bhugol")) return "🌍";
+    if (n.includes("biology") || n.includes("jeev")) return "🧬";
+    if (n.includes("physics") || n.includes("bhautiki")) return "⚛️";
+    if (n.includes("chemistry") || n.includes("rasayan")) return "🧪";
+    if (n.includes("science") || n.includes("vigyan")) return "🔬";
+    if (n.includes("math") || n.includes("ganit")) return "📐";
+    if (n.includes("aptitude") || n.includes("csat")) return "🧠";
+    if (n.includes("reasoning") || n.includes("tarkshakti")) return "🧩";
+    if (n.includes("polity") || n.includes("constitution") || n.includes("rajvyavastha")) return "⚖️";
+    if (n.includes("panchayat") || n.includes("governance")) return "🏛️";
+    if (n.includes("economy") || n.includes("arthashastra") || n.includes("economics")) return "📈";
+    if (n.includes("current") || n.includes("samsamayiki")) return "📰";
+    if (n.includes("environment") || n.includes("paryavaran") || n.includes("ecology")) return "🌿";
+    if (n.includes("art") || n.includes("culture") || n.includes("kala") || n.includes("sanskriti")) return "🎨";
+    if (n.includes("sport") || n.includes("khel")) return "🏅";
+    if (n.includes("tech") || n.includes("computer") || n.includes("digital")) return "💻";
+    if (n.includes("chhattisgarh") || n.includes("cg")) return "🗺️";
+    if (n.includes("agriculture") || n.includes("krishi")) return "🌾";
+    if (n.includes("philosophy") || n.includes("darshan")) return "🤔";
+    if (n.includes("law") || n.includes("kanoon")) return "📜";
+    if (n.includes("social") || n.includes("samaj")) return "👥";
+    return "📚";
+  };
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [userRank, setUserRank] = useState(null);
+
+  useEffect(() => {
+    if (tab !== "home" || !supabase || !user) return;
+    const fetchRank = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        const res = await fetch(`/api/user_rank?eq_user_id=${user.id}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+        if (!res.ok) return;
+        const rankRes = await res.json();
+        if (rankRes?.data?.user) {
+          setUserRank({ rank: rankRes.data.rank, total: rankRes.data.totalUsers, score: rankRes.data.user.total_score || 0 });
+        }
+      } catch (e) {}
+    };
+    fetchRank();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, user]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [revStats, setRevStats] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterPaper, setFilterPaper] = useState("All");
 
   useEffect(() => {
     const fetchRevStats = async () => {
@@ -31,6 +174,23 @@ export default function MainPage({
     };
     if (tab === "home") fetchRevStats();
   }, [tab, supabase]);
+
+  // Also re-fetch on mount so returning from RevisionPage always shows fresh count
+  useEffect(() => {
+    const fetchRevStats = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        const res = await fetch("/api/user/revision/stats", {
+          headers: { "Authorization": `Bearer ${session.access_token}` }
+        });
+        if (res.ok) setRevStats(await res.json());
+      } catch (e) {}
+    };
+    fetchRevStats();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   useEffect(() => {
     if (!searchQuery.trim() || !supabase) {
@@ -51,129 +211,354 @@ export default function MainPage({
   }, [searchQuery, supabase]);
 
   return (
-    <div style={ms}>
+    <div style={ms} className="app-layout">
       <style>{css}</style>
-      <Header onHome={onHome} C={C} t={t} lang={lang} dark={dark} {...headerProps} />
-      <ErrorBanner msg={dataError} C={C} onClose={onClearError} />
+      <Sidebar activeTab={tab} onNavigate={onTabNavigate} t={t} lang={lang} />
+      
+      <div className="main-area">
+        <div className="mobile-only">
+          <Header onHome={onHome} C={C} t={t} lang={lang} dark={dark} {...headerProps} />
+        </div>
+        <ErrorBanner msg={dataError} C={C} onClose={onClearError} />
 
-      {/* ── HOME ── */}
-      {tab === "home" && (
-        <div style={{ animation: "fadeUp 0.3s ease" }}>
-          <div style={{ padding: "40px 16px 24px", borderBottom: `1px solid ${C.border}`, background: C.bg }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, maxWidth: 800, margin: "0 auto" }}>
-              <Avatar ini={userAvatar} size={56} pic={userPic} color={C.acc} borderColor={C.border} />
-              <div>
-                <div style={{ fontSize: 13, color: C.muted, fontWeight: 500, letterSpacing: "0.2px", marginBottom: 2 }}>Welcome back</div>
-                <div style={{ fontWeight: 700, fontSize: 22, color: C.text, letterSpacing: "-0.5px" }}>{userName}</div>
-              </div>
-            </div>
-          </div>
-          <div style={{ padding: "32px 16px", maxWidth: 800, margin: "0 auto" }}>
+        {/* ── HOME ── */}
+        {tab === "home" && (() => {
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? (lang === 'hi' ? 'सुप्रभात' : 'Good morning') : hour < 17 ? (lang === 'hi' ? 'शुभ दोपहर' : 'Good afternoon') : (lang === 'hi' ? 'शुभ संध्या' : 'Good evening');
+        const dateString = new Intl.DateTimeFormat(lang === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date());
+        const streakCount = revStats?.streak?.current || 0;
 
-            {/* ── Daily Revision Badge ── */}
-            {revStats && revStats.dueToday > 0 && (
-              <div onClick={onRevision} style={{ background: `linear-gradient(135deg, ${C.acc}, #3b82f6)`, borderRadius: 16, padding: "20px 24px", marginBottom: 32, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: `0 8px 24px ${C.acc}44`, color: "#fff", transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform = "translateY(-4px)"} onMouseOut={e => e.currentTarget.style.transform = "translateY(0)"}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                    <span style={{ fontSize: 24 }}>📝</span>
-                    <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: "-0.5px" }}>Today's Revision</h3>
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 500, opacity: 0.9 }}>
-                    You have {revStats.dueToday} question{revStats.dueToday > 1 ? 's' : ''} due for review.
-                  </div>
-                </div>
-                <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 12, padding: "10px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>Streak</span>
-                  <span style={{ fontSize: 20, fontWeight: 800 }}>🔥 {revStats.streak?.current || 0}</span>
-                </div>
-              </div>
-            )}
-            {revStats && revStats.dueToday === 0 && (
-              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "16px 20px", marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        const daysAgo = (d) => { const x = new Date(); x.setDate(x.getDate() - d); return x.toLocaleDateString(lang==='hi'?'hi-IN':'en-IN', {weekday:'narrow'}); };
+
+        return (
+          <div className="container container--wide container--responsive" style={{ animation: "fadeUp 0.3s ease", paddingTop: 32 }}>
+            
+            {/* LEFT COLUMN */}
+            <div>
+              {/* DESKTOP INLINE HEADER */}
+              <div className="desktop-flex" style={{ alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 24 }}>🎉</span>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>All caught up!</div>
-                    <div style={{ fontSize: 12, color: C.muted }}>No revisions due today.</div>
-                  </div>
+                  <svg style={{ width: 20, height: 20, fill: "var(--muted)" }}><use href="#ic-clock"></use></svg>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>{dateString}</span>
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: C.ok, background: `${C.ok}15`, padding: "6px 12px", borderRadius: 8 }}>
-                  🔥 Streak: {revStats.streak?.current || 0}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <button onClick={() => window.open('https://t.me/cgpscquiz', '_blank')} className="glass" style={{ width: 44, height: 44, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", padding: 0 }}>
+                    <svg style={{ width: 22, height: 22, fill: "currentColor" }} viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.33-.01-.98-.19-1.46-.35-.59-.19-1.05-.29-1.01-.61.02-.17.29-.36.81-.57 3.17-1.38 5.28-2.29 6.33-2.73 3-.1.26-1.5.46-1.5.38 0 .18.06.32.18.42.14.1.33.27.32.73z"/></svg>
+                  </button>
+                  <button onClick={toggleLang} className="glass" style={{ width: 44, height: 44, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontWeight: 700, fontSize: 16, padding: 0 }}>{lang === "en" ? "हिं" : "EN"}</button>
+                  <button onClick={toggleDark} className="glass" style={{ width: 44, height: 44, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontSize: 20, padding: 0 }}>{dark ? "☀️" : "🌙"}</button>
+                  <Avatar url={userPic || userAvatar} size={44} />
                 </div>
               </div>
-            )}
 
-            <div style={{ marginBottom: 32 }}>
-              <input 
-                type="text" 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                placeholder="Search Quiz..." 
-                className="input-clean"
-                style={{ marginBottom: 20, fontSize: 15, padding: "16px 20px" }}
-              />
+              {/* MOBILE GREETING */}
+              <h1 className="greet mobile-only" style={{ marginTop: 0 }}>
+                <small>{dateString}</small>
+                {greeting}, {userName}. 👋
+              </h1>
+
+              {/* DESKTOP GREETING */}
+              <div className="desktop-only" style={{ marginBottom: 24 }}>
+                <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--ink)", letterSpacing: "-1px", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+                  {greeting}, {userName}. <span>👋</span>
+                </h1>
+                <div style={{ fontSize: 14, color: "var(--muted)", fontWeight: 500 }}>Let's continue your success streak today!</div>
+              </div>
               
-              {searchQuery && (
-                <div style={{ marginBottom: 28, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, boxShadow: C.shadow, animation: "fadeUp 0.2s ease" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 16 }}>Search Results</div>
-                  {searchLoading ? <Spinner C={C} /> : searchResults.length === 0 ? <div style={{ fontSize: 14, color: C.muted, textAlign: "center", padding: "20px 0" }}>No quizzes found.</div> : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {searchResults.map(q => (
-                        <div key={q.id} onClick={() => onStartQuiz(q)} style={{ padding: 14, background: C.inp, borderRadius: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "all 0.2s" }} onMouseOver={e => {e.currentTarget.style.background = C.border}} onMouseOut={e => {e.currentTarget.style.background = C.inp}}>
-                          <div>
-                            <div style={{ fontWeight: 600, fontSize: 15, color: C.text }}>{lang === "hi" && q.title_hi ? q.title_hi : q.title}</div>
-                            <div style={{ fontSize: 12, color: C.muted, marginTop: 6, fontWeight: 500 }}>{q.total_questions} Questions • {q.time_limit_mins} Mins</div>
-                          </div>
-                          <div style={{ color: C.text, fontSize: 12, fontWeight: 600, background: C.card, padding: "6px 10px", borderRadius: 6, border: `1px solid ${C.border}` }}>Start →</div>
-                        </div>
-                      ))}
+              {/* Promo Banner / Today's Revision & Rank */}
+              <div className="promo-grid">
+                {/* ── Revision Banner — Redesigned ── */}
+                <div
+                  className="hover-raise active-state"
+                  onClick={onRevision}
+                  style={{ background: revStats?.dueToday > 0
+                    ? "linear-gradient(135deg, #0c1a2e 0%, #0f2744 100%)"
+                    : "linear-gradient(135deg, #0a1f0a 0%, #0d2b0d 100%)",
+                    border: revStats?.dueToday > 0 ? "1px solid rgba(14,165,233,0.25)" : "1px solid rgba(16,185,129,0.25)",
+                    borderRadius: 12, padding: "12px 14px", cursor: "pointer",
+                    position: "relative", overflow: "hidden",
+                    display: "flex", flexDirection: "column", gap: 4 }}
+                >
+                  {/* Glow */}
+                  <div style={{ position: "absolute", top: -30, right: -30, width: 90, height: 90,
+                    background: revStats?.dueToday > 0 ? "#0ea5e9" : "#10b981",
+                    opacity: 0.08, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none" }} />
+
+                  {/* Header row */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ fontSize: 13 }}>🧠</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: revStats?.dueToday > 0 ? "#38bdf8" : "#34d399", textTransform: "uppercase", letterSpacing: "0.8px" }}>
+                        {revStats?.dueToday > 0 ? "Revision Due" : "All Clear"}
+                      </span>
+                    </div>
+                    {streakCount > 0 && (
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#fbbf24", display: "flex", alignItems: "center", gap: 2 }}>
+                        🔥{streakCount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Main number */}
+                  {revStats?.dueToday > 0 ? (
+                    <div>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                        <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-1px" }}>
+                          {revStats.dueToday}
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.55)" }}>Qs due</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#34d399", lineHeight: 1 }}>Done! ✓</div>
+                  )}
+
+                  {/* Bottom: mastery info + CTA */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
+                      {revStats?.mastered > 0 ? `${revStats.mastered} mastered` : "Build memory"}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: revStats?.dueToday > 0 ? "#38bdf8" : "#34d399" }}>
+                      {revStats?.dueToday > 0 ? "Revise →" : "View →"}
+                    </span>
+                  </div>
+
+                  {/* Urgency bar — fills based on how many are due vs total tracked */}
+                  {revStats?.totalTracked > 0 && (
+                    <div style={{ height: 2, background: "rgba(255,255,255,0.1)", borderRadius: 1, marginTop: 2 }}>
+                      <div style={{
+                        height: "100%", borderRadius: 1,
+                        width: `${Math.min(100, Math.round((revStats.dueToday / revStats.totalTracked) * 100))}%`,
+                        background: revStats.dueToday > 0
+                          ? `linear-gradient(90deg, #0ea5e9, ${revStats.dueToday > revStats.totalTracked * 0.5 ? "#ef4444" : "#0ea5e9"})`
+                          : "#10b981",
+                        transition: "width 0.8s ease"
+                      }} />
                     </div>
                   )}
                 </div>
-              )}
 
-              <h2 style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "1px" }}>{t.chooseSubject}</h2>
-            </div>
-            {dataLoading ? <Spinner C={C} fallbackText={t.loading} /> : subjects.length === 0 ? (
-              <EmptyState icon="📚" title={t.noSubjects} desc={t.noSubjectsDesc} C={C} />
-            ) : (() => {
-              const groups = subjects.reduce((acc, sub) => {
-                const paper = sub.paper || "Other";
-                if (!acc[paper]) acc[paper] = [];
-                acc[paper].push(sub);
-                return acc;
-              }, {});
-              const order = ["Indian GS", "Chhattisgarh GS", "Current Affairs", "CSAT", "Other"];
-              const sortedPapers = Object.keys(groups).sort((a, b) => {
-                const idxA = order.indexOf(a);
-                const idxB = order.indexOf(b);
-                if (idxA === -1 && idxB === -1) return a.localeCompare(b);
-                if (idxA === -1) return 1;
-                if (idxB === -1) return -1;
-                return idxA - idxB;
-              });
-              return (
-                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-                  {sortedPapers.map(paper => (
-                    <div key={paper}>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 16 }}>{paper}</h3>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 12 }}>
-                        {groups[paper].map((sub) => (
-                          <div key={sub.id} className="card-h" onClick={() => openSubject(sub)}>
-                            <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${C.inp}, ${C.card})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, marginBottom: 12, border: `1px solid ${C.border}`, boxShadow: `0 2px 6px rgba(0,0,0,0.04)` }}>{sub.icon || "📖"}</div>
-                            <div style={{ fontWeight: 600, fontSize: 15, color: C.text, lineHeight: 1.3, letterSpacing: "-0.2px" }}>{lang === "hi" && sub.name_hi ? sub.name_hi : sub.name}</div>
-                            <div style={{ fontSize: 12, color: C.acc, fontWeight: 700, marginTop: 10 }}>Explore →</div>
-                          </div>
-                        ))}
+                {/* ── Rank Banner — Redesigned ── */}
+                <div
+                  className="hover-raise active-state"
+                  onClick={() => onTabNavigate("leaderboard")}
+                  style={{ background: "linear-gradient(135deg, #1a0c2e 0%, #2a1050 100%)",
+                    border: "1px solid rgba(139,92,246,0.25)",
+                    borderRadius: 12, padding: "12px 14px", cursor: "pointer",
+                    position: "relative", overflow: "hidden",
+                    display: "flex", flexDirection: "column", gap: 4 }}
+                >
+                  {/* Glow */}
+                  <div style={{ position: "absolute", top: -30, right: -30, width: 90, height: 90,
+                    background: "#8b5cf6", opacity: 0.1, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none" }} />
+
+                  {/* Header row */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <span style={{ fontSize: 13 }}>🏆</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: "#c4b5fd", textTransform: "uppercase", letterSpacing: "0.8px" }}>
+                        Your Rank
+                      </span>
+                    </div>
+                    {userRank && (
+                      <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+                        of {userRank.total}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Rank number */}
+                  {userRank ? (
+                    <div>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                        <span style={{ fontSize: 9, fontWeight: 800, color: "#a78bfa", lineHeight: 1 }}>#</span>
+                        <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-1px" }}>
+                          {userRank.rank}
+                        </span>
                       </div>
                     </div>
-                  ))}
+                  ) : (
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "rgba(255,255,255,0.5)", lineHeight: 1.2 }}>Not ranked</div>
+                  )}
+
+                  {/* Bottom: score + CTA */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
+                      {userRank ? `${userRank.score.toLocaleString()} pts` : "Take quizzes to rank"}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa" }}>Leaderboard →</span>
+                  </div>
+
+                  {/* Score bar — rough percentile visual */}
+                  {userRank && (
+                    <div style={{ height: 2, background: "rgba(255,255,255,0.1)", borderRadius: 1, marginTop: 2 }}>
+                      <div style={{
+                        height: "100%", borderRadius: 1,
+                        width: `${Math.max(5, Math.round((1 - userRank.rank / userRank.total) * 100))}%`,
+                        background: "linear-gradient(90deg, #8b5cf6, #c4b5fd)",
+                        transition: "width 0.8s ease"
+                      }} />
+                    </div>
+                  )}
                 </div>
-              );
-            })()}
+              </div>
+
+              {/* Continue Rail */}
+              {history.length > 0 && (
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>Continue where you left off</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--teal)", cursor: "pointer", textDecoration: "underline" }} onClick={() => onTabNavigate("history")}>View All</div>
+                  </div>
+                  <div className="rail">
+                    {history.slice(0,4).map((h, i) => (
+                      <div key={i} className="cont" onClick={() => onStartQuiz({id: h.quiz_id, title: h.quiz_title}, true)} style={{ cursor: "pointer", minWidth: 180, padding: 12, border: "1px solid var(--line-2)", background: "var(--surface)", borderRadius: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div style={{ fontSize: 10, color: "var(--muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", width: "80%" }}>{lang === 'hi' && h.subjects?.name_hi ? h.subjects.name_hi : (h.subjects?.name || "Subject")}</div>
+                          <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--teal-soft)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <svg style={{ width: 10, height: 10 }} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--ink)" }}>{lang === 'hi' && h.quizzes?.title_hi ? h.quizzes.title_hi : (h.quizzes?.title || "Quiz")}</div>
+                        <div style={{ fontSize: 10, color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+                          <span>Score: {h.score}/{h.total}</span>
+                          <span>Acc: {h.accuracy}%</span>
+                        </div>
+                        <div style={{ height: 3, background: "var(--line-2)", borderRadius: 1.5, marginTop: 2 }}>
+                          <div style={{ height: "100%", background: "var(--teal)", width: `${h.accuracy}%`, borderRadius: 1.5 }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Search Bar */}
+              <div style={{ marginTop: 20, marginBottom: 20, display: "flex", gap: 8 }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <svg style={{ position: "absolute", left: 12, top: 12, width: 16, height: 16, fill: "var(--muted)" }}><use href="#ic-search"></use></svg>
+                  <input 
+                    type="text" 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)} 
+                    placeholder={t.search || "Search assessments, topics or subjects..."} 
+                    className="input-clean"
+                    style={{ fontSize: 13, padding: "12px 12px 12px 36px", width: "100%", borderRadius: 10, border: "1px solid var(--line)", background: "var(--surface)" }}
+                  />
+                  {searchQuery && (
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4, background: "var(--surface)", border: `1px solid var(--line)`, borderRadius: 10, padding: 12, boxShadow: "var(--shadow-lg)", zIndex: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>{t.searchResults || "Search Results"}</div>
+                      {searchLoading ? <Spinner C={C} /> : searchResults.length === 0 ? <div style={{ fontSize: 13, color: "var(--muted)", textAlign: "center", padding: "16px 0" }}>{t.noQuizzesFound || "No quizzes found."}</div> : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {searchResults.map(q => (
+                            <div key={q.id} onClick={() => onStartQuiz(q)} style={{ padding: 10, background: "var(--surface-2)", borderRadius: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                <div style={{ fontWeight: 600, fontSize: 14 }}>{lang === "hi" && q.title_hi ? q.title_hi : q.title}</div>
+                                <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{q.total_questions} Qs</div>
+                              </div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--blue)" }}>Start →</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 12 }}>
+                {["All", "Indian GS", "Chhattisgarh GS", "Current Affairs", "CSAT", "Other"].map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setFilterPaper(p)}
+                    className="active-state"
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: 16,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      border: `1.5px solid ${filterPaper === p ? "var(--teal)" : "var(--line)"}`,
+                      background: filterPaper === p ? "var(--teal)" : "var(--surface)",
+                      color: filterPaper === p ? "#fff" : "var(--muted)",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      whiteSpace: "nowrap",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {lang === 'hi' ? (p === 'Indian GS' ? 'भारतीय सा. अध्ययन' : p === 'Chhattisgarh GS' ? 'छत्तीसगढ़ सा. अध्ययन' : p === 'Current Affairs' ? 'समसामयिकी' : p === 'Other' ? 'अन्य' : p === 'All' ? 'सभी' : p) : p}
+                  </button>
+                ))}
+              </div>
+
+
+
+              {/* Subject Grid */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <h2 style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>{t.subjects || "Subjects"}</h2>
+              </div>
+              
+              {dataLoading ? <Spinner C={C} /> : subjects.length === 0 ? (
+                <EmptyState icon="📚" title={t.noSubjects} desc={t.noSubjectsDesc} C={C} />
+              ) : (() => {
+                const groups = subjects.reduce((acc, sub) => {
+                  const paper = sub.paper || "Other";
+                  if (filterPaper === "All" && paper === "CSAT") return acc;
+                  if (filterPaper !== "All" && paper !== filterPaper) return acc;
+                  if (!acc[paper]) acc[paper] = [];
+                  acc[paper].push(sub);
+                  return acc;
+                }, {});
+                const order = ["Indian GS", "Chhattisgarh GS", "Current Affairs", "CSAT", "Other"];
+                const sortedPapers = Object.keys(groups).sort((a, b) => {
+                  const idxA = order.indexOf(a); const idxB = order.indexOf(b);
+                  if (idxA === -1 && idxB === -1) return a.localeCompare(b);
+                  if (idxA === -1) return 1; if (idxB === -1) return -1;
+                  return idxA - idxB;
+                });
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                    {sortedPapers.map(paper => (
+                      <div key={paper}>
+                        <h3 className="mobile-only" style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", marginBottom: 10 }}>
+                          {lang === 'hi' ? (paper === 'Indian GS' ? 'भारतीय सामान्य अध्ययन' : paper === 'Chhattisgarh GS' ? 'छत्तीसगढ़ सामान्य अध्ययन' : paper === 'Current Affairs' ? 'समसामयिकी' : paper === 'Other' ? 'अन्य' : paper) : paper}
+                        </h3>
+                        <div className="subjgrid">
+                          {/* We inject the parent paper name as the first card in desktop, or just render subjects normally. Let's render subjects normally. */}
+                          {groups[paper].map((sub) => {
+                            const subHistory = history.filter(h => String(h.subject_id) === String(sub.id));
+                            const accAvg = subHistory.length > 0 ? Math.round(subHistory.reduce((s, h) => s + (h.accuracy || 0), 0) / subHistory.length) : 0;
+                            return (
+                              <div key={sub.id} className="subj" onClick={() => openSubject(sub)} style={{ cursor: "pointer", background: "var(--surface)", border: "1px solid var(--line-2)", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+                                <div className="ico" style={{ background: "color-mix(in srgb, var(--teal) 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, lineHeight: 1 }}>
+                                  {getSubjectIcon(sub.name)}
+                                </div>
+                                <div>
+                                  <div className="nm" style={{ fontSize: 13 }}>{lang === "hi" && sub.name_hi ? sub.name_hi : sub.name}</div>
+                                  <div className="meta" style={{ fontSize: 11 }}>{accAvg > 0 ? `${accAvg}% acc` : "Not started"}</div>
+                                </div>
+                                {accAvg > 0 && (
+                                  <div className="arc">
+                                    <svg className="ring" viewBox="0 0 36 36" style={{ width: 36, height: 36 }}><circle className="bg" cx="18" cy="18" r="15.9" fill="none" stroke="var(--line-2)" strokeWidth="3" /><circle className="fg" cx="18" cy="18" r="15.9" fill="none" stroke="var(--teal)" strokeWidth="3" strokeDasharray={`${accAvg}, 100`} strokeLinecap="round" transform="rotate(-90 18 18)" /></svg>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+
           </div>
-        </div>
-      )}
+        );
+
+      })()}
 
       {/* ── ANALYTICS ── */}
       {tab === "analytics" && (() => {
@@ -197,30 +582,34 @@ export default function MainPage({
         const fmt     = (s) => s != null ? `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : "—";
         const dateStr = (iso) => { try { return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" }); } catch { return ""; } };
         return (
-          <div style={{ padding: "24px 16px", animation: "fadeUp 0.3s ease", maxWidth: 800, margin: "0 auto" }}>
+          <div className="container--responsive" style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease" }}>
             
             {/* Level & XP Banner */}
             {profile && (
-              <div style={{ background: `linear-gradient(135deg, ${C.card}, ${C.inp})`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "20px", marginBottom: 24, boxShadow: C.shadow, display: "flex", alignItems: "center", gap: 16 }}>
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: C.acc, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 800, boxShadow: `0 4px 12px ${C.acc}66` }}>
+              <div style={{ background: `linear-gradient(135deg, ${"var(--surface)"}, ${"var(--surface-2)"})`, border: `1px solid ${"var(--line)"}`, borderRadius: 12, padding: "16px", marginBottom: 20, boxShadow: "var(--shadow)", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--blue)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, boxShadow: `0 4px 8px ${"var(--blue)"}66` }}>
                   {Math.floor((profile.total_score || 0) / 100) + 1}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: C.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>
-                    {(profile.total_score || 0) < 100 ? "Aspirant" : (profile.total_score || 0) < 500 ? "Scholar" : "Officer"} Rank
+                  <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 2 }}>
+                    {(profile.total_score || 0) < 100 
+                      ? (lang === 'hi' ? "उम्मीदवार" : "Aspirant") 
+                      : (profile.total_score || 0) < 500 
+                        ? (lang === 'hi' ? "विद्वान" : "Scholar") 
+                        : (lang === 'hi' ? "अधिकारी" : "Officer")} {t.rank || "Rank"}
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 6 }}>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1 }}>{profile.total_score || 0} <span style={{ fontSize: 14, color: C.muted, fontWeight: 600 }}>XP</span></span>
-                    <span style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>Next Level: {((Math.floor((profile.total_score || 0) / 100) + 1) * 100)} XP</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 4 }}>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)", lineHeight: 1 }}>{profile.total_score || 0} <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>XP</span></span>
+                    <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>{t.nextLevel || "Next Level:"} {((Math.floor((profile.total_score || 0) / 100) + 1) * 100)} XP</span>
                   </div>
-                  <div style={{ height: 6, background: C.border, borderRadius: 3, overflow: "hidden" }}>
-                    <div style={{ width: `${((profile.total_score || 0) % 100)}%`, height: "100%", background: C.acc, borderRadius: 3 }} />
+                  <div style={{ height: 4, background: "var(--line)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ width: `${((profile.total_score || 0) % 100)}%`, height: "100%", background: "var(--blue)", borderRadius: 2 }} />
                   </div>
                 </div>
               </div>
             )}
 
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 20, letterSpacing: "-0.5px" }}>{t.performanceOverview}</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--ink)", marginBottom: 16, letterSpacing: "-0.5px" }}>{t.performanceOverview}</h2>
             {history.length === 0 ? <EmptyState icon="📊" title={t.noHistory} desc={t.noHistoryDesc} C={C} /> : (() => {
               const trendData = [...history].reverse().map((a, i) => ({
                 name: `T${i + 1}`,
@@ -239,20 +628,20 @@ export default function MainPage({
               
               return (
               <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12, marginBottom: 24 }}>
+              <div className="grid-responsive-2" style={{ marginBottom: 20 }}>
                 {[
-                  ["📝", totalTests, "Quizzes", C.acc],
-                  ["🎯", avgAccuracy + "%", "Overall Acc.", avgAccuracy >= 60 ? C.ok : C.err],
-                  ["🔥", profile?.current_streak || 0, "Day Streak", "#f97316"],
-                  ["👑", profile?.best_streak || 0, "Best Streak", "#fbbf24"],
-                  ["⏱️", `${totalMins}m`, "Time Spent", "#8b5cf6"],
-                  ["🏆", Math.max(...history.map(h => h.score || 0), 0), "Best Score", C.ok]
+                  ["📝", totalTests, t.quizzesText || "Quizzes", "var(--blue)"],
+                  ["🎯", avgAccuracy + "%", t.overallAcc || "Overall Acc.", avgAccuracy >= 60 ? "var(--teal)" : "var(--crimson)"],
+                  ["🔥", profile?.current_streak || 0, t.dayStreak || "Day Streak", "#f97316"],
+                  ["👑", profile?.best_streak || 0, t.bestStreak || "Best Streak", "#fbbf24"],
+                  ["⏱️", `${totalMins}m`, t.timeSpent || "Time Spent", "#8b5cf6"],
+                  ["🏆", Math.max(...history.map(h => h.score || 0), 0), t.bestScore || "Best Score", "var(--teal)"]
                 ].map(([icon, val, lbl, clr]) => (
-                  <div key={lbl} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 12px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 8 }}>
-                    <div style={{ fontSize: 24 }}>{icon}</div>
+                  <div key={lbl} style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 6 }}>
+                    <div style={{ fontSize: 20 }}>{icon}</div>
                     <div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: clr, lineHeight: 1 }}>{val}</div>
-                      <div style={{ fontSize: 12, color: C.muted, fontWeight: 600, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>{lbl}</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: clr, lineHeight: 1 }}>{val}</div>
+                      <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>{lbl}</div>
                     </div>
                   </div>
                 ))}
@@ -260,16 +649,16 @@ export default function MainPage({
               
               {/* Trend Chart */}
               {trendData.length > 1 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, marginBottom: 24 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 700, color: C.text, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 16 }}>Accuracy Trend</h3>
-                  <div style={{ height: 200, width: '100%' }}>
+                <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: 16, marginBottom: 20 }}>
+                  <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>{t.accuracyTrend || "Accuracy Trend"}</h3>
+                  <div style={{ height: 160, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={trendData.slice(-10)} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
-                        <XAxis dataKey="date" stroke={C.muted} fontSize={10} tickLine={false} axisLine={false} />
-                        <YAxis stroke={C.muted} fontSize={10} tickLine={false} axisLine={false} domain={[0, 100]} />
-                        <Tooltip contentStyle={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, color: C.text }} />
-                        <Line type="monotone" dataKey="accuracy" stroke={C.acc} strokeWidth={3} dot={{ r: 4, fill: C.acc, strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={"var(--line)"} vertical={false} />
+                        <XAxis dataKey="date" stroke={"var(--muted)"} fontSize={9} tickLine={false} axisLine={false} />
+                        <YAxis stroke={"var(--muted)"} fontSize={9} tickLine={false} axisLine={false} domain={[0, 100]} />
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, fontSize: 11, color: "var(--ink)" }} />
+                        <Line type="monotone" dataKey="accuracy" stroke={"var(--blue)"} strokeWidth={3} dot={{ r: 3, fill: "var(--blue)", strokeWidth: 0 }} activeDot={{ r: 5 }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -278,18 +667,18 @@ export default function MainPage({
 
               {/* Category Breakdown */}
               {categoryData.length > 0 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20, marginBottom: 24 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 700, color: C.text, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 16 }}>Category Breakdown</h3>
-                  <div style={{ height: Math.max(200, categoryData.length * 40), width: '100%' }}>
+                <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: 16, marginBottom: 20 }}>
+                  <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>{t.categoryBreakdown || "Category Breakdown"}</h3>
+                  <div style={{ height: Math.max(160, categoryData.length * 32), width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
-                        <XAxis type="number" domain={[0, 100]} stroke={C.muted} fontSize={10} tickLine={false} axisLine={false} />
-                        <YAxis type="category" dataKey="name" stroke={C.text} fontSize={11} tickLine={false} axisLine={false} width={80} />
-                        <Tooltip cursor={{ fill: `${C.border}55` }} contentStyle={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, color: C.text }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={"var(--line)"} horizontal={false} />
+                        <XAxis type="number" domain={[0, 100]} stroke={"var(--muted)"} fontSize={9} tickLine={false} axisLine={false} />
+                        <YAxis type="category" dataKey="name" stroke={"var(--ink)"} fontSize={10} tickLine={false} axisLine={false} width={80} />
+                        <Tooltip cursor={{ fill: `${"var(--line)"}55` }} contentStyle={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, fontSize: 11, color: "var(--ink)" }} />
                         <Bar dataKey="accuracy" radius={[0, 4, 4, 0]}>
                           {categoryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.accuracy >= 60 ? C.ok : (entry.accuracy >= 40 ? C.acc : C.err)} />
+                            <Cell key={`cell-${index}`} fill={entry.accuracy >= 60 ? "var(--teal)" : (entry.accuracy >= 40 ? "var(--blue)" : "var(--crimson)")} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -298,23 +687,23 @@ export default function MainPage({
                 </div>
               )}
 
-              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 20 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 700, color: C.text, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 16 }}>Recent Activity</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: 16 }}>
+                <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>{t.recentAttempts || "Recent Activity"}</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {recent.map((a, i) => {
                     const quizTitle = (lang === "hi" && a.quizzes?.title_hi) ? a.quizzes.title_hi : (a.quizzes?.title || "Quiz");
                     const topicTitle = (lang === "hi" && a.topics?.name_hi) ? a.topics.name_hi : (a.topics?.name || "");
                     const title = topicTitle ? `${topicTitle} • ${quizTitle}` : quizTitle;
                     const acc   = a.accuracy ?? (a.total > 0 ? Math.round((a.score / a.total) * 100) : 0);
                     return (
-                      <div key={a.id ?? i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: i < recent.length - 1 ? `1px solid ${C.border}` : "none" }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 8, background: acc >= 60 ? `${C.ok}15` : `${C.err}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{acc >= 60 ? "✅" : "📌"}</div>
+                      <div key={a.id ?? i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: i < recent.length - 1 ? `1px solid ${"var(--line)"}` : "none" }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 8, background: acc >= 60 ? `${"var(--teal)"}15` : `${"var(--crimson)"}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>{acc >= 60 ? "✅" : "📌"}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
-                          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{dateStr(a.created_at)} · {a.score ?? 0}/{a.total ?? 0} correct · ⏱ {fmt(a.time_taken)}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
+                          <div style={{ fontSize: 10, color: "var(--muted)", marginTop: 1 }}>{dateStr(a.created_at)} · {a.score ?? 0}/{a.total ?? 0} correct · ⏱ {fmt(a.time_taken)}</div>
                         </div>
                         <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: acc >= 60 ? C.ok : C.err }}>{acc}%</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: acc >= 60 ? "var(--teal)" : "var(--crimson)" }}>{acc}%</div>
                         </div>
                       </div>
                     );
@@ -333,7 +722,7 @@ export default function MainPage({
         const grouped = {};
         bookmarks.forEach(q => {
           const key   = String(q._subjectId ?? "unknown");
-          const label = (lang === "hi" && q._subjectName_hi) ? q._subjectName_hi : (q._subjectName || "Other");
+          const label = (lang === "hi" && q._subjectName_hi) ? q._subjectName_hi : (q._subjectName || (lang === "hi" ? "अन्य" : "Other"));
           if (!grouped[key]) grouped[key] = { label, questions: [] };
           grouped[key].questions.push(q);
         });
@@ -341,90 +730,52 @@ export default function MainPage({
         const letters = ["A", "B", "C", "D"];
 
         return (
-          <div style={{ padding: "24px 16px", animation: "fadeUp 0.3s ease", maxWidth: 800, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: C.text, letterSpacing: "-0.5px" }}>{t.savedQuestions}</h2>
-              <span style={{ fontSize: 12, color: C.muted, background: C.card, padding: "4px 10px", borderRadius: 12, border: `1px solid ${C.border}` }}>{bookmarks.length} saved</span>
+          <div className="container--responsive" style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease" }}>
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.5px", marginBottom: 2 }}>📌 {t.savedQuestions || "Saved Questions"}</h2>
+                <div style={{ fontSize: 12, color: "var(--muted)" }}>Practice your bookmarked questions anytime</div>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--teal)", background: "color-mix(in srgb, var(--teal) 12%, transparent)", padding: "4px 12px", borderRadius: 20, border: "1px solid color-mix(in srgb, var(--teal) 25%, transparent)" }}>{bookmarks.length} saved</span>
             </div>
 
-            {/* Sync indicator */}
-            <div style={{ background: `${C.ok}0D`, border: `1px solid ${C.ok}30`, borderRadius: 8, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 15 }}>{bmLoading ? "⏳" : "☁️"}</span>
-              <span style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>{bmLoading ? "Loading saved questions…" : "Saved questions sync to your account and are available across devices."}</span>
-            </div>
-
-            {bookmarks.length === 0 ? (
-              <EmptyState icon="🔖" title={t.noBookmarks} desc={t.noBookmarksDesc} C={C} />
+            {bmLoading ? (
+              <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>⏳ Loading saved questions...</div>
+            ) : bookmarks.length === 0 ? (
+              <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", borderRadius: 12, border: "1px dashed var(--line)" }}>
+                <div style={{ fontSize: 36, marginBottom: 8 }}>🔖</div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "var(--ink)", marginBottom: 4 }}>{t.noBookmarks || "No saved questions"}</div>
+                <div style={{ fontSize: 12, color: "var(--muted)" }}>{t.noBookmarksDesc || "Bookmark questions during a quiz for revision"}</div>
+              </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 {groups.map(({ label, questions }) => (
                   <div key={label}>
                     {/* Subject header */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 10, borderBottom: `2px solid ${C.acc}40` }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: C.acc, flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, fontWeight: 700, color: C.acc, textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</span>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, paddingBottom: 8, borderBottom: "2px solid color-mix(in srgb, var(--blue) 30%, transparent)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--blue)" }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--blue)", textTransform: "uppercase", letterSpacing: "1px" }}>{label}</span>
                       </div>
-                      <span style={{ fontSize: 11, color: C.muted, background: C.inp, padding: "3px 10px", borderRadius: 10, border: `1px solid ${C.border}` }}>
-                        {questions.length} question{questions.length !== 1 ? "s" : ""}
+                      <span style={{ fontSize: 10, color: "var(--muted)", background: "var(--surface)", padding: "2px 8px", borderRadius: 8, border: "1px solid var(--line)" }}>
+                        {questions.length} {questions.length !== 1 ? (t.questions || "questions") : (t.question || "question")}
                       </span>
                     </div>
 
-                    {/* Questions */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    {/* Question Cards */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                       {questions.map((q, qi) => {
                         const qText = lang === "hi" && q.question_hi ? q.question_hi : q.question;
                         const opts  = lang === "hi" && q.options_hi  ? q.options_hi  : q.options;
+                        const hasContent = qText && opts && opts.length > 0;
+
                         return (
-                          <div key={q.id ?? qi} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 18, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-
-                            {/* Topic badge */}
-                            {q._topicName && (
-                              <div style={{ marginBottom: 10 }}>
-                                <span style={{ fontSize: 11, color: C.muted, background: C.inp, border: `1px solid ${C.border}`, borderRadius: 4, padding: "2px 8px" }}>
-                                  {lang === "hi" && q._topicName_hi ? q._topicName_hi : q._topicName}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Question */}
-                            <p style={{ fontSize: 14, color: C.text, lineHeight: 1.65, marginBottom: 14, fontWeight: 500 }}>{qText}</p>
-
-                            {/* Options with correct answer highlighted */}
-                            {opts && (
-                              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-                                {opts.map((opt, idx) => {
-                                  const isCorrect = q.correct === idx;
-                                  return (
-                                    <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 6, background: isCorrect ? `${C.ok}12` : C.inp, border: `1px solid ${isCorrect ? C.ok : C.border}`, transition: "all 0.15s" }}>
-                                      <span style={{ width: 22, height: 22, borderRadius: 4, flexShrink: 0, background: isCorrect ? C.ok : C.card, border: `1px solid ${isCorrect ? C.ok : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: isCorrect ? "#fff" : C.muted }}>
-                                        {letters[idx]}
-                                      </span>
-                                      <span style={{ fontSize: 13, color: isCorrect ? C.ok : C.text, fontWeight: isCorrect ? 600 : 400, lineHeight: 1.4, flex: 1 }}>{opt}</span>
-                                      {isCorrect && <span style={{ fontSize: 13, flexShrink: 0 }}>✓</span>}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-
-                            {/* Explanation */}
-                            {(q.explanation || q.explanation_hi) && (
-                              <div style={{ background: `${C.ok}0D`, border: `1px solid ${C.ok}30`, borderRadius: 6, padding: "10px 12px", marginBottom: 14 }}>
-                                <div style={{ fontSize: 10, color: C.ok, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 5 }}>Explanation</div>
-                                <p style={{ fontSize: 12, color: C.text, lineHeight: 1.65, margin: 0 }}>
-                                  {lang === "hi" && q.explanation_hi ? q.explanation_hi : q.explanation}
-                                </p>
-                              </div>
-                            )}
-
-                            <button
-                              onClick={() => toggleBM(q)}
-                              style={{ background: "none", border: `1px solid ${C.err}44`, color: C.err, borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-                            >
-                              Remove
-                            </button>
-                          </div>
+                          <BookmarkCard
+                            key={q.id ?? qi}
+                            q={q} qi={qi} qText={qText} opts={opts} hasContent={hasContent}
+                            letters={letters} lang={lang} t={t} toggleBM={toggleBM}
+                          />
                         );
                       })}
                     </div>
@@ -443,24 +794,82 @@ export default function MainPage({
 
       {/* ── PROFILE ── */}
       {tab === "profile" && (
-        <div style={{ padding: "24px 16px", animation: "fadeUp 0.3s ease", maxWidth: 600, margin: "0 auto" }}>
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 28, marginBottom: 16, textAlign: "center" }}>
-            <Avatar ini={userAvatar} size={80} pic={userPic} color={C.acc} borderColor={C.border} />
-            <div style={{ fontWeight: 700, fontSize: 20, color: C.text, letterSpacing: "-0.5px", marginTop: 12 }}>{userName}</div>
-            <div style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{userEmail}</div>
+        <div style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease", width: "100%", maxWidth: 600, boxSizing: "border-box", margin: "0 auto" }}>
+          <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 12, padding: 24, marginBottom: 12, textAlign: "center" }}>
+            <Avatar ini={userAvatar} size={70} pic={userPic} color={"var(--blue)"} borderColor={"var(--line)"} />
+            <div style={{ fontWeight: 700, fontSize: 18, color: "var(--ink)", letterSpacing: "-0.5px", marginTop: 10 }}>{userName}</div>
+            <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 2 }}>{userEmail}</div>
           </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <button onClick={toggleDark} style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, padding: "14px", cursor: "pointer" }}>{dark ? "Disable Dark" : "Enable Dark"}</button>
-            <button onClick={toggleLang} style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 8, padding: "14px", cursor: "pointer" }}>{lang === "en" ? "Hindi" : "English"}</button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={toggleDark} style={{ flex: 1, background: "var(--surface)", border: `1px solid ${"var(--line)"}`, color: "var(--ink)", borderRadius: 8, padding: "12px", cursor: "pointer" }}>{dark ? (t.disableDark || "Disable Dark") : (t.enableDark || "Enable Dark")}</button>
+            <button onClick={toggleLang} style={{ flex: 1, background: "var(--surface)", border: `1px solid ${"var(--line)"}`, color: "var(--ink)", borderRadius: 8, padding: "12px", cursor: "pointer" }}>{lang === "en" ? "Hindi" : "English"}</button>
           </div>
           {(userEmail === 'randomdog007@gmail.com' || userEmail === 'preview@cgpsc.com' || userEmail?.includes('admin')) && (
-            <button onClick={onAdmin} style={{ width: "100%", marginTop: 12, background: C.acc, border: `none`, color: "#fff", borderRadius: 8, padding: "14px", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Admin Panel</button>
+            <button onClick={onAdmin} style={{ width: "100%", marginTop: 10, background: "var(--blue)", border: `none`, color: "#fff", borderRadius: 8, padding: "12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{t.adminPanel || "Admin Panel"}</button>
           )}
-          <button onClick={signOut} style={{ width: "100%", marginTop: 12, background: C.card, border: `1px solid ${C.err}44`, color: C.err, borderRadius: 8, padding: "14px", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Sign Out</button>
+          <button onClick={signOut} style={{ width: "100%", marginTop: 10, background: "var(--surface)", border: `1px solid ${"var(--crimson)"}44`, color: "var(--crimson)", borderRadius: 8, padding: "12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{t.signOut || "Sign Out"}</button>
+        </div>
+      )}
+      
+      {/* ── HISTORY ── */}
+      {tab === "history" && (
+        <div className="container--responsive" style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease" }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: "var(--ink)" }}>Recent History</h1>
+          {history?.length === 0 ? (
+            <div style={{ padding: 32, textAlign: "center", background: "var(--surface)", borderRadius: 12, border: "1px dashed var(--line)", color: "var(--muted)" }}>
+              No history found yet. Start taking quizzes!
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {history?.slice(0, 50).map((h, i) => (
+                <div key={i} onClick={() => onStartQuiz({id: h.quiz_id, title: h.quiz_title}, true)} style={{ cursor: "pointer", padding: 14, background: "var(--surface)", borderRadius: 12, border: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{lang === "hi" && h.quizzes?.title_hi ? h.quizzes.title_hi : (h.quizzes?.title || "Unknown Quiz")}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+                      Score: {h.score} | Accuracy: {h.accuracy}% | Attempted: {h.total_attempted}
+                    </div>
+                  </div>
+                  <div style={{ padding: "4px 10px", background: h.accuracy >= 60 ? "color-mix(in srgb, var(--teal) 15%, transparent)" : "color-mix(in srgb, var(--amber) 15%, transparent)", color: h.accuracy >= 60 ? "var(--teal)" : "var(--amber)", borderRadius: 8, fontWeight: 700, fontSize: 11 }}>
+                    {h.accuracy}%
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      <BottomNav tab={tab} C={C} onNavigate={onTabNavigate} />
+      {/* ── QUIZZES ── */}
+      {tab === "quizzes" && (
+        <div className="container--responsive" style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease" }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: "var(--ink)" }}>Browse Quizzes</h1>
+          <p style={{ color: "var(--muted)", marginBottom: 20, fontSize: 13 }}>Select a category to view all available quizzes and modules.</p>
+          <div className="subjgrid">
+            {subjects?.map(sub => (
+              <div key={sub.id} onClick={() => openSubject(sub)} style={{ cursor: "pointer", background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 12, padding: 12, display: "flex", alignItems: "center", gap: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }} className="hover-raise">
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: "color-mix(in srgb, var(--teal) 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18, lineHeight: 1 }}>
+                  {getSubjectIcon(sub.name)}
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{lang === "hi" && sub.name_hi ? sub.name_hi : sub.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* ── FALLBACK ── */}
+      {!["home", "analytics", "bookmarks", "leaderboard", "profile", "history", "quizzes"].includes(tab) && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "60vh", color: "var(--muted)" }}>
+          <div style={{ fontSize: 64, marginBottom: 16 }}>🚧</div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--ink)", marginBottom: 8 }}>Coming Soon</h2>
+          <p>We are still building the {tab} section.</p>
+        </div>
+      )}
+      
+      </div> {/* END MAIN AREA */}
+      <BottomNav tab={tab} C={C} onNavigate={onTabNavigate} profile={profile} />
     </div>
   );
-}
+});
+
+export default MainPage;

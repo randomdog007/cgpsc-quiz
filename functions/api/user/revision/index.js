@@ -23,6 +23,9 @@ export async function onRequestGet(context) {
       q.question_hi,
       q.option_a, q.option_b, q.option_c, q.option_d,
       q.option_a_hi, q.option_b_hi, q.option_c_hi, q.option_d_hi,
+      q.correct_option,
+      q.explanation,
+      q.explanation_hi,
       q.topic_id,
       t.name    AS topic_name,
       t.name_hi AS topic_name_hi,
@@ -41,8 +44,9 @@ export async function onRequestGet(context) {
   // ── Get total due count (for badge/counter) ──
   const countResult = await env.cgpsc_quiz_db.prepare(`
     SELECT COUNT(*) as due_count
-    FROM wrong_questions
-    WHERE user_id = ? AND next_revision <= datetime('now')
+    FROM wrong_questions wq
+    JOIN questions q ON wq.question_id = q.id
+    WHERE wq.user_id = ? AND wq.next_revision <= datetime('now')
   `).bind(user.id).first();
 
   // ── Get streak info ──
@@ -71,6 +75,9 @@ export async function onRequestGet(context) {
       c: q.option_c_hi,
       d: q.option_d_hi
     },
+    correctOption: q.correct_option,
+    explanation: q.explanation,
+    explanationHi: q.explanation_hi,
     subject:     q.subject_name,
     subjectHi:   q.subject_name_hi,
     topic:       q.topic_name,

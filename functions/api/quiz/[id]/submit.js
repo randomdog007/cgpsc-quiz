@@ -122,8 +122,8 @@ export async function onRequestPost(context) {
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   // CGPSC marking: +1 correct, -1/3 wrong
-  const marks = correct - (wrong * 0.33);
-  const maxMarks = total;
+  const marks = (correct * 2) - (wrong * 0.66);
+  const maxMarks = total * 2;
 
   // ═══════════════════════════════════════════
   // 7. SAVE ATTEMPT

@@ -18,16 +18,21 @@ const insertQuizSql = `
 `;
 
 try {
-  const quizResultJson = execSync(`npx.cmd wrangler d1 execute cgpsc_quiz_db --remote --command "${insertQuizSql.replace(/\n/g, " ")}" --json`, { encoding: 'utf-8' });
-  const quizResult = JSON.parse(quizResultJson);
-  const quizId = quizResult[0].results[0].id;
+  fs.writeFileSync('temp_quiz.sql', insertQuizSql);
+  const quizResultJson = execSync(`npx.cmd wrangler d1 execute cgpsc_quiz_db --remote --file temp_quiz.sql --json`, { encoding: 'utf-8' });
+  const match = quizResultJson.match(/\[.*\]/s);
+  if (!match) throw new Error("Could not find JSON in output: " + quizResultJson);
+  const quizResult = JSON.parse(match[0]);
+  const quizId = quizResult[0].meta.last_row_id;
   console.log(`Quiz inserted with ID: ${quizId}`);
 
   // 2. Insert the Questions
   console.log(`Inserting ${data.questions.length} questions...`);
+  
+  let questionsSql = "";
   for (let i = 0; i < data.questions.length; i++) {
     const q = data.questions[i];
-    const insertQuestionSql = `
+    questionsSql += `
       INSERT INTO questions (quiz_id, topic_id, sort_order, question, question_hi, option_a, option_b, option_c, option_d, option_a_hi, option_b_hi, option_c_hi, option_d_hi, correct_option, explanation, explanation_hi)
       VALUES (${quizId}, ${data.quiz.topic_id}, ${i + 1}, 
         '${q.question.replace(/'/g, "''")}', 
@@ -45,10 +50,14 @@ try {
         '${q.explanation_hi.replace(/'/g, "''")}'
       );
     `;
-    
-    execSync(`npx.cmd wrangler d1 execute cgpsc_quiz_db --remote --command "${insertQuestionSql.replace(/\n/g, " ")}"`, { encoding: 'utf-8' });
-    console.log(`Inserted question ${i + 1}/${data.questions.length}`);
   }
+  
+  fs.writeFileSync('temp_questions.sql', questionsSql);
+  execSync(`npx.cmd wrangler d1 execute cgpsc_quiz_db --remote --file temp_questions.sql`, { encoding: 'utf-8' });
+  console.log(`Successfully inserted ${data.questions.length} questions!`);
+  
+  fs.unlinkSync('temp_quiz.sql');
+  fs.unlinkSync('temp_questions.sql');
   
   console.log("All done!");
 } catch (e) {

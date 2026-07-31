@@ -1,0 +1,10 @@
+UPDATE topics SET name = 'Pre-Historic to Pan-Indian Empires', name_hi = 'प्रागैतिहासिक काल से अखिल भारतीय साम्राज्यों तक' WHERE id = 1131;
+UPDATE topics SET name = 'Early Regional Dynasties (The Sirpur-Malhar Era)', name_hi = 'प्रारंभिक क्षेत्रीय राजवंश (सिरपुर-मल्हार युग)' WHERE id = 1132;
+UPDATE topics SET name = 'The Kalchuri Supremacy', name_hi = 'कल्चुरी सर्वोच्चता' WHERE id = 1133;
+UPDATE topics SET name = 'The Dynasties of Bastar (Dandakaranya)', name_hi = 'बस्तर के राजवंश (दंडकारण्य)' WHERE id = 1134;
+UPDATE topics SET name = 'Maratha Paramountcy & British Transition (1741–1854)', name_hi = 'मराठा सर्वोच्चता और ब्रिटिश संक्रमण (1741–1854)' WHERE id = 1135;
+UPDATE topics SET name = 'Tribal Uprisings & Peasant Movements', name_hi = 'आदिवासी विद्रोह और किसान आंदोलन' WHERE id = 1136;
+UPDATE topics SET name = 'The 1857 Uprising in Chhattisgarh', name_hi = 'छत्तीसगढ़ में 1857 का विद्रोह' WHERE id = 1137;
+UPDATE topics SET name = 'Socio-Political Awakening & Early Nationalism (1889–1920)', name_hi = 'सामाजिक-राजनीतिक जागरण और प्रारंभिक राष्ट्रवाद (1889–1920)' WHERE id = 1138;
+UPDATE topics SET name = 'The Gandhian Era & Mass Movements (1920–1947)', name_hi = 'गांधीवादी युग और जन आंदोलन (1920–1947)' WHERE id = 1139;
+UPDATE topics SET name = 'Post-Independence Integration & State Formation', name_hi = 'स्वतंत्रता के बाद का एकीकरण और राज्य गठन' WHERE id = 1140;

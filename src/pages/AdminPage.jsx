@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import Select from 'react-select';
 
 export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
   const [activeTab, setActiveTab] = useState('quizzes');
@@ -60,10 +61,10 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
 
   if (!isAdmin) {
     return (
-      <div style={{ padding: 40, textAlign: 'center', color: C.text }}>
+      <div style={{ padding: 40, textAlign: 'center', color: "var(--ink)" }}>
         <h2>Access Denied</h2>
-        <p style={{ color: C.muted }}>You do not have permission to view the admin panel.</p>
-        <button onClick={onBack} style={{ marginTop: 20, padding: '10px 20px', background: C.acc, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Back to Home</button>
+        <p style={{ color: "var(--muted)" }}>You do not have permission to view the admin panel.</p>
+        <button onClick={onBack} style={{ marginTop: 20, padding: '10px 20px', background: "var(--blue)", color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Back to Home</button>
       </div>
     );
   }
@@ -188,50 +189,71 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
     }
   };
 
-  const inputStyle = { width: '100%', padding: '10px', marginBottom: '15px', borderRadius: '6px', border: `1px solid ${C.border}`, background: C.inp, color: C.text };
-  const labelStyle = { display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: 600, color: C.muted };
+  const inputStyle = { width: '100%', padding: '10px', marginBottom: '15px', borderRadius: '6px', border: `1px solid ${"var(--line)"}`, background: "var(--surface-2)", color: "var(--ink)" };
+  const labelStyle = { display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: 600, color: "var(--muted)" };
+
+  const customSelectStyles = {
+    control: (base) => ({
+      ...base,
+      background: "var(--surface-2)",
+      borderColor: "var(--line)",
+      color: "var(--ink)",
+      marginBottom: '15px',
+      boxShadow: 'none',
+      '&:hover': { borderColor: "var(--line)" }
+    }),
+    singleValue: (base) => ({ ...base, color: "var(--ink)" }),
+    input: (base) => ({ ...base, color: "var(--ink)" }),
+    menu: (base) => ({ ...base, background: "var(--surface)", border: `1px solid ${"var(--line)"}`, zIndex: 9999 }),
+    option: (base, state) => ({ ...base, background: state.isFocused ? "var(--surface-2)" : 'transparent', color: "var(--ink)", cursor: 'pointer' })
+  };
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ color: C.text, fontSize: 24, margin: 0 }}>Admin Panel</h1>
+        <h1 style={{ color: "var(--ink)", fontSize: 24, margin: 0 }}>Admin Panel</h1>
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
         <button 
           onClick={() => setActiveTab('quizzes')}
-          style={{ flex: 1, padding: 12, background: activeTab === 'quizzes' ? C.acc : C.card, color: activeTab === 'quizzes' ? '#fff' : C.text, border: `1px solid ${C.border}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+          style={{ flex: 1, padding: 12, background: activeTab === 'quizzes' ? "var(--blue)" : "var(--surface)", color: activeTab === 'quizzes' ? '#fff' : "var(--ink)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
         >
           Add Quiz
         </button>
         <button 
           onClick={() => setActiveTab('questions')}
-          style={{ flex: 1, padding: 12, background: activeTab === 'questions' ? C.acc : C.card, color: activeTab === 'questions' ? '#fff' : C.text, border: `1px solid ${C.border}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+          style={{ flex: 1, padding: 12, background: activeTab === 'questions' ? "var(--blue)" : "var(--surface)", color: activeTab === 'questions' ? '#fff' : "var(--ink)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
         >
           Add Questions (Single)
         </button>
         <button 
           onClick={() => setActiveTab('bulk')}
-          style={{ flex: 1, padding: 12, background: activeTab === 'bulk' ? C.acc : C.card, color: activeTab === 'bulk' ? '#fff' : C.text, border: `1px solid ${C.border}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+          style={{ flex: 1, padding: 12, background: activeTab === 'bulk' ? "var(--blue)" : "var(--surface)", color: activeTab === 'bulk' ? '#fff' : "var(--ink)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
         >
           Question Bank (Bulk Upload)
         </button>
       </div>
 
       {status.msg && (
-        <div style={{ padding: 12, marginBottom: 20, borderRadius: 8, background: status.type === 'error' ? `${C.err}22` : `${C.ok}22`, color: status.type === 'error' ? C.err : C.ok, fontWeight: 500, border: `1px solid ${status.type === 'error' ? C.err : C.ok}` }}>
+        <div style={{ padding: 12, marginBottom: 20, borderRadius: 8, background: status.type === 'error' ? `${"var(--crimson)"}22` : `${"var(--teal)"}22`, color: status.type === 'error' ? "var(--crimson)" : "var(--teal)", fontWeight: 500, border: `1px solid ${status.type === 'error' ? "var(--crimson)" : "var(--teal)"}` }}>
           {status.msg}
         </div>
       )}
 
       {activeTab === 'quizzes' && (
-        <div style={{ background: C.card, padding: 20, borderRadius: 12, border: `1px solid ${C.border}` }}>
+        <div style={{ background: "var(--surface)", padding: 20, borderRadius: 12, border: `1px solid ${"var(--line)"}` }}>
           <form onSubmit={handleAddQuiz}>
             <label style={labelStyle}>Topic</label>
-            <select required value={quizData.topic_id} onChange={e => setQuizData({...quizData, topic_id: e.target.value})} style={inputStyle}>
-              <option value="">-- Select a Topic --</option>
-              {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
+            <Select
+              options={topics.map(t => ({label: t.name, value: t.id}))}
+              value={quizData.topic_id ? {label: topics.find(t => String(t.id) === String(quizData.topic_id))?.name, value: quizData.topic_id} : null}
+              onChange={val => setQuizData({...quizData, topic_id: val ? val.value : ''})}
+              placeholder="-- Select a Topic --"
+              isClearable
+              isSearchable
+              styles={customSelectStyles}
+            />
             
             <label style={labelStyle}>Title (English)</label>
             <input required type="text" value={quizData.title} onChange={e => setQuizData({...quizData, title: e.target.value})} style={inputStyle} placeholder="Quiz Title" />
@@ -257,13 +279,13 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
             </div>
 
             <div style={{ display: 'flex', gap: 24, marginTop: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 500, color: C.text, cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 500, color: "var(--ink)", cursor: 'pointer' }}>
                 <input type="checkbox" checked={quizData.is_premium} onChange={e => setQuizData({...quizData, is_premium: e.target.checked})} style={{ width: 18, height: 18 }} />
                 Premium Quiz
               </label>
             </div>
 
-            <button type="submit" style={{ marginTop: 20, width: '100%', padding: 14, background: C.acc, color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
+            <button type="submit" style={{ marginTop: 20, width: '100%', padding: 14, background: "var(--blue)", color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
               Create Quiz
             </button>
           </form>
@@ -271,22 +293,32 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
       )}
 
       {activeTab === 'questions' && (
-        <div style={{ background: C.card, padding: 20, borderRadius: 12, border: `1px solid ${C.border}` }}>
+        <div style={{ background: "var(--surface)", padding: 20, borderRadius: 12, border: `1px solid ${"var(--line)"}` }}>
           <form onSubmit={handleAddQuestion}>
             <div style={{ display: 'flex', gap: 15 }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Topic (Question Bank)</label>
-                <select value={qData.topic_id} onChange={e => setQData({...qData, topic_id: e.target.value})} style={inputStyle}>
-                  <option value="">-- Or Select a Topic Bank --</option>
-                  {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
+                <Select
+                  options={topics.map(t => ({label: t.name, value: t.id}))}
+                  value={qData.topic_id ? {label: topics.find(t => String(t.id) === String(qData.topic_id))?.name, value: qData.topic_id} : null}
+                  onChange={val => setQData({...qData, topic_id: val ? val.value : ''})}
+                  placeholder="-- Or Select a Topic Bank --"
+                  isClearable
+                  isSearchable
+                  styles={customSelectStyles}
+                />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Specific Quiz (Optional)</label>
-                <select value={qData.quiz_id} onChange={e => setQData({...qData, quiz_id: e.target.value})} style={inputStyle}>
-                  <option value="">-- Select a Quiz --</option>
-                  {quizzes.map(q => <option key={q.id} value={q.id}>ID: {q.id} - {q.title}</option>)}
-                </select>
+                <Select
+                  options={quizzes.map(q => ({label: `ID: ${q.id} - ${q.title}`, value: q.id}))}
+                  value={qData.quiz_id ? {label: `ID: ${qData.quiz_id} - ${quizzes.find(q => String(q.id) === String(qData.quiz_id))?.title}`, value: qData.quiz_id} : null}
+                  onChange={val => setQData({...qData, quiz_id: val ? val.value : ''})}
+                  placeholder="-- Select a Quiz --"
+                  isClearable
+                  isSearchable
+                  styles={customSelectStyles}
+                />
               </div>
             </div>
 
@@ -366,7 +398,7 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
               </div>
             </div>
 
-            <button type="submit" style={{ marginTop: 10, width: '100%', padding: 14, background: C.acc, color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
+            <button type="submit" style={{ marginTop: 10, width: '100%', padding: 14, background: "var(--blue)", color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
               Add Question
             </button>
           </form>
@@ -374,27 +406,37 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
       )}
 
       {activeTab === 'bulk' && (
-        <div style={{ background: C.card, padding: 20, borderRadius: 12, border: `1px solid ${C.border}` }}>
+        <div style={{ background: "var(--surface)", padding: 20, borderRadius: 12, border: `1px solid ${"var(--line)"}` }}>
           <form onSubmit={handleBulkUpload}>
             <div style={{ display: 'flex', gap: 15 }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Select Topic for Question Bank</label>
-                <select required value={bulkTopicId} onChange={e => setBulkTopicId(e.target.value)} style={inputStyle}>
-                  <option value="">-- Select a Topic --</option>
-                  {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
+                <Select
+                  options={topics.map(t => ({label: t.name, value: t.id}))}
+                  value={bulkTopicId ? {label: topics.find(t => String(t.id) === String(bulkTopicId))?.name, value: bulkTopicId} : null}
+                  onChange={val => setBulkTopicId(val ? val.value : '')}
+                  placeholder="-- Select a Topic --"
+                  isClearable
+                  isSearchable
+                  styles={customSelectStyles}
+                />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Specific Quiz (Optional)</label>
-                <select value={bulkQuizId} onChange={e => setBulkQuizId(e.target.value)} style={inputStyle}>
-                  <option value="">-- Select a Quiz --</option>
-                  {quizzes.map(q => <option key={q.id} value={q.id}>ID: {q.id} - {q.title}</option>)}
-                </select>
+                <Select
+                  options={quizzes.map(q => ({label: `ID: ${q.id} - ${q.title}`, value: q.id}))}
+                  value={bulkQuizId ? {label: `ID: ${bulkQuizId} - ${quizzes.find(q => String(q.id) === String(bulkQuizId))?.title}`, value: bulkQuizId} : null}
+                  onChange={val => setBulkQuizId(val ? val.value : '')}
+                  placeholder="-- Select a Quiz --"
+                  isClearable
+                  isSearchable
+                  styles={customSelectStyles}
+                />
               </div>
             </div>
 
             <label style={labelStyle}>Paste from Excel (TSV format)</label>
-            <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>Columns must be exactly: <b>Q(EN), Q(HI), OptA(EN), OptA(HI), OptB(EN), OptB(HI), OptC(EN), OptC(HI), OptD(EN), OptD(HI), Correct(1-4), Exp(EN), Exp(HI)</b></div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 10 }}>Columns must be exactly: <b>Q(EN), Q(HI), OptA(EN), OptA(HI), OptB(EN), OptB(HI), OptC(EN), OptC(HI), OptD(EN), OptD(HI), Correct(1-4), Exp(EN), Exp(HI)</b></div>
             <textarea 
               required
               rows={15} 
@@ -404,7 +446,7 @@ export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
               placeholder="Q(EN)	Q(HI)	A(EN)	A(HI)	B(EN)	B(HI)	C(EN)	C(HI)	D(EN)	D(HI)	1	Exp(EN)	Exp(HI)..."
             />
 
-            <button type="submit" style={{ marginTop: 10, width: '100%', padding: 14, background: C.acc, color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
+            <button type="submit" style={{ marginTop: 10, width: '100%', padding: 14, background: "var(--blue)", color: '#fff', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
               Bulk Import Questions
             </button>
           </form>

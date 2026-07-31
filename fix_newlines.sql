@@ -1,0 +1,12 @@
+UPDATE questions SET question = REPLACE(question, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET question_hi = REPLACE(question_hi, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET explanation = REPLACE(explanation, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET explanation_hi = REPLACE(explanation_hi, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_a = REPLACE(option_a, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_a_hi = REPLACE(option_a_hi, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_b = REPLACE(option_b, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_b_hi = REPLACE(option_b_hi, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_c = REPLACE(option_c, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_c_hi = REPLACE(option_c_hi, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_d = REPLACE(option_d, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);
+UPDATE questions SET option_d_hi = REPLACE(option_d_hi, '\n', CHAR(10)) WHERE quiz_id IN (1294, 1299, 1301);

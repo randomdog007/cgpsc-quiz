@@ -1,0 +1,5 @@
+DELETE FROM questions WHERE quiz_id IN (
+    SELECT id FROM quizzes WHERE topic_id IN (1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140)
+);
+
+DELETE FROM quizzes WHERE topic_id IN (1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140);

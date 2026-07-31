@@ -53,16 +53,25 @@ export async function onRequestPost(context) {
   let correctCount = 0;
   let wrongCount = 0;
   let skippedCount = 0;
+  const stmts = [];
 
-  for (const [qIdStr, userAnswer] of Object.entries(answers)) {
+  for (const [qIdStr, answerPayload] of Object.entries(answers)) {
     const qId = Number(qIdStr);
     const correct = answerMap[qId];
     const state = stateMap[qId] || { wrong_count: 0, ease_factor: 2.5, interval_days: 1 };
 
     if (!correct) continue;
 
+    // Support both old format (plain number) and new format ({ answer, confidence })
+    const userAnswer = (answerPayload !== null && typeof answerPayload === 'object')
+      ? answerPayload.answer
+      : answerPayload;
+    const confidence = (answerPayload !== null && typeof answerPayload === 'object' && answerPayload.confidence)
+      ? Number(answerPayload.confidence)
+      : 2; // default: 'got it'
+
     const isSkipped = userAnswer === null || userAnswer === undefined;
-    const isCorrect = !isSkipped && userAnswer === correct.correct_option;
+    const isCorrect = !isSkipped && Number(userAnswer) === Number(correct.correct_option);
 
     if (isCorrect) correctCount++;
     else if (isSkipped) skippedCount++;
@@ -72,27 +81,35 @@ export async function onRequestPost(context) {
     let newEase = state.ease_factor;
     let newInterval = state.interval_days;
 
+    // Confidence multiplier: 1=guessed(0.6x), 2=got it(1.0x), 3=nailed it(1.3x)
+    const confidenceMultiplier = confidence === 1 ? 0.6 : confidence === 3 ? 1.3 : 1.0;
+
     if (isCorrect) {
-      // Correct: push further out
-      newEase = Math.min(state.ease_factor + 0.1, 3.0);
+      // Correct: push further out, adjusted by confidence
+      const easeBoost = confidence === 3 ? 0.15 : confidence === 1 ? 0.0 : 0.1;
+      newEase = Math.min(state.ease_factor + easeBoost, 3.0);
       if (state.interval_days === 0) {
-        newInterval = 1;
+        newInterval = confidence === 3 ? 2 : 1;
       } else if (state.interval_days === 1) {
-        newInterval = 3;
+        newInterval = confidence === 3 ? 4 : 3;
       } else {
         newInterval = Math.min(
-          Math.round(state.interval_days * newEase),
+          Math.round(state.interval_days * newEase * confidenceMultiplier),
           90  // cap at 90 days
         );
       }
+    } else if (isSkipped) {
+      // Skipped: gently shorten interval but don't reset
+      newInterval = Math.max(1, Math.floor(state.interval_days * 0.7));
     } else {
-      // Wrong or skipped: reset to 0 days
-      newEase = Math.max(state.ease_factor - 0.2, 1.3);
+      // Wrong: reset, ease penalty depends on confidence (if they guessed, penalty is lighter)
+      const easePenalty = confidence === 1 ? 0.1 : 0.2;
+      newEase = Math.max(state.ease_factor - easePenalty, 1.3);
       newInterval = 0;
     }
 
     // ── Update wrong_questions ──
-    await env.cgpsc_quiz_db.prepare(`
+    stmts.push(env.cgpsc_quiz_db.prepare(`
       UPDATE wrong_questions SET
         wrong_count   = CASE WHEN ? = 0 THEN wrong_count + 1 ELSE wrong_count END,
         ease_factor   = ?,
@@ -101,14 +118,14 @@ export async function onRequestPost(context) {
         last_wrong_at = CASE WHEN ? = 0 THEN CURRENT_TIMESTAMP ELSE last_wrong_at END
       WHERE user_id = ? AND question_id = ?
     `).bind(
-      isCorrect ? 1 : 0,   // increment wrong_count only if wrong
+      (isCorrect || isSkipped) ? 1 : 0,
       newEase,
       newInterval,
       newInterval,
-      isCorrect ? 1 : 0,
+      (isCorrect || isSkipped) ? 1 : 0,
       user.id,
       qId
-    ).run();
+    ));
 
     results.push({
       questionId:    qId,
@@ -122,9 +139,19 @@ export async function onRequestPost(context) {
       newEase: Math.round(newEase * 10) / 10
     });
   }
+  
+  if (stmts.length > 0) {
+    try {
+      await env.cgpsc_quiz_db.batch(stmts);
+    } catch (e) {
+      return Response.json({ error: 'Failed to update database' }, { status: 500 });
+    }
+  }
 
   // ── Update streak ──
-  await updateStreak(env, user.id);
+  if (correctCount > 0 || wrongCount > 0) {
+    await updateStreak(env, user.id);
+  }
 
   // ── Get remaining due count ──
   const remaining = await env.cgpsc_quiz_db.prepare(`
@@ -134,10 +161,10 @@ export async function onRequestPost(context) {
   `).bind(user.id).first();
 
   return Response.json({
-    correct:   correctCount,
-    wrong:     wrongCount,
-    skipped:   skippedCount,
-    total:     results.length,
+    correctCount,
+    wrongCount,
+    skippedCount,
+    totalAttempted: results.length,
     remaining: remaining?.cnt || 0,
     results
   });

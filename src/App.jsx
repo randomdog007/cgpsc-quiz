@@ -8,10 +8,17 @@ import QuizPage from "./pages/QuizPage";
 import ResultPage from "./pages/ResultPage";
 import RevisionPage from "./pages/RevisionPage";
 import AdminPage from "./pages/AdminPage";
+import Sprite from "./components/layout/Sprite";
 
 // --- SUPABASE CLIENT PLACEHOLDER FOR CANVAS PREVIEW ---
 // For local development, delete this dummy object and uncomment the import below:
 // import { supabase } from "./supabase";
+
+const STATIC_DATA = { subjects: [], topics: {} };
+const T = { 
+  en: {}, 
+  hi: {} 
+};
 
 // Creates a thenable chain that PRESERVES its resolved value through all chaining methods.
 // This is critical: .select().eq().order() must all resolve to the same data, not wipe it.
@@ -86,7 +93,7 @@ const PREVIEW_QUIZZES = [
 
 // ── MOCK QUESTIONS for preview ────────────────────────────────────────────────
 const PREVIEW_QUESTIONS = [
-  { id:1, quiz_id:2, question:"Which is the oldest of the four Vedas?", option_a:"Samaveda", option_b:"Rigveda", option_c:"Yajurveda", option_d:"Atharvaveda", correct_option:1, explanation:"The Rigveda is the oldest Veda, composed around 1500–1200 BCE.", question_hi:"चारों वेदों में सबसे प्राचीन कौन सा है?", option_a_hi:"सामवेद", option_b_hi:"ऋग्वेद", option_c_hi:"यजुर्वेद", option_d_hi:"अथर्ववेद", explanation_hi:"ऋग्वेद सबसे प्राचीन वेद है, जो लगभग 1500–1200 ईसा पूर्व रचित है।", sort_order:1 },
+  { id:1, quiz_id:2, question:"Which is the oldest of the four Vedas?", option_a:"Samaveda", option_b:"Rigveda", option_c:"Yajurveda", option_d:"Atharvaveda", correct_option:1, explanation:"The Rigveda is the oldest Veda, composed around 1500–1200 BCE.", question_hi:"चारों वेदों में सबसे प्राचीन कौन सा है?", option_a_hi:"सामवेद", option_b_hi:"ऋग्वेद", option_c_hi:"यजुर्वेद", option_d_hi:"अथर्ववेद", explanation_hi:"ऋग्वेद सबसे प्राचीन वेद है, जो लगभग 1500–1200 ईसा पूर्व रचित है.", sort_order:1 },
   { id:2, quiz_id:2, question:"The Vedic river 'Saraswati' corresponds to which modern river system?", option_a:"Indus", option_b:"Ganga", option_c:"Ghaggar-Hakra", option_d:"Yamuna", correct_option:2, explanation:"Most scholars identify the Rigvedic Saraswati with the Ghaggar-Hakra river system.", question_hi:null, option_a_hi:null, option_b_hi:null, option_c_hi:null, option_d_hi:null, explanation_hi:null, sort_order:2 },
   { id:3, quiz_id:2, question:"The term 'Gotra' in Vedic society primarily referred to?", option_a:"Village unit", option_b:"Patrilineal clan", option_c:"Cattle pen", option_d:"Administrative unit", correct_option:1, explanation:"Gotra evolved to mean a patrilineal clan tracing descent from a common ancestor.", question_hi:null, option_a_hi:null, option_b_hi:null, option_c_hi:null, option_d_hi:null, explanation_hi:null, sort_order:3 },
   { id:4, quiz_id:2, question:"Which assembly in the Rig Vedic period was larger and more democratic?", option_a:"Sabha", option_b:"Samiti", option_c:"Parishad", option_d:"Gana", correct_option:1, explanation:"Samiti was the larger popular assembly of all tribal members.", question_hi:null, option_a_hi:null, option_b_hi:null, option_c_hi:null, option_d_hi:null, explanation_hi:null, sort_order:4 },
@@ -98,40 +105,11 @@ const PREVIEW_QUESTIONS = [
 ];
 
 const mockSupabase = {
-  auth: {
-    getSession: async () => ({ data: { session: null }, error: null }),
-    onAuthStateChange: (cb) => {
-      setTimeout(() => cb("SIGNED_IN", { user: { id: "preview-user", email: "preview@cgpsc.com", user_metadata: { full_name: "Aspirant" } } }), 600);
-      return { data: { subscription: { unsubscribe: () => {} } } };
-    },
-    signInWithOAuth: async () => ({ error: null }),
-    signOut: async () => { try { window.location.reload(); } catch(e) {} }
-  },
-  from: (table) => {
-    // Each table returns its own correct mock dataset so the preview works end-to-end
-    const mockData =
-      table === "profiles"      ? [PREVIEW_PROFILE]      :
-      table === "saved_questions" ? { data: [], error: null } :
-      table === "subjects"      ? STATIC_DATA.subjects    :
-      table === "topics"        ? Object.values(STATIC_DATA.topics).flat() :
-      table === "quizzes"       ? PREVIEW_QUIZZES         :
-      table === "questions"     ? PREVIEW_QUESTIONS       :
-      table === "quiz_attempts" ? PREVIEW_ATTEMPTS        :
-      [];
-    return createQueryChain({ data: mockData, error: null });
-  }
+  en: { appName:"CGPSC EXAM by Daily Prep Notes",tagline:"Preparation Portal",prepareSmarter:"Structured Learning",scoreHigher:"Track your progress daily.",chooseSubject:"Select Subject",subjects:"Subjects",topics:"Topics",chooseTopic:"Select Topic",quizzes:"Assessments",questions:"Questions",startQuiz:"Start Test →",back:"← Back",home:"Home",analytics:"Analytics",bookmarks:"Saved",profile:"Profile",signInGoogle:"Continue with Google",signInMsg:"Sign in to access assessments and track performance.",mockMode:"Exam Mode",mockModeDesc:"Strict timer & no instant feedback.",practiceModeDesc:"Instant answers and explanations shown immediately. Good for casual learning.",previousYear:"Previous Year Only",allDifficulty:"All Levels",search:"Search assessments...",explanation:"EXPLANATION",nextQuestion:"Next Question →",finishQuiz:"Submit Test",retry:"Retake Test",moreQuizzes:"More Tests",excellent:"Excellent Performance!",goodJob:"Good Effort!",keepPracticing:"Needs Improvement",needStudy:"Review Required",score:"Score",accuracy:"Accuracy",correct:"Correct",wrong:"Incorrect",timeTaken:"Time Taken",yourRank:"Current Rank",savedQuestions:"Saved Questions",noBookmarks:"No saved questions",noBookmarksDesc:"Bookmark questions for revision",performanceOverview:"Performance Overview",subjectWise:"Subject Breakdown",deeperAnalysis:"Analytical Breakdown",strongAreas:"Strong Areas",weakAreas:"Areas to Improve",recentAttempts:"Recent Activity",quizHistory:"Test History",signOut:"Sign Out",darkMode:"Dark Mode",language:"Language",loading:"Loading...",quizOf:"of",question:"Question",answerReview:"Answer Key & Review",remove:"Remove",signingIn:"Authenticating...",noSubjects:"No subjects available",noSubjectsDesc:"Database requires subject entries",noTopics:"No topics available",noTopicsDesc:"Database requires topic entries for this subject",noQuizzes:"No tests available",noQuizzesDesc:"Database requires quiz entries for this topic",noQuestions:"No questions available",noQuestionsDesc:"Test contains no questions yet",noHistory:"No test history",noHistoryDesc:"Complete an assessment to view analytics",filterNoMatch:"No tests match the current filters",topicOverview:"Topic Overview",restart:"Restart",resume:"Resume",pts:"pts",answered:"answered",savedIcon:"★ Saved",saveIcon:"☆ Save",skipQ:"Skip Question →",skipSubmit:"Skip & Submit",clear:"Clear",legendCorrect:"✓ Correct",legendWrong:"✗ Wrong",legendSkipped:"— Skipped",assessmentComplete:"Assessment Complete",outOf:"out of",marks:"marks",ofMaxMarks:"of maximum marks",each:"each",time:"Time",taken:"taken",pass:"✓ Pass",belowPass:"✗ Below pass mark",noQsCategory:"No questions in this category.",yourAnswer:"Your answer",correctAnswer:"✓ Answer",all:"All",skipped:"Skipped",subjectModule:"Subject Module",welcomeBack:"Welcome back",todaysRevision:"Today's Revision",dueForReview1:"You have",dueForReview2:"questions due for review.",streak:"Streak",allCaughtUp:"All caught up!",noRevisionsDue:"No revisions due today.",leaderboardTitle:"Leaderboard & Rank",leaderboardDesc:"See where you stand globally.",viewBtn:"View",searchResults:"Search Results",noQuizzesFound:"No tests found.",mins:"Mins",startBtn:"Start",exploreBtn:"Explore",rank:"Rank",nextLevel:"Next Level:",quizzesText:"Quizzes",overallAcc:"Overall Acc.",dayStreak:"Day Streak",bestStreak:"Best Streak",timeSpent:"Time Spent",bestScore:"Best Score",accuracyTrend:"Accuracy Trend",categoryBreakdown:"Category Breakdown",loadingSaved:"Loading saved questions...",savedSyncDesc:"Saved questions sync to your account and are available across devices.",disableDark:"Disable Dark",enableDark:"Enable Dark",adminPanel:"Admin Panel" },
+  hi: { appName:"CGPSC EXAM by Daily Prep Notes",tagline:"तैयारी का सबसे बेहतरीन मंच",prepareSmarter:"स्मार्ट तरीके से तैयारी करें",scoreHigher:"हर दिन अपना स्कोर बेहतर करें।",chooseSubject:"अपना विषय चुनें",subjects:"विषय",topics:"अध्याय",chooseTopic:"अध्याय चुनें",quizzes:"क्विज़",questions:"प्रश्न",startQuiz:"क्विज़ शुरू करें →",back:"← पीछे जाएँ",home:"होम",analytics:"प्रदर्शन विश्लेषण",bookmarks:"बुकमार्क (रिवीजन)",profile:"प्रोफ़ाइल",signInGoogle:"Google के साथ आगे बढ़ें",signInMsg:"क्विज़ देने और अपनी प्रगति ट्रैक करने के लिए साइन इन करें।",mockMode:"असली परीक्षा मोड (Mock)",mockModeDesc:"परीक्षा जैसा माहौल: समय सीमा के साथ, उत्तर बाद में।",practiceModeDesc:"त्वरित उत्तर और विस्तृत व्याख्या। अभ्यास के लिए उपयुक्त।",previousYear:"पिछले वर्षों के प्रश्न (PYQ)",allDifficulty:"सभी कठिनाई स्तर",search:"क्विज़ या विषय खोजें...",explanation:"विस्तृत व्याख्या (Explanation)",nextQuestion:"अगला प्रश्न →",finishQuiz:"क्विज़ सबमिट करें",retry:"फिर से प्रयास करें",moreQuizzes:"और क्विज़ देखें",excellent:"शानदार प्रदर्शन! लगे रहें!",goodJob:"बहुत अच्छा प्रयास!",keepPracticing:"थोड़ी और मेहनत की जरूरत है।",needStudy:"आपको इस विषय को फिर से पढ़ना चाहिए।",score:"प्राप्तांक",accuracy:"सटीकता",correct:"सही उत्तर",wrong:"गलत उत्तर",timeTaken:"लिया गया समय",yourRank:"आपकी वर्तमान रैंक",savedQuestions:"बुकमार्क किए गए प्रश्न",noBookmarks:"अभी तक कोई प्रश्न बुकमार्क नहीं किया गया है",noBookmarksDesc:"महत्वपूर्ण प्रश्नों को रिवीजन के लिए यहाँ सेव करें",performanceOverview:"आपके प्रदर्शन की एक झलक",subjectWise:"विषय के अनुसार आपकी पकड़",deeperAnalysis:"आपकी तैयारी का गहराई से विश्लेषण",strongAreas:"आपके सबसे मजबूत विषय",weakAreas:"वे विषय जहाँ सुधार की गुंजाइश है",recentAttempts:"आपके हालिया क्विज़",quizHistory:"आपका क्विज़ इतिहास",signOut:"लॉग आउट करें",darkMode:"डार्क मोड",language:"भाषा बदलें",loading:"लोड हो रहा है, कृपया प्रतीक्षा करें...",quizOf:"में से",question:"प्रश्न",answerReview:"उत्तर कुंजी और व्याख्या",remove:"हटाएँ",signingIn:"लॉग इन हो रहा है...",noSubjects:"यहाँ अभी कोई विषय नहीं है",noSubjectsDesc:"जल्द ही नए विषय जोड़े जाएंगे",noTopics:"इस विषय में अभी कोई अध्याय नहीं है",noTopicsDesc:"हम जल्द ही यहाँ नए अध्याय जोड़ेंगे",noQuizzes:"इस अध्याय के लिए अभी कोई क्विज़ नहीं है",noQuizzesDesc:"जल्द ही इस अध्याय के क्विज़ उपलब्ध होंगे",noQuestions:"इस क्विज़ में अभी प्रश्न नहीं जोड़े गए हैं",noQuestionsDesc:"कृपया बाद में दोबारा जांचें",noHistory:"आपने अभी तक कोई क्विज़ नहीं दिया है",noHistoryDesc:"अपने प्रदर्शन का विश्लेषण देखने के लिए एक क्विज़ पूरा करें",filterNoMatch:"आपकी खोज के अनुसार कोई क्विज़ नहीं मिला",topicOverview:"अध्याय का सार",restart:"फिर से शुरू करें",resume:"जारी रखें",pts:"अंक",answered:"उत्तर दिए",savedIcon:"★ सेव किया गया",saveIcon:"☆ सेव करें",skipQ:"प्रश्न छोड़ें →",skipSubmit:"छोड़ें और सबमिट करें",clear:"हटाएं",legendCorrect:"✓ सही",legendWrong:"✗ गलत",legendSkipped:"— छोड़ा गया",assessmentComplete:"टेस्ट समाप्त",outOf:"में से",marks:"अंक",ofMaxMarks:"अधिकतम अंकों में से",each:"प्रत्येक",time:"समय",taken:"लिया गया",pass:"✓ पास",belowPass:"✗ पासिंग मार्क से कम",noQsCategory:"इस श्रेणी में कोई प्रश्न नहीं है।",yourAnswer:"आपका उत्तर",correctAnswer:"✓ उत्तर",all:"सभी",skipped:"छोड़े गए",subjectModule:"विषय मॉड्यूल",welcomeBack:"वापसी पर स्वागत है",todaysRevision:"आज का रिवीजन",dueForReview1:"आपके",dueForReview2:"प्रश्न रिवीजन के लिए बाकी हैं।",streak:"स्ट्रीक (Streak)",allCaughtUp:"सब कुछ पूरा हो गया!",noRevisionsDue:"आज कोई रिवीजन बाकी नहीं है।",leaderboardTitle:"लीडरबोर्ड और रैंक",leaderboardDesc:"देखें आप दूसरों के मुकाबले कहाँ हैं।",viewBtn:"देखें",searchResults:"खोज के परिणाम",noQuizzesFound:"कोई टेस्ट नहीं मिला।",mins:"मिनट",startBtn:"शुरू करें",exploreBtn:"देखें",rank:"रैंक",nextLevel:"अगला लेवल:",quizzesText:"क्विज़",overallAcc:"सटीकता",dayStreak:"दिन की स्ट्रीक",bestStreak:"सबसे अच्छी स्ट्रीक",timeSpent:"बिताया गया समय",bestScore:"सबसे अच्छा स्कोर",accuracyTrend:"सटीकता का रुझान",categoryBreakdown:"श्रेणी-वार प्रदर्शन",loadingSaved:"सेव किए गए प्रश्न लोड हो रहे हैं...",savedSyncDesc:"सेव किए गए प्रश्न आपके अकाउंट से सिंक होते हैं और सभी डिवाइस पर उपलब्ध हैं।",disableDark:"डार्क मोड हटाएं",enableDark:"डार्क मोड लगाएं",adminPanel:"एडमिन पैनल" }
 };
 
 const supabase = process.env.REACT_APP_USE_MOCK === "true" ? mockSupabase : realSupabase;
-
-// ─── STATIC CGPSC SUBJECTS & TOPICS SCHEMA ────────────────────────────────────
-const STATIC_DATA = { subjects: [], topics: {} };
-
-// ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
-const T = {
-  en: { appName:"CGPSC EXAM by Daily Prep Notes",tagline:"Preparation Portal",prepareSmarter:"Structured Learning",scoreHigher:"Track your progress daily.",chooseSubject:"Select Subject",subjects:"Subjects",topics:"Topics",chooseTopic:"Select Topic",quizzes:"Assessments",questions:"Questions",startQuiz:"Start Test →",back:"← Back",home:"Home",analytics:"Analytics",bookmarks:"Saved",profile:"Profile",signInGoogle:"Continue with Google",signInMsg:"Sign in to access assessments and track performance.",mockMode:"Exam Mode",mockModeDesc:"Strict timer & no instant feedback.",previousYear:"Previous Year Only",allDifficulty:"All Levels",search:"Search assessments...",explanation:"EXPLANATION",nextQuestion:"Next Question →",finishQuiz:"Submit Test",retry:"Retake Test",moreQuizzes:"More Tests",excellent:"Excellent Performance!",goodJob:"Good Effort!",keepPracticing:"Needs Improvement",needStudy:"Review Required",score:"Score",accuracy:"Accuracy",correct:"Correct",wrong:"Incorrect",timeTaken:"Time Taken",yourRank:"Current Rank",savedQuestions:"Saved Questions",noBookmarks:"No saved questions",noBookmarksDesc:"Bookmark questions for revision",performanceOverview:"Performance Overview",subjectWise:"Subject Breakdown",deeperAnalysis:"Analytical Breakdown",strongAreas:"Strong Areas",weakAreas:"Areas to Improve",recentAttempts:"Recent Activity",quizHistory:"Test History",signOut:"Sign Out",darkMode:"Dark Mode",language:"Language",loading:"Loading...",quizOf:"of",question:"Question",answerReview:"Answer Key & Review",remove:"Remove",signingIn:"Authenticating...",noSubjects:"No subjects available",noSubjectsDesc:"Database requires subject entries",noTopics:"No topics available",noTopicsDesc:"Database requires topic entries for this subject",noQuizzes:"No tests available",noQuizzesDesc:"Database requires quiz entries for this topic",noQuestions:"No questions available",noQuestionsDesc:"Test contains no questions yet",noHistory:"No test history",noHistoryDesc:"Complete an assessment to view analytics",filterNoMatch:"No tests match the current filters" },
-  hi: { appName:"CGPSC परीक्षा by Daily Prep Notes",tagline:"तैयारी पोर्टल",prepareSmarter:"व्यवस्थित अध्ययन",scoreHigher:"अपनी प्रगति ट्रैक करें।",chooseSubject:"विषय चुनें",subjects:"विषय",topics:"टॉपिक्स",chooseTopic:"टॉपिक चुनें",quizzes:"परीक्षण",questions:"प्रश्न",startQuiz:"टेस्ट शुरू करें →",back:"← वापस",home:"होम",analytics:"विश्लेषण",bookmarks:"सहेजे गए",profile:"प्रोफ़ाइल",signInGoogle:"Google से साइन इन करें",signInMsg:"परीक्षण और प्रगति के लिए साइन इन करें।",mockMode:"परीक्षा मोड",mockModeDesc:"कठोर टाइमर और कोई तुरंत फीडबैक नहीं।",previousYear:"केवल पिछले वर्ष",allDifficulty:"सभी स्तर",search:"परीक्षण खोजें...",explanation:"व्याख्या",nextQuestion:"अगला प्रश्न →",finishQuiz:"टेस्ट सबमिट करें",retry:"पुनः प्रयास करें",moreQuizzes:"अधिक टेस्ट",excellent:"उत्कृष्ट प्रदर्शन!",goodJob:"अच्छा प्रयास!",keepPracticing:"सुधार की आवश्यकता है",needStudy:"पुनरीक्षण आवश्यक है",score:"अंक",accuracy:"सटीकता",correct:"सही",wrong:"गलत",timeTaken:"लिया गया समय",yourRank:"आपकी रैंक",savedQuestions:"सहेजे गए प्रश्न",noBookmarks:"कोई प्रश्न सहेजा नहीं गया",noBookmarksDesc:"रिवीजन के लिए प्रश्न बुकमार्क करें",performanceOverview:"प्रदर्शन अवलोकन",subjectWise:"विषय-वार विश्लेषण",deeperAnalysis:"गहन विश्लेषण",strongAreas:"म मजबूत क्षेत्र",weakAreas:"सुधार वाले क्षेत्र",recentAttempts:"हाल की गतिविधि",quizHistory:"टेस्ट इतिहास",signOut:"साइन आउट",darkMode:"डार्क मोड",language:"भाषा",loading:"लोड हो रहा है...",quizOf:"में से",question:"प्रश्न",answerReview:"उत्तर कुंजी और समीक्षा",remove:"हटाएं",signingIn:"प्रमाणीकरण हो रहा है...",noSubjects:"कोई विषय उपलब्ध नहीं",noSubjectsDesc:"डेटाबेस में विषय प्रविष्टियों की आवश्यकता है",noTopics:"कोई टॉपिक उपलब्ध नहीं",noTopicsDesc:"इस विषय के लिए डेटाबेस में टॉपिक की आवश्यकता है",noQuizzes:"कोई टेस्ट उपलब्ध नहीं",noQuizzesDesc:"इस टॉपिक के लिए डेटाबेस में क्विज़ की आवश्यकता है",noQuestions:"कोई प्रश्न उपलब्ध नहीं",noQuestionsDesc:"टेस्ट में अभी कोई प्रश्न नहीं है",noHistory:"कोई टेस्ट इतिहास नहीं",noHistoryDesc:"विश्लेषण देखने के लिए परीक्षण पूरा करें",filterNoMatch:"वर्तमान फ़िल्टर से कोई टेस्ट मेल नहीं खाता" }
-};
 
 // Converts literal "\n" strings (from CSV import) into real newline characters.
 // Apply to any text field before rendering so \n shows as line breaks, not text.
@@ -150,6 +128,10 @@ export default function App() {
   const [screen, setScreen]       = useState("login");
   const [tab, setTab]             = useState("home");
 
+  useEffect(() => {
+    document.body.dataset.route = screen;
+  }, [screen]);
+
   // ── SUPABASE DATA ───────────────────────────────────────────────────────────
   const [subjects, setSubjects]   = useState([]);
   const [topics, setTopics]       = useState([]);
@@ -163,6 +145,11 @@ export default function App() {
   // ── PROFILE ──────────────────────────────────────────────────────────────────
   const [profile, setProfile]         = useState(null);
 
+  useEffect(() => {
+    const coverage = profile?.avg_accuracy || 0;
+    const line = document.getElementById("prepLine");
+    if (line) line.style.width = `${coverage}%`;
+  }, [profile]);
 
   // ── QUIZ STATE ──────────────────────────────────────────────────────────────
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -221,11 +208,16 @@ export default function App() {
     setScreen("login");
     syncUrl("/login", replace);
   };
-  const goMain = (nextTab = "home", replace = false) => {
-    setTab(nextTab);
+  const goMain = (t = "home") => {
+    if (t === "revision") {
+      setScreen("revision");
+      return;
+    }
+    setTab(t);
     setScreen("main");
-    syncUrl(mainPath(nextTab), replace);
-    saveNav({ screen: "main", tab: nextTab, subjectId: null, topicId: null });
+    setMockMode(false);
+    syncUrl(mainPath(t), false);
+    saveNav({ screen: "main", tab: t, subjectId: null, topicId: null });
   };
   const goSubject = (subject, replace = false) => {
     if (subject) setSelectedSubject(subject);
@@ -257,7 +249,7 @@ export default function App() {
       goMain("home", true);
       return;
     }
-    if (["/analytics", "/bookmarks", "/profile"].includes(path)) {
+    if (["/analytics", "/bookmarks", "/profile", "/leaderboard"].includes(path)) {
       setScreen("main");
       setTab(path.slice(1));
       return;
@@ -405,7 +397,7 @@ export default function App() {
       if (path === "/login") { setScreen("login"); return; }
       if (path === "/admin") { setScreen("admin"); return; }
       if (path === "/" || path === "") { setScreen("main"); setTab("home"); return; }
-      if (["/analytics", "/bookmarks", "/profile"].includes(path)) {
+      if (["/analytics", "/bookmarks", "/profile", "/leaderboard"].includes(path)) {
         setScreen("main");
         setTab(path.slice(1));
         return;
@@ -450,6 +442,11 @@ export default function App() {
     savePreference("preferred_lang", next);
   };
 
+  useEffect(() => {
+    document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.body.setAttribute('data-route', screen);
+  }, [dark, screen]);
+
   const userName   = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Aspirant";
   const userAvatar = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   const userEmail  = profile?.email || user?.email || "";
@@ -468,51 +465,37 @@ export default function App() {
     const uid = currentUser?.id || user?.id;
     if (!uid) return;
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", uid);
-      if (!error && data && data.length > 0) {
-        let p = data[0];
-        
-        // Backfill real name/email if they are placeholder from script
-        const realName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0];
-        const realEmail = currentUser?.email;
-        if (realName && (p.full_name === "Aspirant" || !p.full_name || p.email === "" || !p.email)) {
-          const updateData = {};
-          if (p.full_name === "Aspirant" || !p.full_name) updateData.full_name = realName;
-          if (p.email === "" || !p.email) updateData.email = realEmail || "";
-          
-          await supabase.from("profiles").eq("id", uid).update(updateData);
-          p = { ...p, ...updateData };
+      // Use /api/user/profile which returns profile + rank in one request
+      const token = localStorage.getItem('firebase_id_token');
+      const res = await fetch('/api/user/profile', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const json = await res.json();
+        let p = json.data;
+        if (p) {
+          // Backfill real name/email if they are placeholder
+          const realName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0];
+          const realEmail = currentUser?.email;
+          if (realName && (p.full_name === "Aspirant" || !p.full_name || p.email === "" || !p.email)) {
+            const updateData = {};
+            if (p.full_name === "Aspirant" || !p.full_name) updateData.full_name = realName;
+            if (p.email === "" || !p.email) updateData.email = realEmail || "";
+            await supabase.from("profiles").eq("id", uid).update(updateData);
+            p = { ...p, ...updateData };
+          }
+          setProfile(p); // p already includes rank from user_rank view
+          // Restore user preferences from DB
+          if (p.preferred_lang) {
+            setLang(p.preferred_lang);
+            localStorage.setItem("cgpsc_lang", p.preferred_lang);
+          }
+          if (typeof p.dark_mode === "boolean" || typeof p.dark_mode === "number") {
+            const darkVal = Boolean(p.dark_mode);
+            setDark(darkVal);
+            localStorage.setItem("cgpsc_dark", String(darkVal));
+          }
         }
-        
-        setProfile(p);
-        // Restore user preferences from DB
-        if (p.preferred_lang) {
-          setLang(p.preferred_lang);
-          localStorage.setItem("cgpsc_lang", p.preferred_lang);
-        }
-        if (typeof p.dark_mode === "boolean") {
-          setDark(p.dark_mode);
-          localStorage.setItem("cgpsc_dark", String(p.dark_mode));
-        }
-      } else if (!error && (!data || data.length === 0)) {
-        const newProfile = {
-          id: uid,
-          full_name: currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || "Aspirant",
-          email: currentUser?.email || "",
-          avatar_url: currentUser?.user_metadata?.avatar_url || "",
-          total_score: 0,
-          total_attempts: 0,
-          avg_accuracy: 0,
-          best_streak: 0,
-          current_streak: 0,
-          preferred_lang: localStorage.getItem("cgpsc_lang") || "en",
-          dark_mode: localStorage.getItem("cgpsc_dark") === "true" ? 1 : 0
-        };
-        await supabase.from("profiles").insert(newProfile);
-        setProfile(newProfile);
       }
     } catch (e) { console.error("fetchProfile error:", e); }
   };
@@ -546,7 +529,7 @@ export default function App() {
     setDataLoading(true);
     setDataError(null);
     try {
-      const { data, error } = await supabase.from("topics").select("*").eq("subject_id", subject.id).order("sort_order");
+      const { data, error } = await supabase.from("topics").select("*, quizzes(id)").eq("subject_id", subject.id).order("sort_order");
       if (error) { setTopics(STATIC_DATA.topics[subject.id] || []); }
       else {
         // Filter client-side by subject_id (supports numeric and UUID/text IDs)
@@ -566,11 +549,13 @@ export default function App() {
     setDataError(null);
     try {
       const { data, error } = await supabase.from("quizzes").select("*").eq("topic_id", topic.id).order("id");
-      if (error) { setDataError("Could not load quizzes"); setDataLoading(false); return; }
+      if (error) { setDataError(lang === "hi" ? "क्विज़ लोड नहीं हो सके" : "Could not load quizzes"); setDataLoading(false); return; }
       const formatted = (data || []).map(q => ({
         ...q, 
         title: formatText(q.title), 
         title_hi: formatText(q.title_hi || q.title), 
+        name: formatText(q.name || q.title),
+        name_hi: formatText(q.name_hi || q.title_hi || q.name || q.title),
         description: formatText(q.description),
         description_hi: formatText(q.description_hi || q.description)
       }));
@@ -596,7 +581,7 @@ export default function App() {
       setDataLoading(true);
       setDataError(null);
       goQuiz(quiz);
-      setSelectedQuiz(saved.quiz);
+      setSelectedQuiz({ ...saved.quiz, ...quiz });
       setCurrentQ(saved.currentQ || 0);
       setAnswers(saved.answers || {});
       setShowExp(false);
@@ -631,11 +616,38 @@ export default function App() {
       const headers = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await fetch(`/api/quiz/${quiz.id}`, { headers });
+      // Practice mode needs an authenticated answer key. Guests can still take
+      // the quiz in exam mode instead of being sent away from the assessment.
+      let currentMode = mockMode;
+      if (!currentMode && !token) {
+        currentMode = true;
+        setMockMode(true);
+        setDataError(lang === "hi" ? "प्रैक्टिस मोड के लिए लॉगिन आवश्यक है। क्विज़ परीक्षा मोड में शुरू किया गया है।" : "Sign in is required for Practice Mode. This quiz has started in Exam Mode.");
+      }
+      const modeQuery = !currentMode ? "?mode=practice" : "";
+      const res = await fetch(`/api/quiz/${quiz.id}${modeQuery}`, { headers });
+      
+      if (res.status === 401) {
+        alert(lang === "hi" ? "कृपया प्रैक्टिस मोड का उपयोग करने के लिए लॉगिन करें।" : "Please sign in to use Practice Mode.");
+        setDataLoading(false);
+        setScreen("profile");
+        return;
+      }
+      
       if (!res.ok) {
         throw new Error(`API returned ${res.status}`);
       }
       const publicData = await res.json();
+      const enrichedQuiz = {
+        ...quiz,
+        title: quiz.title || publicData.title,
+        title_hi: quiz.title_hi || publicData.titleHi,
+        name: quiz.name || quiz.title || publicData.title,
+        name_hi: quiz.name_hi || quiz.title_hi || publicData.titleHi || publicData.title,
+        topic_name: quiz.topic_name || publicData.topic,
+        topic_name_hi: quiz.topic_name_hi || publicData.topicHi || publicData.topic
+      };
+      setSelectedQuiz(enrichedQuiz);
       
       let qData = publicData.questions || [];
       if (qData.length > 0) {
@@ -648,25 +660,21 @@ export default function App() {
         question_hi: formatText(q.textHi || q.text),
         options:     [q.options?.a, q.options?.b, q.options?.c, q.options?.d].map(formatText),
         options_hi:  [q.optionsHi?.a || q.options?.a, q.optionsHi?.b || q.options?.b, q.optionsHi?.c || q.options?.c, q.optionsHi?.d || q.options?.d].map(formatText),
-        correct:     -1, // Hidden on client
-        explanation: "", // Hidden on client
-        explanation_hi: "" // Hidden on client
+        correct:     q.correct !== undefined ? q.correct : -1,
+        explanation: q.explanation || "",
+        explanation_hi: q.explanationHi || ""
       }));
-      
-      // We must force mockMode to true because we don't have answers for Practice Mode
-      const safeMockMode = true;
-      setMockMode(true);
       
       setQuestions(formatted);
       saveQuizState({
-        quizId: quiz.id, quiz, questions: formatted,
+        quizId: quiz.id, quiz: enrichedQuiz, questions: formatted,
         currentQ: 0, answers: {}, timer: totalSecs, totalSecs,
-        mockMode: true, startedAt: Date.now(),
+        mockMode: currentMode, startedAt: Date.now(),
         version: publicData.version
       });
       saveNav({ screen: "quiz", quizId: quiz.id });
     } catch (e) { 
-      setDataError("Could not load questions from API");
+      setDataError(lang === "hi" ? "API से प्रश्न लोड नहीं किए जा सके" : "Could not load questions from API");
       setQuestions([]); 
     }
     setDataLoading(false);
@@ -700,6 +708,16 @@ export default function App() {
         setTimer(prev => {
           const next = prev > 0 ? prev - 1 : 0;
           if (next % 5 === 0) saveQuizState({ timer: next });
+          
+          // Trigger the 'alive' breathing timer effect
+          import('./alive.js').then(m => {
+            const totalSecs = (selectedQuiz?.time_limit_mins * 60) || 1200;
+            if (m && m.timerTick) {
+              const el = document.querySelector('.timer');
+              if (el) m.timerTick(el, next, totalSecs);
+            }
+          }).catch(() => {});
+
           return next;
         });
       }, 1000);
@@ -792,7 +810,7 @@ export default function App() {
       goResult(selectedQuiz);
 
     } catch (e) {
-      setDataError(e.message || "Failed to submit quiz.");
+      setDataError(e.message || (lang === "hi" ? "क्विज़ सबमिट करने में विफल।" : "Failed to submit quiz."));
       // Don't clear state, let them try submitting again
     } finally {
       setDataLoading(false);
@@ -919,44 +937,7 @@ export default function App() {
   // ════════════════════════════════════════════════════════════════════════════
   // REUSABLE UI PIECES
   // ════════════════════════════════════════════════════════════════════════════
-  const css = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; -webkit-font-smoothing: antialiased; }
-    body { background-color: ${C.bg}; color: ${C.text}; transition: background-color 0.3s ease; }
-    
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
-    @keyframes spin { to { transform: rotate(360deg) } }
-    @keyframes popIn { from { opacity: 0; transform: scale(0.96) } to { opacity: 1; transform: scale(1) } }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(12px) } to { opacity: 1; transform: translateX(0) } }
-
-    .btn-primary { background: ${C.acc}; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.12); }
-    .btn-primary:active { transform: scale(0.97); }
-
-    .btn-secondary { background: ${C.card}; color: ${C.text}; border: 1px solid ${C.border}; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: ${C.shadow}; }
-    .btn-secondary:hover { background: ${C.inp}; border-color: ${C.muted}; transform: translateY(-1px); }
-    .btn-secondary:active { transform: scale(0.97); }
-
-    .card-h { background: ${C.card}; border: 1px solid ${C.border}; border-radius: 12px; padding: 16px; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; position: relative; overflow: hidden; box-shadow: ${C.shadow}; }
-    .card-h:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,${dark ? 0.3 : 0.06}); border-color: ${C.muted}66; }
-    .card-h:active { transform: scale(0.98); }
-
-    .opt { background: ${C.card}; border: 1px solid ${C.border}; border-radius: 12px; padding: 14px 16px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); width: 100%; text-align: left; cursor: pointer; font-size: 14px; font-weight: 500; color: ${C.text}; box-shadow: ${C.shadow}; position: relative; }
-    .opt:hover:not(:disabled) { border-color: ${C.acc}99; background: ${dark ? '#111' : '#fcfcfc'}; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,${dark ? 0.2 : 0.05}); }
-    .opt:active:not(:disabled) { transform: scale(0.98); }
-    .opt.selected { border-color: ${C.acc}; box-shadow: 0 0 0 1px ${C.acc}; background: ${dark ? 'rgba(51,136,255,0.08)' : 'rgba(0,85,255,0.03)'}; }
-
-    .input-clean { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid ${C.border}; background: ${C.inp}; color: ${C.text}; font-size: 14px; outline: none; transition: all 0.2s ease; font-weight: 500; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
-    .input-clean:focus { border-color: ${C.acc}; box-shadow: 0 0 0 3px ${C.acc}33; background: ${C.card}; }
-
-    .bar { transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-    .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: ${C.hdr}; border-bottom: 1px solid ${C.border}; }
-    
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: ${C.muted}; }
-  `.replace(/\n/g, "");
+  const css = ``;
   
   const ms  = { minHeight:"100vh", background: C.bg, color: C.text, paddingBottom: 80 };
 
@@ -989,54 +970,32 @@ export default function App() {
             {fmt(timer)}
           </div>
         )}
-        <button onClick={toggleLang} style={{ background: "transparent", border: "none", color: C.muted, padding: "8px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontWeight: 600, transition: "color 0.2s" }} onMouseOver={e => e.currentTarget.style.color = C.text} onMouseOut={e => e.currentTarget.style.color = C.muted}>{lang === "en" ? "हिं" : "EN"}</button>
-        <button onClick={toggleDark} style={{ background: "transparent", border: "none", color: C.muted, padding: "8px", borderRadius: 8, fontSize: 16, cursor: "pointer", transition: "color 0.2s" }} onMouseOver={e => e.currentTarget.style.color = C.text} onMouseOut={e => e.currentTarget.style.color = C.muted}>{dark ? "☀️" : "🌙"}</button>
+        <button onClick={toggleLang} style={{ background: "transparent", border: "none", color: C.muted, padding: "10px", borderRadius: 8, fontSize: 16, cursor: "pointer", fontWeight: 700, transition: "color 0.2s" }} onMouseOver={e => e.currentTarget.style.color = C.text} onMouseOut={e => e.currentTarget.style.color = C.muted}>{lang === "en" ? "हिं" : "EN"}</button>
+        <button onClick={toggleDark} style={{ background: "transparent", border: "none", color: C.muted, padding: "10px", borderRadius: 8, fontSize: 20, cursor: "pointer", transition: "color 0.2s" }} onMouseOver={e => e.currentTarget.style.color = C.text} onMouseOut={e => e.currentTarget.style.color = C.muted}>{dark ? "☀️" : "🌙"}</button>
       </div>
     </header>
   );
 
   // ════════════════════════════════════════════════════════════════════════════
   // LOADING / LOGIN SCREENS
-  // ════════════════════════════════════════════════════════════════════════════
-  if (authLoading) return <div style={ms}><style>{css}</style><div style={{ paddingTop: 120 }}><div style={{ textAlign: "center", color: C.text }}>{t.loading}</div></div></div>;
-
-  const headerProps = { screen, dataLoading, timer, fmt, toggleLang, toggleDark, lang, dark };
-  const onHome = () => goMain("home");
-  const onTabNavigate = (nextTab) => {
-    if (nextTab === "revision") goRevision();
-    else goMain(nextTab);
+  const headerProps = { toggleLang, toggleDark, lang, dark };
+  const renderScreen = () => {
+    if (authLoading) return <div style={ms}><style>{css}</style><div style={{ paddingTop: 120 }}><div style={{ textAlign: "center", color: C.text }}>{t.loading}</div></div></div>;
+    if (screen === "login") return <LoginPage dark={dark} css={css} C={C} t={t} signingIn={signingIn} signIn={signIn} />;
+    if (screen === "subject") return <SubjectPage ms={ms} css={css} C={C} t={t} topics={topics} history={history} selectedSubject={selectedSubject} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goMain("home")} onOpenTopic={openTopic} onHome={() => goMain("home")} onTabNavigate={goMain} tab={tab} headerProps={headerProps} lang={lang} profile={profile} supabase={supabase} />;
+    if (screen === "topic") return <TopicPage ms={ms} css={css} C={C} t={t} selectedTopic={selectedTopic} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => openSubject(selectedSubject)} onHome={() => goMain("home")} onTabNavigate={goMain} tab={tab} headerProps={headerProps} lang={lang} search={search} setSearch={setSearch} mockMode={mockMode} setMockMode={setMockMode} quizzes={quizzes} filteredQuizzes={filteredQuizzes} diffClr={diffClr} onStartQuiz={startQuiz} history={history} unfinishedQuizId={loadQuizState()?.quizId} profile={profile} />;
+    if (screen === "quiz") return <QuizPage ms={ms} css={css} C={C} t={t} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => selectedTopic ? openTopic(selectedTopic) : goMain("home")} onHome={() => goMain("home")} headerProps={headerProps} questions={questions} currentQ={currentQ} answers={answers} lang={lang} mockMode={mockMode} showExp={showExp} selectAnswer={selectAnswer} clearAnswer={clearAnswer} nextQ={nextQ} skipQ={skipQ} setCurrentQ={setCurrentQ} setShowExp={setShowExp} toggleBM={toggleBM} isBM={isBM} selectedQuiz={selectedQuiz} selectedTopic={selectedTopic} timer={timer} fmt={fmt} />;
+    if (screen === "result") return <ResultPage ms={ms} css={css} C={C} t={t} score={score} marksScored={marksScored} questions={questions} lang={lang} selectedQuiz={selectedQuiz} mockMode={mockMode} timeTaken={timeTaken} fmt={fmt} answers={answers} onRetry={() => startQuiz(selectedQuiz)} onMoreQuizzes={() => selectedTopic ? openTopic(selectedTopic) : goMain("home")} onAnalytics={() => { fetchHistory(); goMain("analytics"); }} onBack={() => selectedTopic ? openTopic(selectedTopic) : goMain("home")} onHome={() => goMain("home")} onTabNavigate={goMain} tab={tab} headerProps={headerProps} profile={profile} />;
+    if (screen === "admin") return <AdminPage user={user} onBack={() => goMain("home")} t={t} C={C} STATIC_DATA={STATIC_DATA} />;
+    if (screen === "revision") return <RevisionPage ms={ms} css={css} C={C} t={t} lang={lang} onBack={() => goMain("home")} onHome={() => goMain("home")} supabase={supabase} onTabNavigate={goMain} tab="revision" headerProps={headerProps} profile={profile} />;
+    if (screen === "main") return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={() => goMain("home")} onTabNavigate={goMain} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} bookmarks={bookmarks} bmLoading={bmLoading} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} onAdmin={() => goAdmin()} onRevision={() => goRevision()} supabase={supabase} onStartQuiz={startQuiz} />;
+    return null;
   };
 
-  if (screen === "login") {
-    return <LoginPage dark={dark} css={css} C={C} t={t} signingIn={signingIn} signIn={signIn} />;
-  }
-
-  if (screen === "subject") {
-    return <SubjectPage ms={ms} css={css} C={C} t={t} topics={topics} selectedSubject={selectedSubject} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goMain("home")} onOpenTopic={openTopic} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} lang={lang} />;
-  }
-
-  if (screen === "topic") {
-    return <TopicPage ms={ms} css={css} C={C} t={t} selectedTopic={selectedTopic} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goSubject(selectedSubject)} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} lang={lang} search={search} setSearch={setSearch} mockMode={mockMode} setMockMode={setMockMode} quizzes={quizzes} filteredQuizzes={filteredQuizzes} diffClr={diffClr} onStartQuiz={startQuiz} history={history} unfinishedQuizId={loadQuizState()?.quizId} />;
-  }
-
-  if (screen === "quiz") {
-    return <QuizPage ms={ms} css={css} C={C} t={t} dataLoading={dataLoading} dataError={dataError} onClearError={() => setDataError(null)} onBack={() => goTopic(selectedTopic)} onHome={onHome} headerProps={headerProps} questions={questions} currentQ={currentQ} answers={answers} lang={lang} mockMode={mockMode} showExp={showExp} selectAnswer={selectAnswer} clearAnswer={clearAnswer} nextQ={nextQ} skipQ={skipQ} setCurrentQ={setCurrentQ} setShowExp={setShowExp} toggleBM={toggleBM} isBM={isBM} selectedQuiz={selectedQuiz} />;
-  }
-
-  if (screen === "result") {
-    return <ResultPage ms={ms} css={css} C={C} t={t} score={score} marksScored={marksScored} questions={questions} lang={lang} selectedQuiz={selectedQuiz} mockMode={mockMode} timeTaken={timeTaken} fmt={fmt} answers={answers} onRetry={() => startQuiz(selectedQuiz)} onMoreQuizzes={() => goTopic(selectedTopic)} onAnalytics={() => { fetchHistory(); goMain("analytics"); }} onBack={() => goTopic(selectedTopic)} onHome={onHome} onTabNavigate={onTabNavigate} tab={tab} headerProps={headerProps} />;
-  }
-
-  if (screen === "admin") {
-    return <AdminPage user={user} onBack={() => goMain("home")} t={t} C={C} STATIC_DATA={STATIC_DATA} />;
-  }
-
-  if (screen === "revision") {
-    return <RevisionPage ms={ms} css={css} C={C} t={t} lang={lang} onBack={() => goMain("home")} onHome={onHome} supabase={supabase} onTabNavigate={onTabNavigate} tab="revision" />;
-  }
-
-  if (screen === "main") {
-    return <MainPage ms={ms} css={css} C={C} t={t} tab={tab} lang={lang} dark={dark} dataError={dataError} onClearError={() => setDataError(null)} onHome={onHome} onTabNavigate={onTabNavigate} headerProps={headerProps} userAvatar={userAvatar} userPic={userPic} userName={userName} profile={profile} subjects={subjects} history={history} dataLoading={dataLoading} openSubject={openSubject} bookmarks={bookmarks} bmLoading={bmLoading} toggleBM={toggleBM} signOut={signOut} toggleDark={toggleDark} toggleLang={toggleLang} user={user} userEmail={userEmail} onAdmin={() => goAdmin()} onRevision={() => goRevision()} supabase={supabase} onStartQuiz={startQuiz} />;
-  }
-  return null;
+  return (
+    <>
+      <Sprite />
+      {renderScreen()}
+    </>
+  );
 }

@@ -1,22 +1,44 @@
 const ITEMS = [
-  ["home",      "🏠", "HOME"],
-  ["revision",  "🧠", "REVISION"],
-  ["analytics", "📊", "STATS"],
-  ["bookmarks", "🔖", "SAVED"],
-  ["profile",   "👤", "PROFILE"],
+  { id: "home",        icon: "#ic-home", label: "Home" },
+  { id: "revision",    icon: "#ic-rev",  label: "Revise" },
+  { id: "leaderboard", icon: "#ic-rank", label: "Rank" },
+  { id: "analytics",   icon: "#ic-chart",label: "Stats" },
+  { id: "bookmarks",   icon: "#ic-save", label: "Saved" },
+  { id: "profile",     icon: "#ic-user", label: "Profile" },
 ];
 
-export default function BottomNav({ tab, C, onNavigate }) {
+export default function BottomNav({ tab, onNavigate, profile }) {
   return (
-    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
-      <div style={{ width: "100%", maxWidth: 600, background: `${C.hdr}`, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-around", padding: "12px 16px 24px", pointerEvents: "auto" }}>
-        {ITEMS.map(([id, icon, label]) => (
-          <button key={id} onClick={() => onNavigate(id)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: "8px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", borderRadius: 12 }} onMouseOver={e => e.currentTarget.style.background = tab !== id ? C.inp : 'transparent'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
-            <span style={{ fontSize: 22, color: tab === id ? C.acc : C.muted, transform: tab === id ? 'scale(1.1)' : 'scale(1)', transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}>{icon}</span>
-            <span style={{ fontSize: 10, color: tab === id ? C.acc : C.muted, fontWeight: tab === id ? 700 : 500, opacity: tab === id ? 1 : 0.7 }}>{label}</span>
+    <>
+      <style>{`
+        @media (max-width: 400px) {
+          .tabbar-item span:not(.rank-badge) {
+            font-size: 8px;
+            letter-spacing: 0;
+          }
+        }
+        @media (max-width: 360px) {
+          .tabbar-item span:not(.rank-badge) {
+            display: none;
+          }
+        }
+      `}</style>
+      <nav className="tabbar" role="navigation" aria-label="Main navigation">
+        {ITEMS.map(({ id, icon, label }) => (
+          <button
+            key={id}
+            onClick={() => onNavigate(id)}
+            className={`tabbar-item touch-target active-state${tab === id ? " active" : ""}`}
+            aria-current={tab === id ? "page" : undefined}
+          >
+            <svg className="ic"><use href={icon}></use></svg>
+            <span>{label}</span>
+            {id === "leaderboard" && profile?.rank && profile.rank !== "-" && (
+              <span className="rank-badge" style={{ position: "absolute", top: 4, right: "calc(50% - 22px)", background: "var(--blue)", color: "#fff", fontSize: 9, fontWeight: 800, padding: "1px 5px", borderRadius: 8, lineHeight: 1.5 }}>#{profile.rank}</span>
+            )}
           </button>
         ))}
-      </div>
-    </div>
+      </nav>
+    </>
   );
 }

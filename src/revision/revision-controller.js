@@ -12,7 +12,9 @@ export function createRevisionController(onUpdate, supabase) {
     stats: null,
     lang: 'en',
     isSubmitting: false,
-    error: null
+    error: null,
+    beforeMastered: 0,     // mastery count before session started
+    sessionResults: null,  // accumulated per-question results for review
   };
 
   function setState(partial) {
@@ -49,47 +51,89 @@ export function createRevisionController(onUpdate, supabase) {
     try {
       const token = await getToken();
       const data = await fetchDueQuestions(token, limit);
+
+      if (!data.questions || data.questions.length === 0) {
+        setState({ phase: 'idle', error: 'No questions are due for revision today.' });
+        return;
+      }
+
       setState({
         phase: 'answering',
-        questions: data.questions || [],
+        questions: data.questions,
         dueCount: data.dueCount || 0,
         currentIndex: 0,
         answers: {},
         selectedOption: null,
-        results: null
+        results: null,
+        sessionResults: [],
+        beforeMastered: state.stats?.mastered || 0,
       });
     } catch (e) {
       setState({ phase: 'idle', error: e.message });
     }
   }
 
-  function selectOption(optionNumber) {
+  function selectOption(optionIndex) {
     if (state.phase !== 'answering') return;
-    setState({ selectedOption: optionNumber });
+    if (state.selectedOption !== null) return; // already answered
+    setState({ selectedOption: optionIndex });
   }
 
-  function confirmAnswer() {
+  // Called when user picks confidence and clicks Next / Finish
+  function confirmAnswer(confidence = 2) {
     const q = state.questions[state.currentIndex];
     if (!q) return;
 
-    const newAnswers = {
-      ...state.answers,
-      [q.questionId]: state.selectedOption + 1 // Add 1 because selectedOption is 0-3, DB expects 1-4
-    };
+    const answerValue = state.selectedOption !== null ? state.selectedOption + 1 : null; // 1-indexed or null for skip
 
-    setState({
-      answers: newAnswers,
-      phase: 'feedback'
-    });
+    // Record answer
+    state.answers = { ...state.answers, [q.questionId]: { answer: answerValue, confidence } };
+
+    // Background submit
+    submitSingle(q.questionId, answerValue, confidence);
+
+    next();
   }
 
   function skipQuestion() {
     const q = state.questions[state.currentIndex];
-    const newAnswers = {
-      ...state.answers,
-      [q.questionId]: null
-    };
-    setState({ answers: newAnswers, phase: 'feedback' });
+    if (q) {
+      state.answers = { ...state.answers, [q.questionId]: { answer: null, confidence: 1 } };
+      submitSingle(q.questionId, null, 1);
+    }
+    next();
+  }
+
+  async function submitSingle(questionId, answer, confidence) {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const res = await submitRevision(token, { [questionId]: { answer, confidence } });
+
+      if (res) {
+        // Accumulate aggregated results
+        const cur = state.results || {
+          correctCount: 0, wrongCount: 0, skippedCount: 0,
+          totalAttempted: 0, xpGained: 0, streakMaintained: false,
+          results: [], remaining: 0
+        };
+
+        const updated = {
+          correctCount: cur.correctCount + (res.correctCount || 0),
+          wrongCount: cur.wrongCount + (res.wrongCount || 0),
+          skippedCount: cur.skippedCount + (res.skippedCount || 0),
+          totalAttempted: cur.totalAttempted + (res.totalAttempted || 0),
+          xpGained: cur.xpGained + (res.xpGained || 0),
+          streakMaintained: cur.streakMaintained || res.streakMaintained,
+          results: [...(cur.results || []), ...(res.results || [])],
+          remaining: res.remaining ?? cur.remaining,
+        };
+
+        setState({ results: updated });
+      }
+    } catch (e) {
+      console.error('Failed to submit individual answer:', e);
+    }
   }
 
   function next() {
@@ -99,25 +143,12 @@ export function createRevisionController(onUpdate, supabase) {
       setState({
         currentIndex: nextIndex,
         selectedOption: null,
-        phase: 'answering'
+        phase: 'answering',
       });
     } else {
-      submitAll();
-    }
-  }
-
-  async function submitAll() {
-    setState({ isSubmitting: true });
-    try {
-      const token = await getToken();
-      const results = await submitRevision(token, state.answers);
-      setState({
-        phase: 'results',
-        results,
-        isSubmitting: false
-      });
-    } catch (e) {
-      setState({ isSubmitting: false, error: e.message });
+      // Session done — refresh stats then show results
+      setState({ phase: 'results' });
+      loadStats();
     }
   }
 
@@ -136,7 +167,8 @@ export function createRevisionController(onUpdate, supabase) {
       currentIndex: 0,
       answers: {},
       selectedOption: null,
-      results: null
+      results: null,
+      sessionResults: [],
     });
   }
 
@@ -148,9 +180,8 @@ export function createRevisionController(onUpdate, supabase) {
     confirmAnswer,
     skipQuestion,
     next,
-    submitAll,
     toggleLang,
     loadMore,
-    reset
+    reset,
   };
 }

@@ -12,6 +12,10 @@ export async function onRequestGet({ request, env }) {
     ON CONFLICT(id) DO UPDATE SET email = excluded.email, last_seen_at = CURRENT_TIMESTAMP
   `).bind(...profileValues(user)).run();
   const data = await env.cgpsc_quiz_db.prepare("SELECT * FROM profiles WHERE id = ?").bind(user.id).first();
+  const rankData = await env.cgpsc_quiz_db.prepare("SELECT rank FROM user_rank WHERE user_id = ?").bind(user.id).first();
+  if (data) {
+    data.rank = rankData?.rank || "-";
+  }
   return Response.json({ data });
 }
 

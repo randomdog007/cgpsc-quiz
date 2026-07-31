@@ -1,0 +1,269 @@
+/* fixes.css — minimal final overrides. Load after ds.css. */
+
+/* Coherence floor */
+html, body { overflow-x: clip; overscroll-behavior-y: none; }
+
+/* ============================================================
+   MOBILE DESIGN SYSTEM — ≤767px
+   Inspired by Duolingo, Quizlet, Khan Academy
+   Zero desktop impact. All rules scoped to max-width: 767px.
+   ============================================================ */
+
+@media (max-width: 767px) {
+  /* ── Tokens ── */
+  :root {
+    --tabbar-h: 72px;
+    --topbar-h: 56px;
+  }
+
+  /* ── Body ── */
+  body {
+    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* ── Top Header ── */
+  .topbar {
+    height: var(--topbar-h);
+    padding: 0 16px;
+    gap: 8px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+  }
+  .brand-t { display: flex; }
+  .brand-t b { font-size: 15px; font-weight: 800; }
+  .brand-t small { font-size: 9px; letter-spacing: 0.08em; }
+  .topbar-r { gap: 4px; }
+  .topbar-r .social { display: none !important; }
+  .topbar-progress { top: var(--topbar-h); }
+
+  /* Lang pill: compact pill shape */
+  .lang-pill {
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border: 1px solid var(--line) !important;
+    background: var(--surface-2) !important;
+    color: var(--ink) !important;
+    min-height: 32px !important;
+    min-width: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* Dark mode icon button */
+  .iconbtn { width: 36px; height: 36px; }
+
+  /* ── Bottom Nav (Tabbar) ── */
+  .tabbar {
+    height: var(--tabbar-h);
+    padding: 6px 8px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+    gap: 2px;
+    border-top: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  .tabbar-item {
+    flex: 1;
+    padding: 6px 4px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted);
+    gap: 2px;
+    min-height: 52px;
+    transition: color 0.18s ease-out, background 0.18s ease-out;
+    transform: none !important;
+  }
+  .tabbar-item .ic { width: 22px; height: 22px; transition: transform 0.18s ease-out; }
+  .tabbar-item.active {
+    color: var(--blue);
+    background: color-mix(in srgb, var(--blue) 10%, transparent);
+  }
+  .tabbar-item.active .ic { transform: scale(1.1); }
+  @media (max-width: 360px) {
+    .tabbar-item span:not(.rank-badge) { display: none; }
+    .tabbar-item { font-size: 0; }
+  }
+
+  /* ── Containers ── */
+  .container {
+    min-width: 0;
+    padding-inline: 16px;
+    padding-block: 16px;
+  }
+  .container--responsive {
+    padding-inline: 16px;
+  }
+
+  /* ── Subject Grid (home screen) ── */
+  .subjgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .subj {
+    padding: 14px 12px;
+    border-radius: 12px;
+    gap: 8px;
+  }
+  .subj .ico {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    border-radius: 8px;
+  }
+  .subj .nm { font-size: 13px; font-weight: 700; }
+  .subj .meta { font-size: 11px; }
+
+  /* ── Topic row (TopicPage list items) ── */
+  .topicrow { padding: 14px 16px; gap: 12px; border-radius: 10px; }
+  .topic-module-row { min-width: 0; }
+  .topic-module-row > div { min-width: 0; }
+  .topic-module-row span { overflow-wrap: anywhere; }
+
+  /* ── Continue Rail cards ── */
+  .rail { gap: 10px; padding: 4px 2px 10px; }
+  .cont { flex: 0 0 190px; padding: 12px 14px; border-radius: 10px; }
+  .cont .t { font-size: 13px; font-weight: 700; }
+  .cont .m { font-size: 11px; }
+
+  /* ── Quiz root ── */
+  .quiz-root { min-width: 0; }
+
+  /* ── Input ── */
+  .input-clean { font-size: 15px; padding: 14px 14px 14px 44px; border-radius: 12px; }
+
+  /* ── Chip / filter pills ── */
+  .chip { font-size: 11px; padding: 4px 10px; }
+
+  /* ── Result stats ── */
+  .res-stats { grid-template-columns: repeat(2, 1fr); }
+  .res-stats .cell { padding: 12px 8px; }
+  .res-stats .v { font-size: 1.2rem; }
+}
+
+/* ============================================================
+   QUIZ ROUTE — full height, no bottom padding
+   ============================================================ */
+body[data-route="quiz"] {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0 !important;
+}
+
+/* ============================================================
+   QUIZ ROOT — scrollable container
+   ============================================================ */
+.quiz-root {
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Dark mode ── */
+body[data-theme="dark"]::before {
+  background-image: radial-gradient(rgba(255,255,255,.025) 1px, transparent 1.4px) !important;
+  opacity: .35 !important;
+}
+body[data-theme="dark"][data-route="quiz"] .qtext,
+body[data-theme="dark"][data-route="quiz"] .opt .otext { color: var(--ink) !important; }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* ============================================================
+   RESPONSIVE UTILITIES (all breakpoints)
+   ============================================================ */
+
+/* Container */
+.container--responsive {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 16px;
+}
+@media (min-width: 768px) {
+  .container--responsive { padding: 0 24px; }
+}
+
+/* Fluid score text */
+.fluid-text-score {
+  font-size: clamp(40px, 12vw, 64px);
+  line-height: 1;
+}
+
+/* Stats 2-col to 4-col */
+.grid-responsive-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (min-width: 480px) {
+  .grid-responsive-2 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Touch targets ── */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.active-state {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease;
+}
+.active-state:active { transform: scale(0.94); }
+
+/* ============================================================
+   PROMO GRID — slim horizontal cards on all viewports
+   ============================================================ */
+.promo-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+/* Mobile: side-by-side slim rows */
+@media (max-width: 767px) {
+  .promo-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Desktop: restrict max width */
+@media (min-width: 768px) {
+  .promo-grid {
+    grid-template-columns: repeat(2, minmax(280px, 340px)) !important;
+  }
+}
+
+/* ============================================================
+   HIDE SCROLL utility
+   ============================================================ */
+.hide-scroll { scrollbar-width: none; }
+.hide-scroll::-webkit-scrollbar { display: none; }
+
+/* ============================================================
+   GENERAL MOBILE VISIBILITY
+   ============================================================ */
+@media (max-width: 767px) {
+  .hide-on-mobile { display: none !important; }
+}

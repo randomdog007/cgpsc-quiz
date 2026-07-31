@@ -1,0 +1,442 @@
+1. Mauryan & Satavahana Period of Chhattisgarh
+2. छत्तीसगढ़ का मौर्य एवं सातवाहन काल
+3. This quiz evaluates a candidate's knowledge of the Mauryan and Satavahana periods in Chhattisgarh. Designed for CGPSC Prelims, it covers specific epigraphical evidence, numismatic discoveries, ancient administrative locations, and key archaeological findings.
+4. यह क्विज़ छत्तीसगढ़ में मौर्य और सातवाहन काल के ज्ञान का मूल्यांकन करता है। सीजीपीएससी प्रारंभिक परीक्षा के लिए तैयार, इसमें विशिष्ट पुरालेखीय साक्ष्य, मुद्रा संबंधी खोजों, प्राचीन प्रशासनिक स्थानों और प्रमुख पुरातात्विक निष्कर्षों को शामिल किया गया है।
+
+**Q1.** जोगीमारा गुफा के मौर्यकालीन शिलालेख के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए:
+1. यह गुफा सरगुजा जिले में रामगढ़ की पहाड़ी पर स्थित है।
+2. इस शिलालेख में नर्तक देवदत्त एवं नर्तकी सुतनुका की प्रेमगाथा का वर्णन है।
+3. इस शिलालेख की भाषा प्राकृत और लिपि खरोष्ठी है।
+4. इस गुफा की खोज 1848 ई. में कर्नल आउस्ले ने की थी।
+
+उपरोक्त में से कितने कथन सही हैं?
+Consider the following statements regarding the Mauryan period inscription of Jogimara cave:
+1. This cave is located on the Ramgarh hill in Surguja district.
+2. This inscription describes the love story of dancer Devadatta and dancer Sutanuka.
+3. The language of this inscription is Prakrit and the script is Kharoshthi.
+4. This cave was discovered by Col. Ousley in 1848 AD.
+
+How many of the above statements are correct?
+
+(A) केवल एक कथन / Only one statement
+(B) केवल दो कथन / Only two statements
+(C) केवल तीन कथन / Only three statements
+(D) सभी चार कथन / All four statements
+
+**Correct:** C
+**Explanation (EN):** Statements 1, 2, and 4 are correct. The Jogimara cave is located in Ramgarh (Surguja), describes the Devadatta-Sutanuka love story, and was discovered by Col. Ousley in 1848. Statement 3 is incorrect because the language of the inscription is Pali, and the script is Brahmi, not Prakrit and Kharoshthi.
+**Explanation (HI):** कथन 1, 2 और 4 सही हैं। जोगीमारा गुफा रामगढ़ (सरगुजा) में स्थित है, इसमें देवदत्त-सुतनुका की प्रेमगाथा का वर्णन है, और इसकी खोज 1848 में कर्नल आउस्ले ने की थी। कथन 3 गलत है क्योंकि शिलालेख की भाषा पाली है और लिपि ब्राह्मी है, न कि प्राकृत और खरोष्ठी।
+
+**Q2.** छत्तीसगढ़ में प्राप्त सातवाहन कालीन 'किरारी के काष्ठ स्तंभ' (Wooden Pillar of Kirari) के संबंध में कौन सा कथन *असत्य* है?
+Which statement is *false* regarding the Satavahana period 'Wooden Pillar of Kirari' found in Chhattisgarh?
+
+(A) यह सक्ती जिले के किरारी ग्राम के हीराबांध तालाब से प्राप्त हुआ था। / It was found from the Hirabandh pond of Kirari village in Sakti district.
+(B) इसकी खोज वर्ष 1921 में की गई थी। / It was discovered in the year 1921.
+(C) इस स्तंभ में सातवाहन काल के राजाओं की वंशावली का उल्लेख है। / This pillar mentions the genealogy of the kings of the Satavahana period.
+(D) यह वर्तमान में महंत घासीदास स्मारक संग्रहालय, रायपुर में सुरक्षित है। / It is currently preserved in the Mahant Ghasidas Memorial Museum, Raipur.
+
+**Correct:** C
+**Explanation (EN):** Statements A, B, and D accurately describe the Kirari wooden pillar. Statement C is false because the pillar does not mention the genealogy of kings; rather, it contains the designations and titles of 18 administrative officials and employees of the Satavahana period.
+**Explanation (HI):** कथन A, B और D किरारी काष्ठ स्तंभ का सटीक वर्णन करते हैं। कथन C गलत है क्योंकि स्तंभ में राजाओं की वंशावली का उल्लेख नहीं है; बल्कि, इसमें सातवाहन काल के 18 प्रशासनिक अधिकारियों और कर्मचारियों के पदनामों का उल्लेख है।
+
+**Q3.** मौर्यकालीन आहत मुद्राओं (Punch-marked coins) की प्राप्ति स्थलों को उनके वर्तमान जिलों के साथ सुमेलित कीजिए:
+Match the discovery sites of Mauryan Punch-marked coins with their present districts:
+
+सूची-I (स्थल / Site)
+a. अकलतरा (Akaltara)
+b. ठठारी (Thathari)
+c. बार व देवगांव (Bar & Devgaon)
+d. तारापुर (Tarapur)
+
+सूची-II (जिला / District)
+1. सक्ती (Sakti)
+2. जांजगीर-चांपा (Janjgir-Champa)
+3. रायपुर (Raipur)
+4. सारंगढ़ (Sarangarh)
+
+(A) a-2, b-1, c-4, d-3
+(B) a-1, b-2, c-4, d-3
+(C) a-2, b-4, c-1, d-3
+(D) a-4, b-1, c-2, d-3
+
+**Correct:** A
+**Explanation (EN):** According to archaeological findings, Mauryan punch-marked coins were found in Akaltara (Janjgir-Champa), Thathari (Sakti), Bar and Devgaon (Sarangarh), and Tarapur, Udela, and Arang (Raipur). Thus, the correct matching is a-2, b-1, c-4, d-3.
+**Explanation (HI):** पुरातात्विक निष्कर्षों के अनुसार, मौर्यकालीन आहत मुद्राएँ अकलतरा (जांजगीर-चांपा), ठठारी (सक्ती), बार और देवगांव (सारंगढ़), तथा तारापुर, उड़ेला और आरंग (रायपुर) से प्राप्त हुई हैं। अतः सही सुमेलन a-2, b-1, c-4, d-3 है।
+
+**Q4.** सातवाहन कालीन ऐतिहासिक साक्ष्यों और उनके प्राप्ति स्थलों के संदर्भ में कौन सा युग्म *सही सुमेलित नहीं* है?
+Which pair is *NOT correctly matched* in the context of Satavahana historical evidence and their discovery sites?
+
+(A) राजा अपीलक की चतुष्कोणीय मुद्रा / Square coin of King Apilak - बालपुर (सक्ती) / Balpur (Sakti)
+(B) रोम का सिक्का / Roman coin - चकरबेड़ा (बिलासपुर) / Chakrabeda (Bilaspur)
+(C) सिरि सात लेख युक्त ताम्र सिक्का / Copper coin with Siri Sat inscription - नवागांव (बेमेतरा) / Navagaon (Bemetara)
+(D) राजा वेदश्री की सीसे की मुद्रा / Lead coin of King Vedshri - गुंजी (सक्ती) / Gunji (Sakti)
+
+**Correct:** D
+**Explanation (EN):** Pairs A, B, and C are correctly matched based on archaeological records. Pair D is incorrect because the lead (सीसा) coins of King Vedshri (Vedasiris) and Pulumavi were found in Malhar (Bilaspur), not Gunji. Gunji is famous for the rock inscription of Kumar Varadatta Shri.
+**Explanation (HI):** पुरातात्विक अभिलेखों के आधार पर युग्म A, B और C सही सुमेलित हैं। युग्म D गलत है क्योंकि राजा वेदश्री (वेदसिरिस) और पुलुमावी की सीसे की मुद्राएँ मल्हार (बिलासपुर) में मिली हैं, न कि गुंजी में। गुंजी कुमार वरदत्तश्री के शिलालेख के लिए प्रसिद्ध है।
+
+**Q5.** चीनी यात्री ह्वेनसांग के यात्रा वृत्तांत 'सी-यू-की' के अनुसार, छत्तीसगढ़ के किस स्थान पर सम्राट अशोक द्वारा बौद्ध स्तूपों का निर्माण करवाया गया था?
+According to the travel account 'Si-Yu-Ki' of the Chinese traveler Hiuen Tsang, at which place in Chhattisgarh were Buddhist stupas built by Emperor Ashoka?
+
+(A) तुरतुरिया (Turturiya)
+(B) सिरपुर (Sirpur)
+(C) मल्हार (Malhar)
+(D) भोंगपाल (Bhongapal)
+
+**Correct:** B
+**Explanation (EN):** Chinese traveler Hiuen Tsang's travelogue 'Si-Yu-Ki' confirms that Emperor Ashoka had constructed several Buddhist stupas in Sirpur (Mahasamund). Turturiya is known for the vihara of Buddhist nuns.
+**Explanation (HI):** चीनी यात्री ह्वेनसांग के यात्रा वृत्तांत 'सी-यू-की' से यह पुष्टि होती है कि सम्राट अशोक ने सिरपुर (महासमुंद) में कई बौद्ध स्तूपों का निर्माण करवाया था। तुरतुरिया बौद्ध भिक्षुणियों के विहार के लिए जाना जाता है।
+
+**Q6.** सातवाहन कालीन 'गुंजी (दमऊदहरा) शिलालेख' के संबंध में निम्नलिखित कथनों पर विचार करें:
+1. यह सक्ती जिले में स्थित है जहाँ ऋषभ देव का मंदिर है।
+2. इस शिलालेख की भाषा प्राकृत है।
+3. इसमें राजा अपीलक द्वारा ब्राह्मणों को स्वर्ण दान देने का उल्लेख है।
+
+सही कथन का चयन करें:
+Consider the following statements regarding the Satavahana period 'Gunji (Damaudara) Inscription':
+1. It is located in Sakti district where the temple of Rishabh Dev is situated.
+2. The language of this inscription is Prakrit.
+3. It mentions the donation of gold to Brahmins by King Apilak.
+
+Select the correct statement:
+
+(A) केवल 1 और 2 / Only 1 and 2
+(B) केवल 2 और 3 / Only 2 and 3
+(C) केवल 1 और 3 / Only 1 and 3
+(D) 1, 2 और 3 / 1, 2 and 3
+
+**Correct:** A
+**Explanation (EN):** Statements 1 and 2 are correct. The Gunji (Damaudara) rock inscription is in Sakti, associated with Rishabh Tirth, and written in Prakrit language. Statement 3 is incorrect because the inscription mentions King Kumar Varadatta Shri (not Apilak) donating 1000 cows twice to Brahmins to increase his lifespan, not gold.
+**Explanation (HI):** कथन 1 और 2 सही हैं। गुंजी (दमऊदहरा) शिलालेख सक्ती में है, जो ऋषभ तीर्थ से जुड़ा है, और प्राकृत भाषा में लिखा गया है। कथन 3 गलत है क्योंकि शिलालेख में राजा अपीलक का नहीं, बल्कि राजा कुमार वरदत्तश्री द्वारा अपनी आयु बढ़ाने के लिए ब्राह्मणों को दो बार 1000 गाय दान देने का उल्लेख है।
+
+**Q7.** विश्व की प्राचीनतम नाट्यशाला 'सीताबेंगरा' का विस्तृत अध्ययन किस इतिहासकार / पुरातात्विक विद्वान द्वारा किया गया था?
+Which historian / archaeological scholar conducted a detailed study of the world's oldest theatre 'Sitabengra'?
+
+(A) डॉ. रमेन्द्रनाथ मिश्र / Dr. Ramendranath Mishra
+(B) डॉ. संतलाल कटारे / Dr. Santlal Katare
+(C) कर्नल आउस्ले / Col. Ousley
+(D) डॉ. श्याम कुमार पाण्डेय / Dr. Shyam Kumar Pandey
+
+**Correct:** B
+**Explanation (EN):** The Sitabengra cave, located in the Ramgarh hills (Surguja), is considered the oldest theatre (Natyashala) in the world. The detailed study of this ancient theatre was conducted by Dr. Santlal Katare. Col. Ousley originally discovered it in 1848.
+**Explanation (HI):** रामगढ़ की पहाड़ियों (सरगुजा) में स्थित सीताबेंगरा गुफा को विश्व की सबसे पुरानी नाट्यशाला माना जाता है। इस प्राचीनतम नाट्यशाला का विस्तृत अध्ययन डॉ. संतलाल कटारे द्वारा किया गया था। कर्नल आउस्ले ने 1848 में मूल रूप से इसकी खोज की थी।
+
+**Q8.** बिलासपुर जिले के 'बूढ़ीखार' से प्राप्त विष्णु की चतुर्भुजी प्रतिमा के संबंध में क्या सत्य है?
+What is true regarding the four-armed idol of Vishnu found from 'Burhikhar' in Bilaspur district?
+
+(A) यह मौर्यकालीन प्रतिमा है जिसमें पाली लिपि में लेख है। / It is a Mauryan period idol with an inscription in Pali script.
+(B) यह प्रतिमा राजा अपीलक के सेनापति द्वारा बनवाई गई थी। / This idol was built by the commander of King Apilak.
+(C) इस प्रतिमा से प्रजावती और भारद्वाजी नामक स्त्रियों द्वारा मूर्ति निर्माण की जानकारी मिलती है। / This idol provides information about the construction of the idol by women named Prajavati and Bharadwaji.
+(D) इस प्रतिमा में राजा वेदश्री को 'दक्षिण-पथ स्वामी' कहा गया है। / In this idol, King Vedshri is called 'Dakshin-path Swami'.
+
+**Correct:** C
+**Explanation (EN):** The four-armed idol of Vishnu found at Burhikhar (Bilaspur) belongs to the Satavahana period. It bears an inscription in the Brahmi script which uniquely provides information that it was constructed by women named Prajavati and Bharadwaji.
+**Explanation (HI):** बूढ़ीखार (बिलासपुर) से प्राप्त विष्णु की चतुर्भुजी प्रतिमा सातवाहन काल की है। इसमें ब्राह्मी लिपि में एक लेख है जो यह विशिष्ट जानकारी देता है कि इस मूर्ति का निर्माण प्रजावती और भारद्वाजी नामक स्त्रियों द्वारा किया गया था।
+
+**Q9.** 'कपाटपुरम' (Kapatpuram), जहाँ से मौर्य साम्राज्य के होने का परिचायक 'अशोक का लाट' (Ashoka's Pillar) प्राप्त हुआ है, किस जिले में स्थित है?
+'Kapatpuram', from where 'Ashoka's Lat' (Pillar), indicating the presence of the Mauryan Empire, has been found, is located in which district?
+
+(A) कोरिया / Koriya
+(B) सरगुजा / Surguja
+(C) जांजगीर-चांपा / Janjgir-Champa
+(D) सक्ती / Sakti
+
+**Correct:** B
+**Explanation (EN):** According to historical records, the artifact known as 'Ashoka's Lat' (pillar), which provides evidence of the Mauryan empire in the region, was found at a place called Kapatpuram located in the Surguja district near Ramgarh.
+**Explanation (HI):** ऐतिहासिक अभिलेखों के अनुसार, 'अशोक का लाट' (स्तंभ) नामक कलाकृति, जो इस क्षेत्र में मौर्य साम्राज्य का प्रमाण देती है, सरगुजा जिले में रामगढ़ के पास कपाटपुरम नामक स्थान पर पाई गई थी।
+
+**Q10.** सातवाहन कालीन वास्तुकला के संदर्भ में, बौद्ध भिक्षु नागार्जुन के लिए पाँच मंजिला 'संघाराम' (Sangharam) का निर्माण कहाँ करवाया गया था?
+In the context of Satavahana period architecture, where was the five-storied 'Sangharam' built for the Buddhist monk Nagarjuna?
+
+(A) मल्हार / Malhar
+(B) सिरपुर / Sirpur
+(C) गुंजी / Gunji
+(D) बालपुर / Balpur
+
+**Correct:** C
+**Explanation (EN):** During the Satavahana period, a five-storied architectural structure known as 'Sangharam' was constructed at Gunji (Sakti district) specifically for the renowned Buddhist monk Nagarjuna.
+**Explanation (HI):** सातवाहन काल के दौरान, प्रसिद्ध बौद्ध भिक्षु नागार्जुन के लिए गुंजी (सक्ती जिला) में 'संघाराम' नामक एक पाँच मंजिला वास्तुशिल्प संरचना का निर्माण करवाया गया था।
+
+**Q11.** पुरातात्विक अन्वेषणों के अनुसार, 1969-70 में रायपुर के 'आरंग' तथा 'गुजरा' गाँव में मौर्यकालीन आहत सिक्कों (Punch-marked coins) की खोज किसने की थी?
+According to archaeological explorations, who discovered the Mauryan period punch-marked coins in 'Arang' and 'Gujra' villages of Raipur in 1969-70?
+
+(A) डॉ. सी.के. साहू / Dr. C.K. Sahu
+(B) डॉ. रमेन्द्रनाथ मिश्र / Dr. Ramendranath Mishra
+(C) अलेक्जेंडर कनिंघम / Alexander Cunningham
+(D) जे.आर. काम्बले / J.R. Kamble
+
+**Correct:** B
+**Explanation (EN):** In the years 1969-70, archaeologist Dr. Ramendranath Mishra discovered Mauryan period punch-marked coins (Aahat Mudras) in the villages of Arang and Gujra. These coins belong to the Sonogal category.
+**Explanation (HI):** वर्ष 1969-70 में, पुरातत्वविद् डॉ. रमेन्द्रनाथ मिश्र ने आरंग और गुजरा गाँवों में मौर्यकालीन आहत मुद्राओं (पंच-मार्क सिक्कों) की खोज की थी। ये सिक्के सोनोगल श्रेणी के हैं।
+
+**Q12.** सातवाहन काल के दौरान विदेशी व्यापार को इंगित करने वाला 'रोम का सिक्का' (Roman coin) छत्तीसगढ़ के किस पुरातात्विक स्थल से प्राप्त हुआ है?
+The 'Roman coin' indicating foreign trade during the Satavahana period has been found from which archaeological site of Chhattisgarh?
+
+(A) बालपुर / Balpur
+(B) पकरिया / Pakariya
+(C) चकरबेड़ा / Chakrabeda
+(D) नवागांव / Navagaon
+
+**Correct:** C
+**Explanation (EN):** A Roman coin was discovered at Chakrabeda (Bilaspur district). This finding is highly significant as it indicates that the region of Chhattisgarh, under the Satavahana rulers, had active foreign trade relations with the Roman Empire.
+**Explanation (HI):** चकरबेड़ा (बिलासपुर जिले) से रोम का एक सिक्का खोजा गया था। यह खोज अत्यंत महत्वपूर्ण है क्योंकि यह इंगित करती है कि सातवाहन शासकों के अधीन छत्तीसगढ़ क्षेत्र का रोमन साम्राज्य के साथ सक्रिय विदेशी व्यापार संबंध था।
+
+**Q13.** मौर्यकालीन साक्ष्यों के संदर्भ में 'कथन' और 'कारण' पर विचार करें:
+कथन (A): यह माना जाता है कि मौर्य काल में छत्तीसगढ़ का उत्तरी भाग मौर्य साम्राज्य में सम्मिलित था।
+कारण (R): कोरिया और सरगुजा क्षेत्र में सम्राट अशोक के शिलालेख एवं बौद्ध स्तूप बड़ी संख्या में प्राप्त हुए हैं।
+
+Consider the 'Assertion' and 'Reason' in the context of Mauryan evidence:
+Assertion (A): It is believed that the northern part of Chhattisgarh was included in the Mauryan Empire during the Mauryan period.
+Reason (R): Inscriptions of Emperor Ashoka and Buddhist stupas have been found in large numbers in the Koriya and Surguja regions.
+
+(A) (A) और (R) दोनों सही हैं, और (R), (A) की सही व्याख्या है। / Both (A) and (R) are correct, and (R) is the correct explanation of (A).
+(B) (A) और (R) दोनों सही हैं, लेकिन (R), (A) की सही व्याख्या नहीं है। / Both (A) and (R) are correct, but (R) is not the correct explanation of (A).
+(C) (A) सही है लेकिन (R) गलत है। / (A) is true but (R) is false.
+(D) (A) गलत है लेकिन (R) सही है। / (A) is false but (R) is true.
+
+**Correct:** C
+**Explanation (EN):** Assertion (A) is correct; historical and archaeological evidence confirms northern CG was under the Mauryan Empire. However, Reason (R) is false. Ashokan inscriptions are found in Ramgarh (Surguja), but Ashokan Buddhist stupas are found in Sirpur (Mahasamund), not in Koriya/Surguja. Also, the primary evidence is punch-marked coins and the Jogimara inscription.
+**Explanation (HI):** कथन (A) सही है; ऐतिहासिक और पुरातात्विक साक्ष्य पुष्टि करते हैं कि उत्तरी छत्तीसगढ़ मौर्य साम्राज्य के अधीन था। हालाँकि, कारण (R) गलत है। अशोक के शिलालेख रामगढ़ (सरगुजा) में पाए गए हैं, लेकिन अशोक के बौद्ध स्तूप सिरपुर (महासमुंद) में पाए गए हैं, कोरिया/सरगुजा में नहीं।
+
+**Q14.** छत्तीसगढ़ के पुरातात्विक स्थलों और वहाँ से प्राप्त मौर्यकालीन साक्ष्यों की निम्नलिखित जोड़ियों में से कौन सा सुमेलित *नहीं* है?
+Which of the following pairs of archaeological sites of Chhattisgarh and the Mauryan evidence found there is *NOT* matched correctly?
+
+(A) कोटाडोल (मनेन्द्रगढ़-चिरमिरी-भरतपुर) / Kotadol (MCB) - अशोक कालीन मूर्तियाँ / Ashokan period sculptures
+(B) तुरतुरिया (बलौदाबाजार) / Turturiya (Balodabazar) - बौद्ध भिक्षुणियों का विहार / Vihara of Buddhist nuns
+(C) ठठारी (सक्ती) / Thathari (Sakti) - मौर्यकालीन रूपमाषक सिक्का / Mauryan Roopmashak coin
+(D) मल्हार (बिलासपुर) / Malhar (Bilaspur) - मौर्यकालीन प्रस्तर नाट्यशाला / Mauryan period stone theatre
+
+**Correct:** D
+**Explanation (EN):** Pairs A, B, and C are correctly matched. Pair D is incorrect because the Mauryan period stone theatre (Natyashala) is located in the Sitabengra cave in Ramgarh (Surguja), not in Malhar. Malhar is known for Buddhist, Jain, and Shaiva evidence, and later Satavahana/Shunga coins.
+**Explanation (HI):** युग्म A, B और C सही सुमेलित हैं। युग्म D गलत है क्योंकि मौर्यकालीन प्रस्तर नाट्यशाला (थिएटर) रामगढ़ (सरगुजा) की सीताबेंगरा गुफा में स्थित है, न कि मल्हार में। मल्हार बौद्ध, जैन और शैव साक्ष्यों तथा बाद के सातवाहन/शुंग सिक्कों के लिए जाना जाता है।
+
+**Q15.** मल्हार (बिलासपुर) में सातवाहन कालीन शासकों के सिक्कों के संबंध में निम्नलिखित कथनों पर विचार कीजिए:
+1. यहाँ से राजा अपीलक की तांबे और कांसे की मुद्राएँ प्राप्त हुई हैं।
+2. यहाँ वशिष्ठी पुत्र पुलुमावी का आवक्ष चाँदी का सिक्का मिला है।
+3. यहाँ से सातवाहन वंश के संस्थापक 'सिमुक' (Simuka) का सिक्का भी प्राप्त हुआ है।
+
+उपरोक्त में से कौन-सा/से कथन सत्य है/हैं?
+Consider the following statements regarding the coins of Satavahana period rulers in Malhar (Bilaspur):
+1. Copper and bronze coins of King Apilak have been found here.
+2. A silver bust coin of Vashishthi Putra Pulumavi has been found here.
+3. The coin of 'Simuka', the founder of the Satavahana dynasty, has also been found here.
+
+Which of the above statement(s) is/are true?
+
+(A) केवल 1 और 2 / Only 1 and 2
+(B) केवल 2 और 3 / Only 2 and 3
+(C) केवल 1 और 3 / Only 1 and 3
+(D) 1, 2 और 3 / 1, 2 and 3
+
+**Correct:** A
+**Explanation (EN):** Statements 1 and 2 are true. Coins of Apilak (copper and bronze) and Pulumavi (silver bust) were found in Malhar. Statement 3 is strictly incorrect because archaeological sources specifically note: "नोट - मल्हार से सिमुक का सिक्का प्राप्त नहीं हुआ है" (Note: Simuka's coin has not been found from Malhar).
+**Explanation (HI):** कथन 1 और 2 सत्य हैं। मल्हार में अपीलक (तांबा और कांस्य) और पुलुमावी (चांदी का आवक्ष सिक्का) के सिक्के मिले हैं। कथन 3 पूर्णतः गलत है क्योंकि पुरातात्विक स्रोतों में विशेष रूप से यह उल्लेख है: "नोट - मल्हार से सिमुक का सिक्का प्राप्त नहीं हुआ है"।
+
+**Q16.** सातवाहन काल में छत्तीसगढ़ (दक्षिण कोसल) के किस स्थान को 'क्षेत्रीय राजधानी' (Regional Capital) का दर्जा प्राप्त था?
+During the Satavahana period, which place in Chhattisgarh (Dakshin Kosala) had the status of 'Regional Capital'?
+
+(A) सिरपुर / Sirpur
+(B) मल्हार / Malhar
+(C) बालपुर / Balpur
+(D) गुंजी / Gunji
+
+**Correct:** B
+**Explanation (EN):** During the Satavahana period, the primary capital was Pratishthan (Maharashtra). However, for the administration of the Dakshin Kosal region, Malhar served as their regional capital (क्षेत्रीय राजधानी) from the 1st century BC to the 3rd century AD.
+**Explanation (HI):** सातवाहन काल के दौरान, मुख्य राजधानी प्रतिष्ठान (महाराष्ट्र) थी। हालाँकि, दक्षिण कोसल क्षेत्र के प्रशासन के लिए, मल्हार ने प्रथम ईसा पूर्व से तीसरी शताब्दी ईस्वी तक उनकी क्षेत्रीय राजधानी के रूप में कार्य किया।
+
+**Q17.** मौर्यकालीन आहत मुद्राओं (Punch-marked coins) की संख्या के आधार पर सही युग्म का चयन करें:
+Based on the number of Mauryan Punch-marked coins, select the correct pair:
+
+(A) तारापुर (Tarapur) - 259 सिक्के / coins
+(B) अकलतरा (Akaltara) - 259 सिक्के / coins
+(C) ठठारी (Thathari) - 15 सिक्के / coins
+(D) बार व देवगांव (Bar & Devgaon) - 253 सिक्के / coins
+
+**Correct:** B
+**Explanation (EN):** Historical records specify the exact count of Mauryan punch-marked silver coins found in CG: 259 coins were found in Akaltara, 253 coins in Thathari, and 15 coins in Tarapur. Bar and Devgaon yielded 15 coins. Thus, B is the correct pair.
+**Explanation (HI):** ऐतिहासिक अभिलेखों में छत्तीसगढ़ में पाए गए मौर्यकालीन आहत चाँदी के सिक्कों की सटीक संख्या निर्दिष्ट है: अकलतरा में 259 सिक्के, ठठारी में 253 सिक्के और तारापुर में 15 सिक्के मिले। बार और देवगांव से 15 सिक्के मिले। अतः B सही युग्म है।
+
+**Q18.** सातवाहन शासक स्वयं को निम्नलिखित में से किस उपाधि से संबोधित करते थे, जिसका उल्लेख टॉलेमी के यात्रा वृत्तांत में भी मिलता है?
+By which of the following titles did the Satavahana rulers address themselves, which is also mentioned in Ptolemy's travelogue?
+
+(A) त्रिकलिंगाधिपति / Trikalingadhipati
+(B) सकलकोसलाधिपति / Sakalkosaladhipati
+(C) दक्षिण-पथ स्वामी / Dakshin-path Swami
+(D) परम महेश्वर / Param Maheshwar
+
+**Correct:** C
+**Explanation (EN):** According to the travel account of the famous scholar Ptolemy (Egypt) who visited CG during this era, the Satavahana rulers proudly called themselves 'Dakshin-path Swami' (Lord of the Southern Route). Trikalingadhipati was used by Somvanshi rulers.
+**Explanation (HI):** इस युग में छत्तीसगढ़ की यात्रा करने वाले प्रसिद्ध विद्वान टॉलेमी (मिस्र) के यात्रा वृत्तांत के अनुसार, सातवाहन शासक गर्व से स्वयं को 'दक्षिण-पथ स्वामी' कहते थे। त्रिकलिंगाधिपति की उपाधि सोमवंशी शासकों द्वारा प्रयोग की जाती थी।
+
+**Q19.** सातवाहन काल की 'पक्की मिट्टी की एक सीलिंग' (मृणमुद्रा / Terracotta seal) जिसमें राजा का नाम खुदा है, मल्हार के गढ़ी क्षेत्र से प्राप्त हुई है। यह किस राजा की है?
+A Satavahana period 'baked clay sealing' (Mrunmudra / Terracotta seal) with a king's name engraved on it has been found from the Garhi area of Malhar. Which king does it belong to?
+
+(A) राजा अपीलक / King Apilak
+(B) वशिष्ठी पुत्र पुलुमावी / Vashishthiputra Pulumavi
+(C) राजा वेदश्री (वेदसिरिस) / King Vedshri (Vedasiris)
+(D) गौतमपुत्र शातकर्णी / Gautamiputra Satakarni
+
+**Correct:** C
+**Explanation (EN):** Archaeological excavations in the Garhi area of Malhar yielded a baked clay sealing (terracotta seal/Mrunmudra) on which the name 'Vedasiris' (Vedshri) is clearly inscribed. He was a prominent Satavahana ruler in this region.
+**Explanation (HI):** मल्हार के गढ़ी क्षेत्र में पुरातात्विक उत्खनन से एक पक्की मिट्टी की सीलिंग (मृणमुद्रा) प्राप्त हुई जिस पर स्पष्ट रूप से 'वेदसिरिस' (राजा वेदश्री) का नाम उत्कीर्ण है। वह इस क्षेत्र में एक प्रमुख सातवाहन शासक थे।
+
+**Q20.** निम्नलिखित में से कौन सा पुरातात्विक स्थल मुख्य रूप से 'मौर्य काल' (Mauryan Period) से संबंधित *नहीं* है?
+Which of the following archaeological sites is *NOT* primarily related to the 'Mauryan Period'?
+
+(A) सीताबेंगरा (Sitabengra)
+(B) नवागांव (Navagaon)
+(C) कोटाडोल (Kotadol)
+(D) उड़ेला (Udela)
+
+**Correct:** B
+**Explanation (EN):** Sitabengra (cave inscriptions/theatre), Kotadol (sculptures), and Udela (punch-marked coins) are all prominent sites yielding Mauryan period evidence. Navagaon (Bemetara) is a Satavahana site where a copper coin bearing the inscription 'Siri Sat' was found.
+**Explanation (HI):** सीताबेंगरा (गुफा शिलालेख/नाट्यशाला), कोटाडोल (मूर्तियां), और उड़ेला (आहत मुद्राएं) सभी मौर्य काल के साक्ष्य देने वाले प्रमुख स्थल हैं। नवागांव (बेमेतरा) एक सातवाहन स्थल है जहाँ 'सिरि सात' लेख युक्त एक तांबे का सिक्का मिला था।
+
+**Q21.** मौर्य साम्राज्य और छत्तीसगढ़ के संबंध में निम्नलिखित कथनों पर विचार कीजिए:
+1. कलिंग विजय के पश्चात् छत्तीसगढ़ का उत्तरी भाग मौर्य साम्राज्य का हिस्सा बना, जबकि दक्षिण कोसल का भाग कलिंग राजा के अधीन रहा। (ऐतिहासिक मतभेद के अनुसार)
+2. अशोक के शिलालेखों से छत्तीसगढ़ के मौर्य साम्राज्य में होने की स्पष्ट पुष्टि होती है।
+3. मौर्यकालीन आहत मुद्राओं का मिलना यह दर्शाता है कि इस क्षेत्र में व्यापार वाणिज्य उन्नत अवस्था में था।
+
+सही कथन चुनें:
+Consider the following statements regarding the Mauryan Empire and Chhattisgarh:
+1. After the conquest of Kalinga, the northern part of CG became part of the Mauryan Empire, while the part of Dakshin Kosal remained under the Kalinga king. (According to historical differences)
+2. Ashoka's inscriptions clearly confirm the inclusion of Chhattisgarh in the Mauryan Empire.
+3. The discovery of Mauryan punch-marked coins indicates that trade and commerce were in an advanced state in this region.
+
+Choose the correct statements:
+
+(A) केवल 1 और 2 / Only 1 and 2
+(B) केवल 2 और 3 / Only 2 and 3
+(C) केवल 1 और 3 / Only 1 and 3
+(D) 1, 2 और 3 / 1, 2 and 3
+
+**Correct:** C
+**Explanation (EN):** Statements 1 and 3 are historically accepted concepts (some historians believe Ashoka didn't directly control the deep south Kosal portion, leaving it to Kalinga/local chiefs post-war, but north CG was definitely his, and coins indicate heavy trade). Statement 2 is specifically incorrect according to CG historical texts, which explicitly state: "हालांकि अशोक के कलिंग अभिलेख से इसकी पुष्टि नहीं होती है।" (However, Ashoka's Kalinga inscription does NOT confirm this).
+**Explanation (HI):** कथन 1 और 3 ऐतिहासिक रूप से स्वीकृत अवधारणाएँ हैं (सिक्के भारी व्यापार का संकेत देते हैं और उत्तरी भाग मौर्यों के अधीन था)। कथन 2 विशेष रूप से गलत है क्योंकि छत्तीसगढ़ के ऐतिहासिक ग्रंथों में स्पष्ट रूप से कहा गया है: "हालांकि अशोक के कलिंग अभिलेख से इसकी पुष्टि नहीं होती है"।
+
+**Q22.** सातवाहन कालीन 'सीसे' (Lead) के सिक्के छत्तीसगढ़ में किस स्थान से प्राप्त हुए हैं?
+From which place in Chhattisgarh have Satavahana period 'Lead' coins been found?
+
+(A) बालपुर / Balpur
+(B) गुंजी / Gunji
+(C) मल्हार / Malhar
+(D) चकरबेड़ा / Chakrabeda
+
+**Correct:** C
+**Explanation (EN):** During archaeological excavations in Malhar (Bilaspur), several lead (सीसा) coins belonging to Satavahana rulers like King Vedshri (Vedasiris) and Satakarni were discovered. Balpur mostly yielded copper and silver coins.
+**Explanation (HI):** मल्हार (बिलासपुर) में पुरातात्विक उत्खनन के दौरान, राजा वेदश्री (वेदसिरिस) और शातकर्णी जैसे सातवाहन शासकों के कई सीसे (Lead) के सिक्के खोजे गए। बालपुर से मुख्य रूप से तांबे और चांदी के सिक्के मिले हैं।
+
+**Q23.** मौर्यकालीन अभिलेखों की लिपि और भाषा के संदर्भ में 'कथन' और 'कारण' पर विचार करें:
+कथन (A): सरगुजा जिले के रामगढ़ पहाड़ी स्थित जोगीमारा गुफा के लेख की भाषा प्राकृत है।
+कारण (R): मौर्य काल में राजकाज और जनसामान्य की भाषा प्राकृत थी जिसका प्रभाव इस क्षेत्र पर भी पड़ा।
+
+Consider the 'Assertion' and 'Reason' in the context of script and language of Mauryan inscriptions:
+Assertion (A): The language of the inscription in Jogimara cave in Ramgarh hills of Surguja district is Prakrit.
+Reason (R): During the Mauryan period, the language of administration and the general public was Prakrit, which also influenced this region.
+
+(A) (A) और (R) दोनों सही हैं, और (R), (A) की सही व्याख्या है। / Both (A) and (R) are correct, and (R) is the correct explanation of (A).
+(B) (A) और (R) दोनों सही हैं, लेकिन (R), (A) की सही व्याख्या नहीं है। / Both (A) and (R) are correct, but (R) is not the correct explanation of (A).
+(C) (A) सही है लेकिन (R) गलत है। / (A) is true but (R) is false.
+(D) (A) गलत है लेकिन (R) सही है। / (A) is false but (R) is true.
+
+**Correct:** D
+**Explanation (EN):** Assertion (A) is strictly false according to Chhattisgarh's specific syllabus sources, which state the language of the Jogimara cave inscription is *Pali* (पाली) and the script is Brahmi. While Prakrit was indeed a major language of the Mauryan period across India (making R factually acceptable in a general Indian history context), the specific CG text marks the language as Pali. Therefore, A is false.
+**Explanation (HI):** छत्तीसगढ़ के विशिष्ट पाठ्यक्रम स्रोतों के अनुसार कथन (A) पूर्णतः गलत है, जिसमें कहा गया है कि जोगीमारा गुफा के शिलालेख की भाषा *पाली* है और लिपि ब्राह्मी है। यद्यपि प्राकृत वास्तव में पूरे भारत में मौर्य काल की एक प्रमुख भाषा थी (जिससे R सामान्य भारतीय इतिहास के संदर्भ में तथ्यात्मक रूप से स्वीकार्य है), विशिष्ट सीजी पाठ भाषा को पाली के रूप में चिह्नित करता है। इसलिए, A गलत है।
+
+**Q24.** सातवाहन राजवंश और उनके समकालीन तथ्यों के संबंध में कौन सा विकल्प *गलत* है?
+Which option is *incorrect* regarding the Satavahana dynasty and their contemporary facts?
+
+(A) शासक - अपीलक, वरदत्तश्री, वेदश्री / Rulers - Apilak, Varadattashri, Vedshri
+(B) राजधानी - प्रतिष्ठान (महाराष्ट्र) / Capital - Pratishthan (Maharashtra)
+(C) समकालीन शासक - सद्धाह (बौद्ध भिक्षु नागार्जुन के समकालीन) / Contemporary ruler - Saddhaha (Contemporary to Buddhist monk Nagarjuna)
+(D) अंतिम शासक - सिमुक / Last ruler - Simuka
+
+**Correct:** D
+**Explanation (EN):** Simuka was the *founder* (संस्थापक) of the Satavahana dynasty, not the last ruler. The last notable ruler was Vijaya Satakarni. Options A, B, and C are factual points explicitly mentioned in CG history texts regarding the Satavahana presence.
+**Explanation (HI):** सिमुक सातवाहन वंश का *संस्थापक* था, न कि अंतिम शासक। अंतिम उल्लेखनीय शासक विजय शातकर्णी था। सातवाहन उपस्थिति के संबंध में छत्तीसगढ़ के इतिहास ग्रंथों में विकल्प A, B और C स्पष्ट रूप से उल्लिखित तथ्यात्मक बिंदु हैं।
+
+**Q25.** "इस स्थान पर मौर्यकालीन बौद्ध भिक्षुणियों का विहार था, जहाँ बुद्ध देव की विशाल मूर्ति आज भी विद्यमान है। यहाँ महिलाएँ ही पुजारिन होती हैं।" यह विवरण किस स्थान का है?
+"There was a vihara of Mauryan Buddhist nuns at this place, where a huge statue of Buddha is still present today. Only women are priests here." This description belongs to which place?
+
+(A) भोंगपाल (Bhongapal)
+(B) तुरतुरिया (Turturiya)
+(C) सिरपुर (Sirpur)
+(D) प्रज्ञागिरी (Pragyagiri)
+
+**Correct:** B
+**Explanation (EN):** According to the writings of Rai Bahadur Hiralal and travelogues of Hiuen Tsang, Turturiya (located in Balodabazar district) was a unique Mauryan period site that hosted a Vihara exclusively for Buddhist nuns (Bhikkhunis). Even today, women serve as priests there.
+**Explanation (HI):** राय बहादुर हीरालाल के लेखन और ह्वेनसांग के यात्रा वृत्तांतों के अनुसार, तुरतुरिया (बलौदाबाजार जिले में स्थित) एक अद्वितीय मौर्यकालीन स्थल था जहाँ विशेष रूप से बौद्ध भिक्षुणियों का विहार था। आज भी वहां महिलाएं पुजारिन का काम करती हैं।
+
+**Q26.** निम्नलिखित में से कौन सी मौर्यकालीन आहत मुद्रा (Punch-marked coin) अपनी 'बनावट और प्राचीनता' के लिए विशेष रूप से जानी जाती है?
+Which of the following Mauryan Punch-marked coins is specially known for its 'design and antiquity'?
+
+(A) तारापुर के सिक्के / Coins of Tarapur
+(B) उड़ेला के सिक्के / Coins of Udela
+(C) अकलतरा का रूपमाषक सिक्का / Roopmashak coin of Akaltara
+(D) सारंगढ़ के सिक्के / Coins of Sarangarh
+
+**Correct:** C
+**Explanation (EN):** The punch-marked coins found in Akaltara (Janjgir-Champa), specifically the 'Roopmashak' (रूपमाषक) coins found near Kotgarh, are highly distinguished in CG history for their unique design (बनावट) and antiquity (प्राचीनता) representing the specific characteristics of that era.
+**Explanation (HI):** अकलतरा (जांजगीर-चांपा) में पाए गए आहत सिक्के, विशेष रूप से कोटगढ़ के पास पाए गए 'रूपमाषक' सिक्के, अपनी अनूठी बनावट और प्राचीनता के लिए छत्तीसगढ़ के इतिहास में अत्यधिक विशिष्ट हैं जो उस युग की विशिष्ट विशेषताओं का प्रतिनिधित्व करते हैं।
+
+**Q27.** सातवाहन काल में निर्मित 'किरारी के काष्ठ स्तंभ' पर निम्नलिखित में से किसका उल्लेख प्राप्त *नहीं* होता है?
+Which of the following is *NOT* mentioned on the 'Wooden Pillar of Kirari' built during the Satavahana period?
+
+(A) सेनापति (Senapati)
+(B) रथी (Rathi)
+(C) नगर-रक्षिन (Nagar-rakshin)
+(D) महाप्रमातृ (Mahapramatri)
+
+**Correct:** D
+**Explanation (EN):** The Kirari wooden pillar details the titles of Satavahana administrative officials like Senapati, Pratihar, Rathi, Nagar-rakshin, etc. 'Mahapramatri' is an administrative post (Revenue Minister) belonging to the Kalchuri dynasty's administrative system, not the Satavahana period.
+**Explanation (HI):** किरारी काष्ठ स्तंभ में सातवाहन प्रशासनिक अधिकारियों जैसे सेनापति, प्रतिहार, रथी, नगर-रक्षिन आदि के पदनामों का विवरण है। 'महाप्रमातृ' कलचुरी वंश की प्रशासनिक व्यवस्था से संबंधित एक प्रशासनिक पद (राजस्व मंत्री) है, न कि सातवाहन काल का।
+
+**Q28.** मौर्य और सातवाहन काल के साक्ष्यों को उनके जिलों के अनुसार उत्तर से दक्षिण की ओर व्यवस्थित करें:
+Arrange the evidence of Mauryan and Satavahana period according to their districts from North to South:
+1. अशोक कालीन मूर्तियाँ (कोटाडोल) / Ashokan period sculptures (Kotadol)
+2. मौर्यकालीन गुफाएँ (रामगढ़) / Mauryan caves (Ramgarh)
+3. अपीलक की मुद्रा (बालपुर) / Apilak's coin (Balpur)
+4. किरारी काष्ठ स्तंभ (सक्ती) / Kirari wooden pillar (Sakti)
+
+(A) 1, 2, 4, 3
+(B) 1, 2, 3, 4
+(C) 2, 1, 3, 4
+(D) 2, 1, 4, 3
+
+**Correct:** A
+**Explanation (EN):** Geographically from North to South: Kotadol is in Manendragarh-Chirmiri-Bharatpur (MCB) district (Northernmost). Ramgarh is in Surguja (South of MCB). Both Balpur and Kirari are in Sakti district. Kirari is slightly further south compared to the exact archaeological coordinates of Balpur in the Mahanadi belt, but typically they are considered parallel. However, matching standard MCQs, 1 (MCB), 2 (Surguja), 4, 3 is the accepted sequence.
+**Explanation (HI):** भौगोलिक दृष्टि से उत्तर से दक्षिण की ओर: कोटाडोल मनेन्द्रगढ़-चिरमिरी-भरतपुर (MCB) जिले (सबसे उत्तर) में है। रामगढ़ सरगुजा में है (MCB के दक्षिण में)। बालपुर और किरारी दोनों सक्ती जिले में हैं। मानक भौगोलिक अक्षांशों के अनुसार सही क्रम 1, 2, 4, 3 बनता है।
+
+**Q29.** मौर्यकाल के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए:
+1. अशोक के शिलालेखों में छत्तीसगढ़ का नाम 'आटविक' प्रदेश के रूप में वर्णित है।
+2. रायबहादुर हीरालाल के अनुसार, कलिंग देश महानदी और गोदावरी के बीच बंगाल की खाड़ी के किनारे का प्रदेश था, जिसमें छत्तीसगढ़ का कुछ भाग आता था।
+3. 'सुतनुका' नामक देवदासी का उल्लेख रामगढ़ की सीता बेंगरा गुफा में मिलता है।
+
+उपरोक्त में से कौन-सा/से कथन सत्य है/हैं?
+Consider the following statements in the context of the Mauryan period:
+1. The name of Chhattisgarh is described as 'Aatvik' region in Ashoka's inscriptions.
+2. According to Rai Bahadur Hiralal, Kalinga was the region on the shores of the Bay of Bengal between the Mahanadi and Godavari, which included some part of Chhattisgarh.
+3. The Devadasi named 'Sutanuka' is mentioned in the Sita Bengra cave of Ramgarh.
+
+Which of the above statement(s) is/are true?
+
+(A) केवल 1 और 2 / Only 1 and 2
+(B) केवल 2 / Only 2
+(C) केवल 2 और 3 / Only 2 and 3
+(D) 1, 2 और 3 / 1, 2 and 3
+
+**Correct:** B
+**Explanation (EN):** Statement 2 is factually correct as per Rai Bahadur Hiralal's historical assertion. Statement 1 is incorrect; Ashoka's inscriptions mention Aatvik states, but CG specifically wasn't universally named Aatvik there. Statement 3 is incorrect because the Devadasi Sutanuka's love story is inscribed in the *Jogimara* cave, not Sita Bengra (which is a theatre).
+**Explanation (HI):** राय बहादुर हीरालाल के ऐतिहासिक दावे के अनुसार कथन 2 तथ्यात्मक रूप से सही है। कथन 1 गलत है; अशोक के शिलालेखों में आटविक राज्यों का उल्लेख है, लेकिन विशेष रूप से सीजी को सार्वभौमिक रूप से वहां आटविक नाम नहीं दिया गया था। कथन 3 गलत है क्योंकि देवदासी सुतनुका की प्रेम कहानी *जोगीमारा* गुफा में खुदी हुई है, न कि सीता बेंगरा में (जो एक नाट्यशाला है)।
+
+**Q30.** सातवाहन शासक 'कुमार वरदत्तश्री' (Kumar Varadattashri) के शिलालेख के संबंध में क्या सही है?
+What is true regarding the inscription of Satavahana ruler 'Kumar Varadattashri'?
+
+(A) यह शिलालेख ब्राह्मी लिपि और संस्कृत भाषा में लिखा गया है। / This inscription is written in Brahmi script and Sanskrit language.
+(B) इसमें राजा द्वारा अपनी आयु बढ़ाने के लिए ब्राह्मणों को 1000 स्वर्ण मुद्राएं दान देने का उल्लेख है। / It mentions the donation of 1000 gold coins to Brahmins by the king to increase his lifespan.
+(C) यह शिलालेख सक्ती जिले के गुंजी (दमऊदहरा) नामक स्थान के एक चट्टान पर स्थित है। / This inscription is located on a rock at a place called Gunji (Damaudara) in Sakti district.
+(D) इसमें ऋषभ देव के मंदिर के निर्माण का विस्तृत वर्णन है। / It contains a detailed description of the construction of Rishabh Dev's temple.
+
+**Correct:** C
+**Explanation (EN):** The inscription of Satavahana ruler Kumar Varadattashri is located on a rock near Damaudara Nala in Gunji (Sakti district). It is written in the Prakrit language (not Sanskrit) and mentions the donation of 1000 *cows* (not gold coins) twice to increase his lifespan. While Rishabh Tirth is mentioned, it doesn't detail temple construction. Thus, C is true.
+**Explanation (HI):** सातवाहन शासक कुमार वरदत्तश्री का शिलालेख गुंजी (सक्ती जिले) में दमऊदहरा नाले के पास एक चट्टान पर स्थित है। यह प्राकृत भाषा (संस्कृत नहीं) में लिखा गया है और इसमें अपनी आयु बढ़ाने के लिए दो बार 1000 *गायों* (स्वर्ण मुद्राओं का नहीं) के दान का उल्लेख है। यद्यपि ऋषभ तीर्थ का उल्लेख है, लेकिन यह मंदिर निर्माण का विवरण नहीं देता है। अतः C सही है।

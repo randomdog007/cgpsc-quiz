@@ -138,6 +138,24 @@ export async function onRequest(context) {
         if (limit) query += ` LIMIT ${Math.min(parseInt(limit), 200)}`;
       }
 
+      if (table === 'saved_questions') {
+        query = `
+          SELECT sq.*, 
+            q.question AS q_question, q.question_hi AS q_question_hi,
+            q.option_a, q.option_b, q.option_c, q.option_d,
+            q.option_a_hi, q.option_b_hi, q.option_c_hi, q.option_d_hi,
+            q.correct_option AS q_correct, q.explanation AS q_explanation, q.explanation_hi AS q_explanation_hi
+          FROM saved_questions sq
+          LEFT JOIN questions q ON sq.question_id = CAST(q.id AS TEXT)
+        `;
+        if (whereClauses.length > 0) {
+           const mappedWhere = whereClauses.map(w => `sq.${w}`);
+           query += ` WHERE ` + mappedWhere.join(' AND ');
+        }
+        if (orderClause) query += orderClause.replace('ORDER BY ', 'ORDER BY sq.');
+        if (limit) query += ` LIMIT ${Math.min(parseInt(limit), 200)}`;
+      }
+
       const searchQueryParam = url.searchParams.get('search_query');
       if (table === 'quizzes' && searchQueryParam) {
         query = `
@@ -179,6 +197,29 @@ export async function onRequest(context) {
             subjects: { name: subject_name, name_hi: subject_name_hi },
             topics: { name: topic_name, name_hi: topic_name_hi }
           };
+        });
+      }
+
+      if (table === 'saved_questions') {
+        finalResults = results.map(row => {
+          if (!row.question_text && row.q_question) {
+            row.question_text = row.q_question;
+            row.question_text_hi = row.q_question_hi;
+            row.options = JSON.stringify([row.option_a, row.option_b, row.option_c, row.option_d].filter(Boolean));
+            if (row.option_a_hi) {
+              row.options_hi = JSON.stringify([row.option_a_hi, row.option_b_hi, row.option_c_hi, row.option_d_hi].filter(Boolean));
+            } else {
+              row.options_hi = '[]';
+            }
+            row.correct_option = row.q_correct;
+            row.explanation = row.q_explanation;
+            row.explanation_hi = row.q_explanation_hi;
+          }
+          delete row.q_question; delete row.q_question_hi;
+          delete row.option_a; delete row.option_b; delete row.option_c; delete row.option_d;
+          delete row.option_a_hi; delete row.option_b_hi; delete row.option_c_hi; delete row.option_d_hi;
+          delete row.q_correct; delete row.q_explanation; delete row.q_explanation_hi;
+          return row;
         });
       }
 
