@@ -475,7 +475,7 @@ export default function ResultPage() {
           </div> {/* END DESKTOP GRID */}
         </div>
       </div>
-        <BottomNav tab={tab} C={C} onNavigate={onTabNavigate} profile={props.profile} />
+        <BottomNav tab={tab} C={C} onNavigate={onTabNavigate} profile={profile} />
       </div>
     </div>
   );
