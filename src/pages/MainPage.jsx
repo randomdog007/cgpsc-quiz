@@ -406,9 +406,9 @@ const MainPage = React.memo(function MainPage() {
                       
                       <div 
                         className="hover-raise active-state" 
-                        onClick={onRevision}
+                        onClick={goRevision}
                         tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onRevision(); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') goRevision(); }}
                         style={{ background: "var(--surface)", borderRadius: 16, padding: "20px 24px", border: "1px solid var(--line-2)", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6, transition: "background 0.2s" }}
                         onMouseOver={e => e.currentTarget.style.background = "var(--surface-2)"}
                         onMouseOut={e => e.currentTarget.style.background = "var(--surface)"}
@@ -873,7 +873,7 @@ const MainPage = React.memo(function MainPage() {
             <button onClick={toggleLang} style={{ flex: 1, background: "var(--surface)", border: `1px solid ${"var(--line)"}`, color: "var(--ink)", borderRadius: 8, padding: "12px", cursor: "pointer" }}>{lang === "en" ? "Hindi" : "English"}</button>
           </div>
           {(userEmail === 'randomdog007@gmail.com' || userEmail === 'preview@cgpsc.com' || userEmail?.includes('admin')) && (
-            <button onClick={onAdmin} style={{ width: "100%", marginTop: 10, background: "var(--blue)", border: `none`, color: "#fff", borderRadius: 8, padding: "12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{t.adminPanel || "Admin Panel"}</button>
+            <button onClick={goAdmin} style={{ width: "100%", marginTop: 10, background: "var(--blue)", border: `none`, color: "#fff", borderRadius: 8, padding: "12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{t.adminPanel || "Admin Panel"}</button>
           )}
           <button onClick={signOut} style={{ width: "100%", marginTop: 10, background: "var(--surface)", border: `1px solid ${"var(--crimson)"}44`, color: "var(--crimson)", borderRadius: 8, padding: "12px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{t.signOut || "Sign Out"}</button>
         </div>
