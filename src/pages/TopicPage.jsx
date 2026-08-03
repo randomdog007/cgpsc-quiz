@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import { apiClient } from "../api/client";
 import Header from "../components/layout/Header";
 import BottomNav from "../components/layout/BottomNav";
 import Sidebar from "../components/layout/Sidebar";
@@ -12,10 +13,32 @@ import ErrorBanner from "../components/ui/ErrorBanner";
 export default function TopicPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lang, setLang, dark, setDark, t, topics, quizzes: allQuizzes, profile, dataLoading, dataError, history } = useAppContext();
+  const { lang, setLang, dark, setDark, t, topics, profile, dataError, history } = useAppContext();
   
+  const [topicQuizzes, setTopicQuizzes] = useState([]);
+  const [loadingQuizzes, setLoadingQuizzes] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTopicQuizzes = async () => {
+      setLoadingQuizzes(true);
+      try {
+        const { data, error } = await apiClient.getQuizzes({ topicId: id });
+        if (!error && data && isMounted) {
+          setTopicQuizzes(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch quizzes for topic:", err);
+      } finally {
+        if (isMounted) setLoadingQuizzes(false);
+      }
+    };
+    fetchTopicQuizzes();
+    return () => { isMounted = false; };
+  }, [id]);
+
   const selectedTopic = topics.find(topic => String(topic.id) === String(id));
-  const quizzes = allQuizzes.filter(q => String(q.topic_id) === String(id));
+  const quizzes = topicQuizzes;
   
   const [search, setSearch] = useState("");
   const [mockMode, setMockMode] = useState(true);
@@ -34,7 +57,7 @@ export default function TopicPage() {
   const onHome = () => navigate("/");
   const onTabNavigate = () => navigate("/");
   const tab = "home";
-  const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);
+  const onStartQuiz = (q) => navigate(`/quiz/${q.id}`, { state: { mockMode } });
   const onClearError = () => {};
   const unfinishedQuizId = null;
 
@@ -54,8 +77,6 @@ export default function TopicPage() {
   
   const accuracies = attemptedQuizzes.map(q => history.find(h => String(h.quiz_id) === String(q.id))?.accuracy || 0);
   const avgAccuracy = accuracies.length > 0 ? Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length) : 0;
-  
-
 
   return (
     <div style={ms} className="app-layout">
@@ -95,7 +116,6 @@ export default function TopicPage() {
 
           {/* DESKTOP HERO */}
           <div className="desktop-flex" style={{ display: "none", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32 }}>
-            
             <div style={{ display: "flex", gap: 24, flex: 1, paddingRight: 40 }}>
               <div style={{ width: 100, height: 100, borderRadius: "50%", background: "color-mix(in srgb, var(--teal) 15%, transparent)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--teal)", flexShrink: 0 }}>
                 <svg style={{ width: 50, height: 50 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8h14"/><path d="M7 8v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V8"/><path d="M12 2v2"/><path d="M9.5 4h5a1.5 1.5 0 0 1 1.5 1.5v.5H8v-.5A1.5 1.5 0 0 1 9.5 4z"/></svg>
@@ -137,7 +157,6 @@ export default function TopicPage() {
 
           {/* 4-Column Stats Row */}
           <div className="desktop-flex" style={{ display: "none", gap: 16, marginBottom: 32 }}>
-            
             <div style={{ flex: 1, background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, padding: "20px", display: "flex", alignItems: "flex-start", gap: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
                <div style={{ width: 44, height: 44, borderRadius: 12, background: "color-mix(in srgb, var(--teal) 10%, transparent)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                  <svg style={{ width: 22, height: 22 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -170,15 +189,10 @@ export default function TopicPage() {
                  <div style={{ fontSize: 12, color: "var(--muted)" }}>Great progress!</div>
                </div>
             </div>
-
-
-
           </div>
           
           {/* Search & Exam Mode Row */}
           <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
-            
-            {/* Styled Search Bar */}
             <div style={{ flex: 1, minWidth: 260, position: "relative" }}>
               <svg style={{ position: "absolute", left: 16, top: 18, width: 20, height: 20, color: "var(--muted)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input 
@@ -189,7 +203,6 @@ export default function TopicPage() {
               />
             </div>
             
-            {/* Desktop compact mode switch */}
             <div 
               onClick={() => setMockMode(!mockMode)}
               style={{ background: "var(--surface)", border: `1px solid var(--line-2)`, borderRadius: 12, padding: "12px 20px", display: "flex", alignItems: "center", gap: 16, cursor: "pointer", transition: "all 0.2s", height: 56, flexShrink: 0 }}
@@ -200,29 +213,23 @@ export default function TopicPage() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
                   {t.mockMode || "Exam Mode"}
-                  
-                  {/* iOS Style Toggle */}
                   <div style={{ width: 36, height: 20, background: mockMode ? "var(--teal)" : "var(--line-2)", borderRadius: 10, position: "relative", transition: "all 0.3s", marginLeft: 16 }}>
                     <div style={{ width: 16, height: 16, background: "#fff", borderRadius: "50%", position: "absolute", top: 2, left: mockMode ? 18 : 2, transition: "all 0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }} />
                   </div>
-
                 </div>
                 <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
                   {mockMode ? "Strict timer, no answers." : "Instant answers shown."}
                 </div>
               </div>
             </div>
-
           </div>
 
-          {dataLoading ? <Spinner C={C} fallbackText={t.loading} /> : quizzes.length === 0 ? <EmptyState icon="📄" title={t.noQuizzes} desc={t.noQuizzesDesc} C={C} /> : filteredQuizzes.length === 0 ? <EmptyState icon="🔍" title="No matches" desc={t.filterNoMatch} C={C} /> : 
+          {loadingQuizzes ? <Spinner C={C} fallbackText={t.loading} /> : quizzes.length === 0 ? <EmptyState icon="📄" title={t.noQuizzes} desc={t.noQuizzesDesc} C={C} /> : filteredQuizzes.length === 0 ? <EmptyState icon="🔍" title="No matches" desc={t.filterNoMatch} C={C} /> : 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {filteredQuizzes.map((q, idx) => {
               const hist = history?.find(h => String(h.quiz_id) === String(q.id));
               const isUnf = String(unfinishedQuizId) === String(q.id);
-              const name = lang === "hi" && q.name_hi ? q.name_hi : (q.name || q.title || "Quiz");
-              
-              // Unlock all quizzes as requested by user
+              const name = lang === "hi" && q.title_hi ? q.title_hi : (q.title || q.name || "Quiz");
               const isLocked = false;
               
               const accuracy = hist?.accuracy || 0;
@@ -237,12 +244,10 @@ export default function TopicPage() {
                   opacity: isLocked ? 0.6 : 1, transition: "all 0.2s", cursor: "pointer"
                 }} className="topic-module-row">
                   
-                  {/* Left Graphic - Just number */}
                   <div style={{ width: 44, height: 44, borderRadius: "50%", background: "color-mix(in srgb, var(--teal) 10%, transparent)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
                     {idx + 1}
                   </div>
                   
-                  {/* Content */}
                   <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: "var(--ink)", marginBottom: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                       <span>{name}</span>
@@ -251,7 +256,6 @@ export default function TopicPage() {
                       {isLocked && <span style={{ background: "var(--line-2)", color: "var(--muted)", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>Locked</span>}
                     </div>
                     
-                    {/* Meta Row */}
                     <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12, fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -268,52 +272,20 @@ export default function TopicPage() {
                     </div>
                   </div>
                   
-                  {/* Right Actions Desktop */}
                   <div className="desktop-flex" style={{ display: "none", alignItems: "center", gap: 40, width: 340, flexShrink: 0, justifyContent: "flex-end", paddingLeft: 24, borderLeft: "1px solid var(--line-2)" }}>
-                    
-                    {isLocked ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--muted)", fontSize: 13, fontWeight: 600, paddingRight: 16 }}>
-                        <svg style={{ width: 18, height: 18 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        Complete previous<br/>topic to unlock
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", marginBottom: 6 }}>{hist ? accuracy : 0}%</div>
+                      <div style={{ height: 6, background: "var(--line-2)", borderRadius: 3, marginBottom: 8, overflow: "hidden" }}>
+                        <div style={{ width: `${progressRatio * 100}%`, height: "100%", background: "var(--teal)", borderRadius: 3 }} />
                       </div>
-                    ) : (
-                      <>
-                        {/* Linear Progress */}
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", marginBottom: 6 }}>{hist ? accuracy : 0}%</div>
-                          <div style={{ height: 6, background: "var(--line-2)", borderRadius: 3, marginBottom: 8, overflow: "hidden" }}>
-                            <div style={{ width: `${progressRatio * 100}%`, height: "100%", background: "var(--teal)", borderRadius: 3 }} />
-                          </div>
-                          <div style={{ fontSize: 11, color: "var(--muted)" }}>{attempted} / {totalQ} attempted</div>
-                        </div>
-                        
-                        {/* Action Buttons */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 120 }}>
-                          {isUnf ? (
-                            <>
-                              <button onClick={() => onStartQuiz(q)} className="btn-primary" style={{ background: "color-mix(in srgb, var(--teal) 15%, transparent)", color: "var(--teal)", padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700, border: "none" }}>Continue ›</button>
-                              <button onClick={() => onStartQuiz(q)} className="btn-secondary" style={{ background: "transparent", color: "var(--teal)", border: "1px solid color-mix(in srgb, var(--teal) 30%, transparent)", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                                <svg style={{ width: 12, height: 12 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                                Restart
-                              </button>
-                            </>
-                          ) : hist ? (
-                            <>
-                              <button onClick={() => onStartQuiz(q)} className="btn-primary" style={{ background: "color-mix(in srgb, var(--teal) 15%, transparent)", color: "var(--teal)", padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700, border: "none" }}>Review ›</button>
-                              <button onClick={() => onStartQuiz(q)} className="btn-secondary" style={{ background: "transparent", color: "var(--teal)", border: "1px solid color-mix(in srgb, var(--teal) 30%, transparent)", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                                <svg style={{ width: 12, height: 12 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                                Retake
-                              </button>
-                            </>
-                          ) : (
-                            <button onClick={() => onStartQuiz(q)} className="btn-primary" style={{ background: "var(--teal)", color: "#fff", padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700, border: "none" }}>Start Quiz ›</button>
-                          )}
-                        </div>
-                      </>
-                    )}
+                      <div style={{ fontSize: 11, color: "var(--muted)" }}>{attempted} / {totalQ} attempted</div>
+                    </div>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 120 }}>
+                      <button onClick={() => onStartQuiz(q)} className="btn-primary" style={{ background: "var(--teal)", color: "#fff", padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700, border: "none" }}>Start Quiz ›</button>
+                    </div>
                   </div>
                   
-                  {/* Mobile Simple Arrow */}
                   <div className="mobile-only" style={{ marginLeft: 16, color: "var(--muted)" }}>
                     <svg style={{ width: 20, height: 20 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
                   </div>

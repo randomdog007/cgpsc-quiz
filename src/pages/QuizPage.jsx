@@ -1,11 +1,29 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { supabase } from '../supabase';
 import { setScore } from '../alive.js';
 import Spinner from "../components/ui/Spinner";
 import EmptyState from "../components/ui/EmptyState";
 import ErrorBanner from "../components/ui/ErrorBanner";
+
+const getCorrectIdx = (q) => {
+  if (!q) return -1;
+  if (typeof q.correct_option === "number" && q.correct_option >= 1 && q.correct_option <= 4) return q.correct_option - 1;
+  if (typeof q.correctOption === "number" && q.correctOption >= 1 && q.correctOption <= 4) return q.correctOption - 1;
+  if (typeof q.correct === "number") {
+    if (q.correct >= 0 && q.correct <= 3) return q.correct;
+    if (q.correct === 4) return 3;
+  }
+  if (typeof q.correct === "string") {
+    const s = q.correct.trim().toLowerCase();
+    if (s === "a" || s === "1" || s === "opt_a" || s === "option_a") return 0;
+    if (s === "b" || s === "2" || s === "opt_b" || s === "option_b") return 1;
+    if (s === "c" || s === "3" || s === "opt_c" || s === "option_c") return 2;
+    if (s === "d" || s === "4" || s === "opt_d" || s === "option_d") return 3;
+  }
+  return 0;
+};
 
 const MemoizedSidebarPills = React.memo(({ questions, currentQ, answers, visited, setCurrentQ, closePalette }) => {
   return (
@@ -53,6 +71,7 @@ const MemoizedBotPills = React.memo(({ questions, currentQ, answers, visited, se
 export default function QuizPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, lang, setLang, dark, setDark, t, quizzes, topics, fetchHistory } = useAppContext();
   
   const [dataLoading, setDataLoading] = useState(true);
@@ -66,7 +85,7 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState({});
   const [showExp, setShowExp] = useState(false);
   const [timer, setTimer] = useState(1200);
-  const [mockMode, setMockMode] = useState(true);
+  const [mockMode, setMockMode] = useState(location.state?.mockMode ?? false);
   
   const onClearError = () => setDataError(null);
   const onBack = () => navigate(-1);
@@ -130,10 +149,10 @@ export default function QuizPage() {
   const finishQuiz = async () => {
     let score = 0;
     questions.forEach((q, i) => {
-      if (answers[i] === q.correct_option) score++;
+      if (answers[i] !== undefined && answers[i] === getCorrectIdx(q)) score++;
     });
     
-    if (!mockMode && user && selectedQuiz) {
+    if (user && selectedQuiz) {
       const selectedTopic = topics.find(t => String(t.id) === String(selectedQuiz.topic_id));
       const subjectId = selectedTopic?.subject_id;
       
@@ -221,8 +240,8 @@ export default function QuizPage() {
   }, [q, lang]);
 
   // Live marks
-  const correct = questions.filter((_, i) => answers[i] !== undefined && answers[i] === questions[i]?.correct).length;
-  const wrong = questions.filter((_, i) => answers[i] !== undefined && answers[i] !== questions[i]?.correct).length;
+  const correct = questions.filter((item, i) => answers[i] !== undefined && answers[i] === getCorrectIdx(item)).length;
+  const wrong = questions.filter((item, i) => answers[i] !== undefined && answers[i] !== getCorrectIdx(item)).length;
   const liveMarks = parseFloat(((correct * 2) - (wrong * 0.66)).toFixed(2));
 
 
@@ -422,9 +441,15 @@ export default function QuizPage() {
           border-left: 4px solid var(--teal);
           box-shadow: 0 2px 16px color-mix(in srgb, var(--teal) 15%, transparent);
         }
+        .q-option.correct {
+          border-color: var(--teal);
+          background: color-mix(in srgb, var(--teal) 12%, var(--surface));
+          border-left: 4px solid var(--teal);
+          box-shadow: 0 2px 16px color-mix(in srgb, var(--teal) 15%, transparent);
+        }
         .q-option.wrong {
           border-color: var(--crimson);
-          background: var(--crimson-soft);
+          background: color-mix(in srgb, var(--crimson) 10%, var(--surface));
           border-left: 4px solid var(--crimson);
           animation: q-shake 0.4s ease;
         }
@@ -437,7 +462,7 @@ export default function QuizPage() {
           transition: all 0.2s ease;
         }
         .q-option:hover .q-letter { background: color-mix(in srgb, var(--teal) 12%, transparent); color: var(--teal); }
-        .q-option.selected .q-letter { background: var(--teal); color: #fff; box-shadow: 0 2px 8px color-mix(in srgb, var(--teal) 30%, transparent); }
+        .q-option.selected .q-letter, .q-option.correct .q-letter { background: var(--teal); color: #fff; box-shadow: 0 2px 8px color-mix(in srgb, var(--teal) 30%, transparent); }
         .q-option.wrong .q-letter { background: var(--crimson); color: #fff; }
         .q-radio {
           width: 22px; height: 22px; border-radius: 50%;
@@ -446,7 +471,7 @@ export default function QuizPage() {
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .q-option:hover .q-radio { border-color: color-mix(in srgb, var(--teal) 50%, transparent); }
-        .q-option.selected .q-radio { border-color: var(--teal); background: var(--teal); transform: scale(1.1); }
+        .q-option.selected .q-radio, .q-option.correct .q-radio { border-color: var(--teal); background: var(--teal); transform: scale(1.1); }
         .q-option.wrong .q-radio { border-color: var(--crimson); background: var(--crimson); }
 
         /* ── Desktop palette pills — premium ── */
@@ -565,10 +590,13 @@ export default function QuizPage() {
             margin-bottom: 10px !important;
             border-width: 1.5px !important;
             border-left-width: 1.5px !important;
-            background: var(--surface) !important;
+            background: var(--surface);
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
           }
+          .q-option.selected { background: var(--teal-soft) !important; border-left-width: 4px !important; border-color: var(--teal) !important; }
+          .q-option.correct { background: color-mix(in srgb, var(--teal) 12%, var(--surface)) !important; border-left-width: 4px !important; border-color: var(--teal) !important; }
+          .q-option.wrong { background: color-mix(in srgb, var(--crimson) 12%, var(--surface)) !important; border-left-width: 4px !important; border-color: var(--crimson) !important; }
           .q-option:active { transform: scale(0.97) !important; }
           .q-option:hover { transform: none !important; box-shadow: none !important; }
           .q-letter {
@@ -954,13 +982,16 @@ export default function QuizPage() {
               <div style={{ display: "flex", flexDirection: "column" }}>
                 {opts?.map((opt, idx) => {
                   const isSel = answers[currentQ] === idx;
-                  const isOk = q?.correct === idx;
+                  const isOk = getCorrectIdx(q) === idx;
                   let optClass = "q-option";
-                  if (isSel) optClass += " selected";
+
                   if (answered && !mockMode) {
-                    if (isOk) optClass = "q-option selected";
+                    if (isOk) optClass = "q-option correct";
                     else if (isSel && !isOk) optClass = "q-option wrong";
+                  } else if (isSel) {
+                    optClass = "q-option selected";
                   }
+
                   return (
                     <div role="button" tabIndex={0} key={idx} onClick={() => selectAnswer(idx)} className={optClass}>
                       <div className="q-letter">{letters[idx]}</div>
