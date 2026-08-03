@@ -33,7 +33,7 @@ export default function RevisionCard({ question, index, total, selected, lang, o
   };
 
   return (
-    <div key={animKey} style={{ maxWidth: 560, margin: '0 auto', width: '100%', boxSizing: 'border-box', animation: 'slideIn 0.25s ease' }}>
+    <div key={animKey} style={{ maxWidth: 800, margin: '0 auto', width: '100%', boxSizing: 'border-box', animation: 'slideIn 0.25s ease' }}>
       <style>{`
         @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
         @keyframes popIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
@@ -94,7 +94,7 @@ export default function RevisionCard({ question, index, total, selected, lang, o
             let border = 'var(--line-2)';
             let color = 'var(--ink)';
             let letterBg = 'var(--line-2)';
-            let letterColor = 'var(--muted)';
+            let letterColor = 'var(--ink)';
             let icon = null;
 
             if (answered) {

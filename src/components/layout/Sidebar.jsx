@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import quotes from '../../data/quotes.json';
 
 export default function Sidebar({ activeTab, onNavigate, t, lang }) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -21,6 +22,11 @@ export default function Sidebar({ activeTab, onNavigate, t, lang }) {
     { id: 'revision', icon: 'ic-book', label: 'Revision' },
     { id: 'profile', icon: 'ic-user', label: 'Settings' }
   ];
+
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  const dailyQuote = quotes[(dayOfYear - 1) % quotes.length] || quotes[0];
 
   return (
     <div className="sidebar">
@@ -46,26 +52,14 @@ export default function Sidebar({ activeTab, onNavigate, t, lang }) {
         ))}
       </div>
       
-      <div className="hover-raise active-state" style={{ marginTop: 'auto', background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)', padding: 20, borderRadius: 16, border: '1px solid var(--line-2)', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -30, right: -30, width: 90, height: 90, background: '#f59e0b', opacity: 0.15, borderRadius: '50%', filter: 'blur(20px)' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <span style={{ fontSize: 24, lineHeight: 1 }}>🔥</span>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 16, color: '#fff', letterSpacing: '-0.3px' }}>Daily Streak</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Active now</div>
-          </div>
+      <div style={{ marginTop: 'auto', background: 'linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(245,158,11,0.1) 100%)', padding: 20, borderRadius: 16, border: '1px solid rgba(245,158,11,0.15)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -20, left: -20, width: 60, height: 60, background: '#f59e0b', opacity: 0.1, borderRadius: '50%', filter: 'blur(20px)' }} />
+        <div style={{ fontSize: 24, marginBottom: 8, color: '#f59e0b', opacity: 0.8, lineHeight: 1 }}>❝</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', fontStyle: 'italic', lineHeight: 1.5, marginBottom: 12 }}>
+          "{dailyQuote.quote}"
         </div>
-        <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>Today's Goal</span>
-            <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 800 }}>In Progress</span>
-          </div>
-          <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
-            <div style={{ height: '100%', background: '#f59e0b', width: '33%', borderRadius: 2 }}></div>
-          </div>
-        </div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#fbbf24', marginTop: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-          Keep Practicing <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.5px' }}>
+          — {dailyQuote.author}
         </div>
       </div>
     </div>

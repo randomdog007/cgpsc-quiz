@@ -1,0 +1,13 @@
+DELETE FROM topics WHERE subject_id = 12;
+INSERT INTO topics (id, subject_id, name) VALUES (1267, 12, 'January 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1268, 12, 'February 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1269, 12, 'March 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1270, 12, 'April 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1271, 12, 'May 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1272, 12, 'June 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1273, 12, 'July 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1274, 12, 'August 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1275, 12, 'September 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1276, 12, 'October 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1277, 12, 'November 2026');
+INSERT INTO topics (id, subject_id, name) VALUES (1278, 12, 'December 2026');

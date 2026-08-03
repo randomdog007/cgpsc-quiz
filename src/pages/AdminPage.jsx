@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 import { supabase } from '../supabase';
 import Select from 'react-select';
 
-export default function AdminPage({ user, onBack, t, C, STATIC_DATA }) {
+export default function AdminPage() {
+  const { user, t, dark } = useAppContext();
+  const navigate = useNavigate();
+  const onBack = () => navigate(-1);
+  
+  const C = dark
+    ? { bg:"#000000", card:"#0a0a0a", border:"#222222", text:"#ededed", muted:"#888888", hdr:"rgba(0,0,0,0.75)", acc:"#3388FF", acc2:"#1c66d8", ok:"#14b8a6", err:"#ef4444", inp:"#111111", shadow:"0 4px 12px rgba(255,255,255,0.03)" }
+    : { bg:"#fafafa", card:"#ffffff", border:"#eaeaea", text:"#111111", muted:"#666666", hdr:"rgba(255,255,255,0.85)", acc:"#0055FF", acc2:"#0044CC", ok:"#059669", err:"#e11d48", inp:"#f5f5f5", shadow:"0 2px 8px rgba(0,0,0,0.04)" };
+
   const [activeTab, setActiveTab] = useState('quizzes');
   const [status, setStatus] = useState({ type: '', msg: '' });
 

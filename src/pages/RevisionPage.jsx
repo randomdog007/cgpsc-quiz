@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import { supabase } from "../supabase";
 import BottomNav from "../components/layout/BottomNav";
 import Header from "../components/layout/Header";
 import Spinner from "../components/ui/Spinner";
@@ -8,7 +11,25 @@ import RevisionDashboard from '../components/revision/RevisionDashboard';
 import RevisionCard from '../components/revision/RevisionCard';
 import RevisionResults from '../components/revision/RevisionResults';
 
-export default function RevisionPage({ ms, css, C, t, onBack, onHome, supabase, onTabNavigate, tab, profile, headerProps, lang }) {
+export default function RevisionPage() {
+  const { lang, setLang, dark, setDark, t, profile } = useAppContext();
+  const navigate = useNavigate();
+  
+  const toggleLang = () => setLang(l => l === "en" ? "hi" : "en");
+  const toggleDark = () => setDark(d => !d);
+  const headerProps = { toggleLang, toggleDark, lang, dark };
+  
+  const onBack = () => navigate(-1);
+  const onHome = () => navigate("/");
+  const onTabNavigate = () => navigate("/");
+  const tab = "revision";
+
+  const C = dark
+    ? { bg:"#000000", card:"#0a0a0a", border:"#222222", text:"#ededed", muted:"#888888", hdr:"rgba(0,0,0,0.75)", acc:"#3388FF", acc2:"#1c66d8", ok:"#14b8a6", err:"#ef4444", inp:"#111111", shadow:"0 4px 12px rgba(255,255,255,0.03)" }
+    : { bg:"#fafafa", card:"#ffffff", border:"#eaeaea", text:"#111111", muted:"#666666", hdr:"rgba(255,255,255,0.85)", acc:"#0055FF", acc2:"#0044CC", ok:"#059669", err:"#e11d48", inp:"#f5f5f5", shadow:"0 2px 8px rgba(0,0,0,0.04)" };
+
+  const ms  = { minHeight:"100vh", background: C.bg, color: C.text, paddingBottom: 80 };
+  const css = ``;
   const [state, setState] = useState(null);
 
   const controller = useMemo(

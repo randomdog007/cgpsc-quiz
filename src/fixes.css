@@ -1,7 +1,55 @@
 /* fixes.css — minimal final overrides. Load after ds.css. */
 
-/* Coherence floor */
-html, body { overflow-x: clip; overscroll-behavior-y: none; }
+/* Coherence floor & Mobile horizontal overflow protection */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+html, body {
+  background-color: var(--paper) !important;
+  max-width: 100% !important;
+  overflow-x: hidden;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-overflow-scrolling: touch;
+}
+html[data-theme="dark"], body[data-theme="dark"] {
+  background-color: #060810 !important;
+  color-scheme: dark;
+}
+html[data-theme="light"], body[data-theme="light"] {
+  background-color: #f8fafc !important;
+  color-scheme: light;
+}
+#root, .app-layout, .main-area {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+@media (min-width: 1024px) {
+  html, body {
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+  .app-layout {
+    display: grid !important;
+    grid-template-columns: 240px 1fr !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+  .sidebar {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .main-area {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+::-webkit-scrollbar-track {
+  background: var(--paper) !important;
+}
 
 /* ============================================================
    MOBILE DESIGN SYSTEM — ≤767px
@@ -60,6 +108,11 @@ html, body { overflow-x: clip; overscroll-behavior-y: none; }
 
   /* ── Bottom Nav (Tabbar) ── */
   .tabbar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
     height: var(--tabbar-h);
     padding: 6px 8px;
     padding-bottom: max(6px, env(safe-area-inset-bottom));
@@ -68,6 +121,9 @@ html, body { overflow-x: clip; overscroll-behavior-y: none; }
     background: color-mix(in srgb, var(--surface) 95%, transparent);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
+    transform: none !important;
+    -webkit-transform: none !important;
+    touch-action: manipulation;
   }
   .tabbar-item {
     flex: 1;
@@ -152,24 +208,37 @@ html, body { overflow-x: clip; overscroll-behavior-y: none; }
 }
 
 /* ============================================================
-   QUIZ ROUTE — full height, no bottom padding
+   QUIZ ROUTE — full height, clean console scrolling
    ============================================================ */
 body[data-route="quiz"] {
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
   padding-bottom: 0 !important;
 }
 
-/* ============================================================
-   QUIZ ROOT — scrollable container
-   ============================================================ */
 .quiz-root {
-  height: 100vh;
-  height: 100dvh;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+}
+body[data-route="quiz"] .quiz-root {
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+body[data-route="quiz"] .quiz-body {
+  flex: 1 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+body[data-route="quiz"] .exam-console {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* ── Dark mode ── */
@@ -192,7 +261,7 @@ body[data-theme="dark"][data-route="quiz"] .opt .otext { color: var(--ink) !impo
 /* Container */
 .container--responsive {
   width: 100%;
-  max-width: 800px;
+  max-width: 1440px; /* Expand on desktop */
   margin: 0 auto;
   box-sizing: border-box;
   padding: 0 16px;
@@ -201,20 +270,80 @@ body[data-theme="dark"][data-route="quiz"] .opt .otext { color: var(--ink) !impo
   .container--responsive { padding: 0 24px; }
 }
 
+/* ============================================================
+   DESKTOP OPTIMIZATIONS (≥ 1024px)
+   ============================================================ */
+@media (min-width: 1024px) {
+  .container--responsive {
+    padding: 0 32px;
+  }
+  .desktop-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .desktop-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .desktop-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .desktop-grid-main-side {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    align-items: start;
+  }
+  .desktop-grid-side-main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+}
+
 /* Fluid score text */
 .fluid-text-score {
   font-size: clamp(40px, 12vw, 64px);
   line-height: 1;
 }
 
-/* Stats 2-col to 4-col */
+.mobile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Stats 2-col to 4-col on tablet, 6-col on desktop */
 .grid-responsive-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 @media (min-width: 480px) {
-  .grid-responsive-2 { grid-template-columns: repeat(4, 1fr); }
+  .grid-responsive-2 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  .grid-responsive-2 { grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .revision-desktop-hero {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px !important;
+    align-items: stretch !important;
+  }
+  .revision-desktop-body {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px !important;
+    align-items: start !important;
+  }
 }
 
 /* ── Touch targets ── */

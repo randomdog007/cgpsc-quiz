@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 import Header from "../components/layout/Header";
 import BottomNav from "../components/layout/BottomNav";
 import Sidebar from "../components/layout/Sidebar";
@@ -7,14 +9,41 @@ import Spinner from "../components/ui/Spinner";
 import EmptyState from "../components/ui/EmptyState";
 import ErrorBanner from "../components/ui/ErrorBanner";
 
-export default function TopicPage(props) {
-  const {
-    ms, css, C, t, selectedTopic, dataLoading, dataError, onClearError,
-    onBack, onHome, headerProps, quizzes, filteredQuizzes, search, setSearch,
-    mockMode, setMockMode, onStartQuiz, lang, tab, onTabNavigate, history, unfinishedQuizId, profile
-  } = props;
+export default function TopicPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { lang, setLang, dark, setDark, t, topics, quizzes: allQuizzes, profile, dataLoading, dataError } = useAppContext();
   
-  const { toggleLang, toggleDark, dark } = headerProps || {};
+  const selectedTopic = topics.find(topic => String(topic.id) === String(id));
+  const quizzes = allQuizzes.filter(q => String(q.topic_id) === String(id));
+  
+  const [search, setSearch] = useState("");
+  const [mockMode, setMockMode] = useState(true);
+  
+  const filteredQuizzes = quizzes.filter(q => (
+    search === "" || 
+    (q.title && q.title.toLowerCase().includes(search.toLowerCase())) || 
+    (q.title_hi && q.title_hi.includes(search))
+  ));
+  
+  const toggleLang = () => setLang(l => l === "en" ? "hi" : "en");
+  const toggleDark = () => setDark(d => !d);
+  const headerProps = { toggleLang, toggleDark, lang, dark };
+  
+  const onBack = () => navigate(-1);
+  const onHome = () => navigate("/");
+  const onTabNavigate = () => navigate("/");
+  const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);
+  const onClearError = () => {};
+  const history = []; // mock for now
+  const unfinishedQuizId = null;
+
+  const C = dark
+    ? { bg:"#000000", card:"#0a0a0a", border:"#222222", text:"#ededed", muted:"#888888", hdr:"rgba(0,0,0,0.75)", acc:"#3388FF", acc2:"#1c66d8", ok:"#14b8a6", err:"#ef4444", inp:"#111111", shadow:"0 4px 12px rgba(255,255,255,0.03)" }
+    : { bg:"#fafafa", card:"#ffffff", border:"#eaeaea", text:"#111111", muted:"#666666", hdr:"rgba(255,255,255,0.85)", acc:"#0055FF", acc2:"#0044CC", ok:"#059669", err:"#e11d48", inp:"#f5f5f5", shadow:"0 2px 8px rgba(0,0,0,0.04)" };
+
+  const ms  = { minHeight:"100vh", background: C.bg, color: C.text, paddingBottom: 80 };
+  const css = ``;
   const topicName = lang === "hi" && selectedTopic?.name_hi ? selectedTopic.name_hi : selectedTopic?.name;
   
   // Calculate stats
@@ -26,8 +55,7 @@ export default function TopicPage(props) {
   const accuracies = attemptedQuizzes.map(q => history.find(h => String(h.quiz_id) === String(q.id))?.accuracy || 0);
   const avgAccuracy = accuracies.length > 0 ? Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length) : 0;
   
-  // Mock revision due count (e.g., quizzes with accuracy < 70)
-  const revisionDue = accuracies.filter(a => a < 70).length;
+
 
   return (
     <div style={ms} className="app-layout">

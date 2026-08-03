@@ -1,8 +1,34 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import { supabase } from "../supabase";
 import Spinner from "../components/ui/Spinner";
 
-export default function LoginPage({ dark, css, C, t, signingIn, signIn }) {
+export default function LoginPage() {
+  const { user, t, dark } = useAppContext();
+  const navigate = useNavigate();
+  const [signingIn, setSigningIn] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
+
+  const signIn = async () => {
+    setSigningIn(true);
+    await supabase.auth.signInWithOAuth({ provider: "google" });
+    // auth state change will be picked up by AppContext
+  };
+
+  const css = ``;
+
+  const C = dark
+    ? { text: "#ededed" }
+    : { text: "#111111" };
+
   return (
-    <div style={{ minHeight: "100vh", minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, background: "var(--bg)", color: "var(--text)" }}>
       <style>{css}</style>
       <div style={{ maxWidth: 400, width: "100%", animation: "fadeUp 0.5s ease" }}>
         

@@ -97,10 +97,12 @@ class QueryBuilder {
   
   headers() {
     const h = { 'Content-Type': 'application/json' };
-    const token = localStorage.getItem('firebase_id_token');
-    if (token) {
-      h['Authorization'] = `Bearer ${token}`;
-    }
+    try {
+      const token = localStorage.getItem('firebase_id_token');
+      if (token) {
+        h['Authorization'] = `Bearer ${token}`;
+      }
+    } catch (_) {}
     return h;
   }
 }
@@ -108,27 +110,70 @@ class QueryBuilder {
 const mockSupabaseAuth = {
   getSession: async () => {
     return new Promise((resolve) => {
+      let resolved = false;
+      const done = (sessionVal) => {
+        if (!resolved) {
+          resolved = true;
+          resolve(sessionVal);
+        }
+      };
+
+      // Safety timeout for Safari iOS ITP / Private Browsing where onAuthStateChanged may hang
+      const timeout = setTimeout(async () => {
+        try {
+          const user = firebaseAuth.currentUser;
+          if (user) {
+            const token = await user.getIdToken().catch(() => null);
+            if (token) {
+              try { localStorage.setItem('firebase_id_token', token); } catch(_) {}
+              done({
+                data: {
+                  session: {
+                    access_token: token,
+                    user: {
+                      id: user.uid,
+                      email: user.email,
+                      user_metadata: { full_name: user.displayName, avatar_url: user.photoURL }
+                    }
+                  }
+                }
+              });
+              return;
+            }
+          }
+        } catch (_) {}
+        done({ data: { session: null } });
+      }, 2500);
+
       const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+        clearTimeout(timeout);
         unsubscribe();
         if (user) {
-          const token = await user.getIdToken();
-          localStorage.setItem('firebase_id_token', token);
-          resolve({ 
-            data: { 
-              session: { 
-                access_token: token,
-                user: { 
-                  id: user.uid, 
-                  email: user.email, 
-                  user_metadata: { full_name: user.displayName, avatar_url: user.photoURL } 
+          try {
+            const token = await user.getIdToken();
+            try { localStorage.setItem('firebase_id_token', token); } catch(_) {}
+            done({ 
+              data: { 
+                session: { 
+                  access_token: token,
+                  user: { 
+                    id: user.uid, 
+                    email: user.email, 
+                    user_metadata: { full_name: user.displayName, avatar_url: user.photoURL } 
+                  } 
                 } 
               } 
-            } 
-          });
+            });
+          } catch (_) {
+            done({ data: { session: null } });
+          }
         } else {
-          localStorage.removeItem('firebase_id_token');
-          resolve({ data: { session: null } });
+          try { localStorage.removeItem('firebase_id_token'); } catch(_) {}
+          done({ data: { session: null } });
         }
+      }, (error) => {
+        clearTimeout(timeout);
+        done({ data: { session: null } });
       });
     });
   },

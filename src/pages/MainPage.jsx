@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import { supabase } from "../supabase";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import Header from "../components/layout/Header";
 import BottomNav from "../components/layout/BottomNav";
@@ -104,11 +107,40 @@ function BookmarkCard({ q, qi, qText, opts, hasContent, letters, lang, t, toggle
 }
 
 
-const MainPage = React.memo(function MainPage({
-  ms, css, C, t, tab, lang, dark, dataError, onClearError, onHome, onTabNavigate,
-  headerProps, userAvatar, userPic, userName, profile, subjects, history, dataLoading, openSubject,
-  bookmarks, bmLoading, toggleBM, signOut, toggleDark, toggleLang, user, userEmail, onAdmin, onRevision, supabase, onStartQuiz
-}) {
+const MainPage = React.memo(function MainPage() {
+  const { user, profile, lang, setLang, dark, setDark, t, subjects, dataLoading, dataError } = useAppContext();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("home");
+  
+  const C = dark
+    ? { bg:"#000000", card:"#0a0a0a", border:"#222222", text:"#ededed", muted:"#888888", hdr:"rgba(0,0,0,0.75)", acc:"#3388FF", acc2:"#1c66d8", ok:"#14b8a6", err:"#ef4444", inp:"#111111", shadow:"0 4px 12px rgba(255,255,255,0.03)" }
+    : { bg:"#fafafa", card:"#ffffff", border:"#eaeaea", text:"#111111", muted:"#666666", hdr:"rgba(255,255,255,0.85)", acc:"#0055FF", acc2:"#0044CC", ok:"#059669", err:"#e11d48", inp:"#f5f5f5", shadow:"0 2px 8px rgba(0,0,0,0.04)" };
+
+  const ms  = { minHeight:"100vh", background: C.bg, color: C.text, paddingBottom: 80 };
+  const css = ``;
+
+  const toggleLang = () => setLang(l => l === "en" ? "hi" : "en");
+  const toggleDark = () => setDark(d => !d);
+  const signOut = () => supabase.auth.signOut();
+  
+  const headerProps = { toggleLang, toggleDark, lang, dark };
+  const openSubject = (s) => navigate(`/subject/${s.id}`);
+  const goAdmin = () => navigate('/admin');
+  const goRevision = () => navigate('/revision');
+  
+  // MOCK PROPS FOR NOW THAT WERE DRILLED (TO AVOID BREAKING EVERYTHING AT ONCE)
+  const history = [];
+  const bookmarks = [];
+  const bmLoading = false;
+  const toggleBM = () => {};
+  const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);
+  const onClearError = () => {};
+  const onTabNavigate = setTab;
+  const onHome = () => setTab("home");
+  const userAvatar = user?.user_metadata?.avatar_url;
+  const userPic = user?.user_metadata?.avatar_url;
+  const userName = profile?.full_name || user?.user_metadata?.full_name || "Aspirant";
+  const userEmail = user?.email;
   const getSubjectIcon = (name) => {
     const n = (name || "").toLowerCase();
     if (n.includes("history") || n.includes("itihas")) return "🏛️";
@@ -137,57 +169,63 @@ const MainPage = React.memo(function MainPage({
   };
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [userRank, setUserRank] = useState(null);
 
-  useEffect(() => {
-    if (tab !== "home" || !supabase || !user) return;
-    const fetchRank = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) return;
-        const res = await fetch(`/api/user_rank?eq_user_id=${user.id}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
-        if (!res.ok) return;
-        const rankRes = await res.json();
-        if (rankRes?.data?.user) {
-          setUserRank({ rank: rankRes.data.rank, total: rankRes.data.totalUsers, score: rankRes.data.user.total_score || 0 });
-        }
-      } catch (e) {}
-    };
-    fetchRank();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, user]);
+
+
   const [searchLoading, setSearchLoading] = useState(false);
   const [revStats, setRevStats] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
+  const [userRank, setUserRank] = useState(null);
+
   const [filterPaper, setFilterPaper] = useState("All");
 
   useEffect(() => {
-    const fetchRevStats = async () => {
+    const fetchData = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) return;
-        const res = await fetch("/api/user/revision/stats", {
+        
+        // Fetch revStats
+        const resRev = await fetch("/api/user/revision/stats", {
           headers: { "Authorization": `Bearer ${session.access_token}` }
         });
-        if (res.ok) setRevStats(await res.json());
+        if (resRev.ok) setRevStats(await resRev.json());
+        
+        // Fetch userRank
+        if (user?.id) {
+          const resRank = await fetch(`/api/user_rank?eq_user_id=${user.id}`);
+          if (resRank.ok) {
+            const rankRes = await resRank.json();
+            if (rankRes?.data) setUserRank(rankRes.data.rank);
+          }
+        }
       } catch (e) {}
     };
-    if (tab === "home") fetchRevStats();
-  }, [tab, supabase]);
+    if (tab === "home") fetchData();
+  }, [tab, supabase, user]);
 
   // Also re-fetch on mount so returning from RevisionPage always shows fresh count
   useEffect(() => {
-    const fetchRevStats = async () => {
+    const fetchData = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) return;
-        const res = await fetch("/api/user/revision/stats", {
+        // Fetch revStats
+        const resRev = await fetch("/api/user/revision/stats", {
           headers: { "Authorization": `Bearer ${session.access_token}` }
         });
-        if (res.ok) setRevStats(await res.json());
+        if (resRev.ok) setRevStats(await resRev.json());
+        
+        // Fetch userRank
+        if (user?.id) {
+          const resRank = await fetch(`/api/user_rank?eq_user_id=${user.id}`);
+          if (resRank.ok) {
+            const rankRes = await resRank.json();
+            if (rankRes?.data) setUserRank(rankRes.data.rank);
+          }
+        }
       } catch (e) {}
     };
-    fetchRevStats();
+    fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -209,6 +247,58 @@ const MainPage = React.memo(function MainPage({
     }, 400);
     return () => clearTimeout(timer);
   }, [searchQuery, supabase]);
+  const analyticsData = useMemo(() => {
+    if (!history || history.length === 0) return null;
+    const totalTests   = history.length;
+    const avgAccuracy  = totalTests > 0 ? Math.round(history.reduce((s, a) => s + (a.accuracy ?? 0), 0) / totalTests) : 0;
+
+    const subjectMap   = {};
+    history.forEach(a => {
+      const name = (lang === "hi" && a.subjects?.name_hi) ? a.subjects.name_hi : (a.subjects?.name || "Unknown");
+      if (!subjectMap[name]) subjectMap[name] = { attempts: 0, correct: 0, total: 0 };
+      subjectMap[name].attempts++;
+      subjectMap[name].correct += (a.score ?? 0);
+      subjectMap[name].total   += (a.total  ?? 0);
+    });
+    const subjectRows = Object.entries(subjectMap)
+      .map(([name, d]) => ({ name, attempts: d.attempts, acc: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0 }))
+      .sort((a, b) => b.acc - a.acc);
+    
+    const recent  = [...history].slice(0, 8);
+    const trendData = [...history].reverse().map((a, i) => ({
+      name: `T${i + 1}`,
+      accuracy: a.accuracy ?? (a.total > 0 ? Math.round((a.score / a.total) * 100) : 0),
+      score: a.score || 0,
+      date: new Date(a.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    }));
+
+    const categoryData = subjectRows.filter(s => s.attempts >= 1).map(s => ({
+      name: s.name.length > 15 ? s.name.substring(0, 15) + '...' : s.name,
+      accuracy: s.acc
+    }));
+    
+    const totalTimeSpent = history.reduce((sum, a) => sum + (a.time_taken || 0), 0);
+    const totalMins = Math.floor(totalTimeSpent / 60);
+    const bestScore = Math.max(...history.map(h => h.score || 0), 0);
+
+    return { totalTests, avgAccuracy, subjectRows, recent, trendData, categoryData, totalMins, bestScore };
+  }, [history, lang]);
+
+  const subjectAccuracies = useMemo(() => {
+    if (!history || history.length === 0) return {};
+    const map = {};
+    history.forEach(h => {
+      if (!map[h.subject_id]) map[h.subject_id] = { totalAcc: 0, count: 0 };
+      map[h.subject_id].totalAcc += (h.accuracy || 0);
+      map[h.subject_id].count += 1;
+    });
+    const res = {};
+    for (const key in map) {
+      res[key] = Math.round(map[key].totalAcc / map[key].count);
+    }
+    return res;
+  }, [history]);
+
 
   return (
     <div style={ms} className="app-layout">
@@ -228,7 +318,7 @@ const MainPage = React.memo(function MainPage({
         const dateString = new Intl.DateTimeFormat(lang === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date());
         const streakCount = revStats?.streak?.current || 0;
 
-        const daysAgo = (d) => { const x = new Date(); x.setDate(x.getDate() - d); return x.toLocaleDateString(lang==='hi'?'hi-IN':'en-IN', {weekday:'narrow'}); };
+
 
         return (
           <div className="container container--wide container--responsive" style={{ animation: "fadeUp 0.3s ease", paddingTop: 32 }}>
@@ -244,12 +334,7 @@ const MainPage = React.memo(function MainPage({
                   <div style={{ fontSize: 13, color: "var(--muted)", fontWeight: 500, marginTop: 4 }}>Let's continue your success streak today!</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <button onClick={() => onStartQuiz(null, true)} className="glass active-state" style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, border: "1px solid var(--line)", background: "var(--surface)", cursor: "pointer", color: "var(--ink)", fontWeight: 700, fontSize: 13 }}>
-                    <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg> Quick Start
-                  </button>
-                  <button onClick={onRevision} className="glass active-state" style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, border: "1px solid color-mix(in srgb, var(--teal) 30%, transparent)", background: "color-mix(in srgb, var(--teal) 10%, transparent)", cursor: "pointer", color: "var(--teal)", fontWeight: 700, fontSize: 13 }}>
-                    🧠 Revision
-                  </button>
+
                   <div style={{ width: 1, height: 24, background: "var(--line-2)", margin: "0 4px" }} />
                   <button onClick={toggleLang} className="glass" style={{ width: 40, height: 40, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontWeight: 700, fontSize: 14, padding: 0 }}>{lang === "en" ? "हिं" : "EN"}</button>
                   <button onClick={toggleDark} className="glass" style={{ width: 40, height: 40, borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--ink)", fontSize: 18, padding: 0 }}>{dark ? "☀️" : "🌙"}</button>
@@ -310,10 +395,6 @@ const MainPage = React.memo(function MainPage({
                 
                 const todayQuizzes = history.filter(h => new Date(h.created_at).toDateString() === new Date().toDateString()).length;
                 const revDue = revStats?.dueToday > 0;
-                let completedTasks = 0;
-                if (!revDue) completedTasks++;
-                if (todayQuizzes >= 2) completedTasks++;
-                const missionProgress = Math.round((completedTasks / 2) * 100);
 
                 return (
                   <>
@@ -323,30 +404,26 @@ const MainPage = React.memo(function MainPage({
                         <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)" }}>{dateString}</span>
                       </div>
                       
-                      <div style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
-                        <div style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: 14 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <div style={{ width: 22, height: 22, borderRadius: "50%", background: !revDue ? "var(--teal)" : "var(--surface-2)", border: !revDue ? "none" : "1.5px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12 }}>{!revDue ? "✓" : ""}</div>
-                            <span style={{ fontSize: 14, fontWeight: 600, color: !revDue ? "var(--muted)" : "var(--ink)", textDecoration: !revDue ? "line-through" : "none" }}>{revDue ? `Revise ${revStats.dueToday} questions` : "Daily revision complete"}</span>
-                          </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <div style={{ width: 22, height: 22, borderRadius: "50%", background: todayQuizzes >= 2 ? "var(--teal)" : "var(--surface-2)", border: todayQuizzes >= 2 ? "none" : "1.5px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12 }}>{todayQuizzes >= 2 ? "✓" : ""}</div>
-                            <span style={{ fontSize: 14, fontWeight: 600, color: todayQuizzes >= 2 ? "var(--muted)" : "var(--ink)", textDecoration: todayQuizzes >= 2 ? "line-through" : "none" }}>{todayQuizzes >= 2 ? "Quizzes solved" : `Solve 2 quizzes (${todayQuizzes}/2)`}</span>
-                          </div>
-                        </div>
-                        
-                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                          <div>
-                            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 2 }}>Completion</div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>{missionProgress}%</div>
-                          </div>
-                          <div style={{ width: 70, height: 70, position: "relative" }}>
-                            <svg viewBox="0 0 36 36" style={{ width: "100%", height: "100%" }}>
-                              <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--line-2)" strokeWidth="3.5" />
-                              <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--blue)" strokeWidth="3.5" strokeDasharray={`${missionProgress}, 100`} strokeLinecap="round" transform="rotate(-90 18 18)" style={{ transition: "stroke-dasharray 1s ease-out" }} />
-                            </svg>
-                          </div>
-                        </div>
+                      <div 
+                        className="hover-raise active-state" 
+                        onClick={onRevision}
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onRevision(); }}
+                        style={{ background: "var(--surface)", borderRadius: 16, padding: "20px 24px", border: "1px solid var(--line-2)", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6, transition: "background 0.2s" }}
+                        onMouseOver={e => e.currentTarget.style.background = "var(--surface-2)"}
+                        onMouseOut={e => e.currentTarget.style.background = "var(--surface)"}
+                      >
+                        {revDue ? (
+                          <>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)" }}>Revise {revStats.dueToday} Questions</div>
+                            <div style={{ fontSize: 13, color: "var(--muted)", fontWeight: 500 }}>Complete today's revision to strengthen long-term memory.</div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)" }}>🎉 You're all caught up!</div>
+                            <div style={{ fontSize: 13, color: "var(--muted)", fontWeight: 500 }}>No revision due today. Great job keeping your memory fresh.</div>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -363,17 +440,36 @@ const MainPage = React.memo(function MainPage({
                         </div>
                       </div>
 
-                      {/* Current Streak */}
-                      <div className="hover-raise active-state" onClick={onRevision} style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 100%)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 16, padding: 16, cursor: "pointer", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                        <div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Current Streak</div>
-                          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
-                            <span style={{ fontSize: 24, lineHeight: 1 }}>🔥</span>
-                            <span style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{streakCount}</span>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>days</span>
+                      {/* Current Streak & Rank Split */}
+                      <div className="hover-raise active-state" style={{ background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 16, display: "flex", flexDirection: "row", overflow: "hidden", minHeight: 110 }}>
+                        <div style={{ flex: 1, padding: 16, borderRight: "1px solid var(--line-2)", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "linear-gradient(135deg, rgba(245,158,11,0.05) 0%, transparent 100%)" }}>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Current Streak</div>
+                            <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                              <span style={{ fontSize: 24, lineHeight: 1 }}>🔥</span>
+                              <span style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{streakCount}</span>
+                              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>days</span>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)" }}>{streakCount > 0 ? "Keep your momentum going" : "Start your streak today"}</div>
+                        </div>
+
+                        <div style={{ flex: 1, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Rank</div>
+                            <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                              <span style={{ fontSize: 20, lineHeight: 1 }}>🏆</span>
+                              <span style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{userRank > 0 ? `#${userRank}` : "Unranked"}</span>
+                            </div>
+                          </div>
+                          <div 
+                            className="active-state"
+                            onClick={(e) => { e.stopPropagation(); onTabNavigate("leaderboard"); }}
+                            style={{ fontSize: 11, fontWeight: 800, color: "var(--blue)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                          >
+                            View Leaderboard →
                           </div>
                         </div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)" }}>{streakCount > 0 ? "Consistency is key" : "Start your streak today!"}</div>
                       </div>
 
                       {/* Weakest Topic */}
@@ -516,8 +612,7 @@ const MainPage = React.memo(function MainPage({
                         </h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                           {groups[paper].map((sub) => {
-                            const subHistory = history.filter(h => String(h.subject_id) === String(sub.id));
-                            const accAvg = subHistory.length > 0 ? Math.round(subHistory.reduce((s, h) => s + (h.accuracy || 0), 0) / subHistory.length) : 0;
+                            const accAvg = subjectAccuracies[sub.id] || 0;
                             return (
                               <div key={sub.id} className="hover-raise active-state" onClick={() => openSubject(sub)} style={{ cursor: "pointer", background: "var(--surface)", border: "1px solid var(--line-2)", borderRadius: 12, padding: 16, display: "flex", alignItems: "center", gap: 16 }}>
                                 <div style={{ width: 40, height: 40, borderRadius: "50%", background: "color-mix(in srgb, var(--teal) 10%, transparent)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
@@ -552,23 +647,7 @@ const MainPage = React.memo(function MainPage({
 
       {/* ── ANALYTICS ── */}
       {tab === "analytics" && (() => {
-        const totalTests   = history.length;
-        const avgAccuracy  = totalTests > 0 ? Math.round(history.reduce((s, a) => s + (a.accuracy ?? 0), 0) / totalTests) : 0;
-        const bestScore    = totalTests > 0 ? Math.max(...history.map(a => a.accuracy ?? 0)) : 0;
-        const totalQ       = history.reduce((s, a) => s + (a.total ?? 0), 0);
-        const totalCorrect = history.reduce((s, a) => s + (a.score ?? 0), 0);
-        const subjectMap   = {};
-        history.forEach(a => {
-          const name = (lang === "hi" && a.subjects?.name_hi) ? a.subjects.name_hi : (a.subjects?.name || "Unknown");
-          if (!subjectMap[name]) subjectMap[name] = { attempts: 0, correct: 0, total: 0 };
-          subjectMap[name].attempts++;
-          subjectMap[name].correct += (a.score ?? 0);
-          subjectMap[name].total   += (a.total  ?? 0);
-        });
-        const subjectRows = Object.entries(subjectMap)
-          .map(([name, d]) => ({ name, attempts: d.attempts, acc: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0 }))
-          .sort((a, b) => b.acc - a.acc);
-        const recent  = [...history].slice(0, 8);
+
         const fmt     = (s) => s != null ? `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : "—";
         const dateStr = (iso) => { try { return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" }); } catch { return ""; } };
         return (
@@ -600,104 +679,103 @@ const MainPage = React.memo(function MainPage({
             )}
 
             <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--ink)", marginBottom: 16, letterSpacing: "-0.5px" }}>{t.performanceOverview}</h2>
-            {history.length === 0 ? <EmptyState icon="📊" title={t.noHistory} desc={t.noHistoryDesc} C={C} /> : (() => {
-              const trendData = [...history].reverse().map((a, i) => ({
-                name: `T${i + 1}`,
-                accuracy: a.accuracy ?? (a.total > 0 ? Math.round((a.score / a.total) * 100) : 0),
-                score: a.score || 0,
-                date: new Date(a.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-              }));
-
-              const categoryData = subjectRows.filter(s => s.attempts >= 1).map(s => ({
-                name: s.name.length > 15 ? s.name.substring(0, 15) + '...' : s.name,
-                accuracy: s.acc
-              }));
-              
-              const totalTimeSpent = history.reduce((sum, a) => sum + (a.time_taken || 0), 0);
-              const totalMins = Math.floor(totalTimeSpent / 60);
+            {history.length === 0 || !analyticsData ? <EmptyState icon="📊" title={t.noHistory} desc={t.noHistoryDesc} C={C} /> : (() => {
+              const { totalTests, avgAccuracy, recent, trendData, categoryData, totalMins, bestScore } = analyticsData;
               
               return (
               <>
-              <div className="grid-responsive-2" style={{ marginBottom: 20 }}>
+              <div className="grid-responsive-2" style={{ marginBottom: 24 }}>
                 {[
                   ["📝", totalTests, t.quizzesText || "Quizzes", "var(--blue)"],
                   ["🎯", avgAccuracy + "%", t.overallAcc || "Overall Acc.", avgAccuracy >= 60 ? "var(--teal)" : "var(--crimson)"],
                   ["🔥", profile?.current_streak || 0, t.dayStreak || "Day Streak", "#f97316"],
                   ["👑", profile?.best_streak || 0, t.bestStreak || "Best Streak", "#fbbf24"],
                   ["⏱️", `${totalMins}m`, t.timeSpent || "Time Spent", "#8b5cf6"],
-                  ["🏆", Math.max(...history.map(h => h.score || 0), 0), t.bestScore || "Best Score", "var(--teal)"]
+                  ["🏆", bestScore, t.bestScore || "Best Score", "var(--teal)"]
                 ].map(([icon, val, lbl, clr]) => (
-                  <div key={lbl} style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 6 }}>
-                    <div style={{ fontSize: 20 }}>{icon}</div>
+                  <div key={lbl} className="hover-raise" style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 14, padding: "16px 12px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 6, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+                    <div style={{ fontSize: 24 }}>{icon}</div>
                     <div>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: clr, lineHeight: 1 }}>{val}</div>
-                      <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>{lbl}</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: clr, lineHeight: 1 }}>{val}</div>
+                      <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 700, marginTop: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{lbl}</div>
                     </div>
                   </div>
                 ))}
               </div>
               
-              {/* Trend Chart */}
-              {trendData.length > 1 && (
-                <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: 16, marginBottom: 20 }}>
-                  <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>{t.accuracyTrend || "Accuracy Trend"}</h3>
-                  <div style={{ height: 160, width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trendData.slice(-10)} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={"var(--line)"} vertical={false} />
-                        <XAxis dataKey="date" stroke={"var(--muted)"} fontSize={9} tickLine={false} axisLine={false} />
-                        <YAxis stroke={"var(--muted)"} fontSize={9} tickLine={false} axisLine={false} domain={[0, 100]} />
-                        <Tooltip contentStyle={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, fontSize: 11, color: "var(--ink)" }} />
-                        <Line type="monotone" dataKey="accuracy" stroke={"var(--blue)"} strokeWidth={3} dot={{ r: 3, fill: "var(--blue)", strokeWidth: 0 }} activeDot={{ r: 5 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-
-              {/* Category Breakdown */}
-              {categoryData.length > 0 && (
-                <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: 16, marginBottom: 20 }}>
-                  <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>{t.categoryBreakdown || "Category Breakdown"}</h3>
-                  <div style={{ height: Math.max(160, categoryData.length * 32), width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={"var(--line)"} horizontal={false} />
-                        <XAxis type="number" domain={[0, 100]} stroke={"var(--muted)"} fontSize={9} tickLine={false} axisLine={false} />
-                        <YAxis type="category" dataKey="name" stroke={"var(--ink)"} fontSize={10} tickLine={false} axisLine={false} width={80} />
-                        <Tooltip cursor={{ fill: `${"var(--line)"}55` }} contentStyle={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, fontSize: 11, color: "var(--ink)" }} />
-                        <Bar dataKey="accuracy" radius={[0, 4, 4, 0]}>
-                          {categoryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.accuracy >= 60 ? "var(--teal)" : (entry.accuracy >= 40 ? "var(--blue)" : "var(--crimson)")} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-
-              <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 10, padding: 16 }}>
-                <h3 style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 12 }}>{t.recentAttempts || "Recent Activity"}</h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {recent.map((a, i) => {
-                    const quizTitle = (lang === "hi" && a.quizzes?.title_hi) ? a.quizzes.title_hi : (a.quizzes?.title || "Quiz");
-                    const topicTitle = (lang === "hi" && a.topics?.name_hi) ? a.topics.name_hi : (a.topics?.name || "");
-                    const title = topicTitle ? `${topicTitle} • ${quizTitle}` : quizTitle;
-                    const acc   = a.accuracy ?? (a.total > 0 ? Math.round((a.score / a.total) * 100) : 0);
-                    return (
-                      <div key={a.id ?? i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: i < recent.length - 1 ? `1px solid ${"var(--line)"}` : "none" }}>
-                        <div style={{ width: 32, height: 32, borderRadius: 8, background: acc >= 60 ? `${"var(--teal)"}15` : `${"var(--crimson)"}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>{acc >= 60 ? "✅" : "📌"}</div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
-                          <div style={{ fontSize: 10, color: "var(--muted)", marginTop: 1 }}>{dateStr(a.created_at)} · {a.score ?? 0}/{a.total ?? 0} correct · ⏱ {fmt(a.time_taken)}</div>
-                        </div>
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: acc >= 60 ? "var(--teal)" : "var(--crimson)" }}>{acc}%</div>
-                        </div>
+              <div className="desktop-grid-side-main" style={{ alignItems: "start" }}>
+                {/* Left: Charts Column */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  {/* Trend Chart (Prominent Primary View) */}
+                  {trendData.length > 1 && (
+                    <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 16, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                        <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0 }}>{t.accuracyTrend || "Accuracy Trend"}</h3>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--teal)", background: "color-mix(in srgb, var(--teal) 12%, transparent)", padding: "3px 10px", borderRadius: 12 }}>Last 10 Tests</span>
                       </div>
-                    );
-                  })}
+                      <div style={{ height: 220, width: '100%' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={trendData.slice(-10)} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={"var(--line)"} vertical={false} />
+                            <XAxis dataKey="date" stroke={"var(--muted)"} fontSize={10} tickLine={false} axisLine={false} />
+                            <YAxis stroke={"var(--muted)"} fontSize={10} tickLine={false} axisLine={false} domain={[0, 100]} />
+                            <Tooltip contentStyle={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, fontSize: 12, color: "var(--ink)" }} />
+                            <Line type="monotone" dataKey="accuracy" stroke={"var(--teal)"} strokeWidth={3} dot={{ r: 4, fill: "var(--teal)", strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Category Breakdown */}
+                  {categoryData.length > 0 && (
+                    <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 16, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+                      <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 16 }}>{t.categoryBreakdown || "Category Breakdown"}</h3>
+                      <div style={{ height: Math.max(180, categoryData.length * 36), width: '100%' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={"var(--line)"} horizontal={false} />
+                            <XAxis type="number" domain={[0, 100]} stroke={"var(--muted)"} fontSize={10} tickLine={false} axisLine={false} />
+                            <YAxis type="category" dataKey="name" stroke={"var(--ink)"} fontSize={11} tickLine={false} axisLine={false} width={100} />
+                            <Tooltip cursor={{ fill: `${"var(--line)"}55` }} contentStyle={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 8, fontSize: 12, color: "var(--ink)" }} />
+                            <Bar dataKey="accuracy" radius={[0, 6, 6, 0]}>
+                              {categoryData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.accuracy >= 60 ? "var(--teal)" : (entry.accuracy >= 40 ? "var(--blue)" : "var(--crimson)")} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: Recent Activity Sidebar */}
+                <div style={{ background: "var(--surface)", border: `1px solid ${"var(--line)"}`, borderRadius: 16, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0 }}>{t.recentAttempts || "Recent Activity"}</h3>
+                    <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>{recent.length} recent</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {recent.map((a, i) => {
+                      const quizTitle = (lang === "hi" && a.quizzes?.title_hi) ? a.quizzes.title_hi : (a.quizzes?.title || "Quiz");
+                      const topicTitle = (lang === "hi" && a.topics?.name_hi) ? a.topics.name_hi : (a.topics?.name || "");
+                      const title = topicTitle ? `${topicTitle} • ${quizTitle}` : quizTitle;
+                      const acc   = a.accuracy ?? (a.total > 0 ? Math.round((a.score / a.total) * 100) : 0);
+                      return (
+                        <div key={a.id ?? i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: i < recent.length - 1 ? `1px solid ${"var(--line)"}` : "none" }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: acc >= 60 ? "color-mix(in srgb, var(--teal) 15%, transparent)" : "color-mix(in srgb, var(--crimson) 15%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{acc >= 60 ? "✅" : "📌"}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
+                            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{dateStr(a.created_at)} · {a.score ?? 0}/{a.total ?? 0} correct · ⏱ {fmt(a.time_taken)}</div>
+                          </div>
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: acc >= 60 ? "var(--teal)" : "var(--crimson)", background: acc >= 60 ? "color-mix(in srgb, var(--teal) 12%, transparent)" : "color-mix(in srgb, var(--crimson) 12%, transparent)", padding: "3px 8px", borderRadius: 8 }}>{acc}%</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </>);
@@ -754,7 +832,7 @@ const MainPage = React.memo(function MainPage({
                     </div>
 
                     {/* Question Cards */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div className="mobile-stack desktop-grid-2">
                       {questions.map((q, qi) => {
                         const qText = lang === "hi" && q.question_hi ? q.question_hi : q.question;
                         const opts  = lang === "hi" && q.options_hi  ? q.options_hi  : q.options;
@@ -803,27 +881,40 @@ const MainPage = React.memo(function MainPage({
       
       {/* ── HISTORY ── */}
       {tab === "history" && (
-        <div className="container--responsive" style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease" }}>
+        <div className="container--responsive" style={{ padding: "20px 16px", animation: "fadeUp 0.3s ease", maxWidth: "100%", overflowX: "hidden" }}>
           <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: "var(--ink)" }}>Recent History</h1>
           {history?.length === 0 ? (
             <div style={{ padding: 32, textAlign: "center", background: "var(--surface)", borderRadius: 12, border: "1px dashed var(--line)", color: "var(--muted)" }}>
               No history found yet. Start taking quizzes!
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {history?.slice(0, 50).map((h, i) => (
-                <div key={i} onClick={() => onStartQuiz({id: h.quiz_id, title: h.quiz_title}, true)} style={{ cursor: "pointer", padding: 14, background: "var(--surface)", borderRadius: 12, border: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>{lang === "hi" && h.quizzes?.title_hi ? h.quizzes.title_hi : (h.quizzes?.title || "Unknown Quiz")}</div>
-                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
-                      Score: {h.score} | Accuracy: {h.accuracy}% | Attempted: {h.total_attempted}
+            <div className="mobile-stack desktop-grid-2" style={{ width: "100%", boxSizing: "border-box" }}>
+              {history?.slice(0, 50).map((h, i) => {
+                const acc = h.accuracy || 0;
+                const accColor = acc >= 60 ? "var(--teal)" : (acc >= 40 ? "#f97316" : "var(--crimson)");
+                return (
+                  <div key={i} onClick={() => onStartQuiz({id: h.quiz_id, title: h.quiz_title}, true)} className="hover-raise active-state" style={{ cursor: "pointer", padding: "14px 16px", background: "var(--surface)", borderRadius: 14, border: "1px solid var(--line-2)", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.02)", width: "100%", boxSizing: "border-box", minWidth: 0, overflow: "hidden" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0, paddingRight: 10, overflow: "hidden" }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: `color-mix(in srgb, ${accColor} 12%, transparent)`, color: accColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                        {acc >= 60 ? "🏆" : "📝"}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {lang === "hi" && h.quizzes?.title_hi ? h.quizzes.title_hi : (h.quizzes?.title || "Quiz")}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 3, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          <span>Score: <strong style={{ color: "var(--ink)" }}>{h.score}</strong></span>
+                          <span>·</span>
+                          <span>Attempted: <strong>{h.total_attempted}</strong> Qs</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ padding: "5px 12px", background: `color-mix(in srgb, ${accColor} 12%, transparent)`, color: accColor, borderRadius: 20, fontWeight: 800, fontSize: 12, flexShrink: 0, whiteSpace: "nowrap" }}>
+                      {acc}%
                     </div>
                   </div>
-                  <div style={{ padding: "4px 10px", background: h.accuracy >= 60 ? "color-mix(in srgb, var(--teal) 15%, transparent)" : "color-mix(in srgb, var(--amber) 15%, transparent)", color: h.accuracy >= 60 ? "var(--teal)" : "var(--amber)", borderRadius: 8, fontWeight: 700, fontSize: 11 }}>
-                    {h.accuracy}%
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

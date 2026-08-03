@@ -50,7 +50,6 @@ export function refresh(el) {
 export function initQuiz(root) {
  if(!root) return;
  const opts = root.querySelectorAll(".opt");
- const qnav = root.querySelectorAll(".qnav button");
  let answered = false;
  opts.forEach(opt => {
  opt.addEventListener("click", (e) => {

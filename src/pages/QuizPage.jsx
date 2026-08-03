@@ -1,17 +1,147 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { tapOrigin, setScore, pillChanged, initQuiz } from '../alive.js';
-import Header from "../components/layout/Header";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
+import { supabase } from '../supabase';
+import { setScore } from '../alive.js';
 import Spinner from "../components/ui/Spinner";
 import EmptyState from "../components/ui/EmptyState";
 import ErrorBanner from "../components/ui/ErrorBanner";
 
-export default function QuizPage(props) {
-  const {
-    ms, css, C, t, dataLoading, dataError, onClearError, onBack, onHome,
-    headerProps, questions, currentQ, answers, lang, mockMode, showExp,
-    selectAnswer, clearAnswer, nextQ, skipQ, setCurrentQ, setShowExp,
-    toggleBM, isBM, selectedQuiz, selectedTopic, timer, fmt
-  } = props;
+const MemoizedSidebarPills = React.memo(({ questions, currentQ, answers, visited, setCurrentQ, closePalette }) => {
+  return (
+    <div className="pill-grid">
+      {questions.map((_, i) => {
+        let state = "not-visited";
+        if (i === currentQ) state = "current";
+        else if (answers[i] !== undefined) state = "answered";
+        else if (visited.has(i)) state = "not-answered";
+
+        return (
+          <div
+            key={i}
+            className="palette-pill"
+            data-state={state}
+            onClick={() => { setCurrentQ(i); if (closePalette) closePalette(); }}
+          >
+            {i + 1}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
+const MemoizedBotPills = React.memo(({ questions, currentQ, answers, visited, setCurrentQ }) => {
+  return (
+    <div className="bot-pills" style={{ width: "100%" }}>
+      {questions.map((_, i) => {
+        let state = "not-visited";
+        if (i === currentQ) state = "current";
+        else if (answers[i] !== undefined) state = "answered";
+        else if (visited.has(i)) state = "not-answered";
+
+        return (
+          <div key={i} id={`bot-pill-${i}`} className="palette-pill bot-pill" data-state={state} onClick={() => setCurrentQ(i)}>
+            {i + 1}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
+export default function QuizPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user, profile, lang, setLang, dark, setDark, t, quizzes, topics } = useAppContext();
+  
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  
+  const selectedQuiz = quizzes.find(q => String(q.id) === String(id));
+  const selectedTopic = topics.find(t => String(t.id) === String(selectedQuiz?.topic_id));
+  
+  const [currentQ, setCurrentQ] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [showExp, setShowExp] = useState(false);
+  const [timer, setTimer] = useState(1200);
+  const [mockMode, setMockMode] = useState(true);
+  
+  const onClearError = () => setDataError(null);
+  const onBack = () => navigate(-1);
+  const toggleBM = () => {};
+  const isBM = () => false;
+  
+  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  
+  const toggleLang = () => setLang(l => l === "en" ? "hi" : "en");
+  const toggleDark = () => setDark(d => !d);
+  const headerProps = { toggleLang, toggleDark, lang, dark };
+  
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!selectedQuiz) return;
+      setDataLoading(true);
+      try {
+        const { data, error } = await supabase.from('questions').select('*').eq('quiz_id', selectedQuiz.id).order('sort_order', { ascending: true });
+        if (error) throw error;
+        setQuestions(data || []);
+      } catch (err) {
+        setDataError(err.message);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    fetchQuestions();
+  }, [selectedQuiz]);
+  
+  const selectAnswer = (idx) => {
+    setAnswers(prev => ({ ...prev, [currentQ]: idx }));
+    if (!mockMode) setShowExp(true);
+  };
+  
+  const clearAnswer = () => {
+    setAnswers(prev => {
+      const next = { ...prev };
+      delete next[currentQ];
+      return next;
+    });
+  };
+  
+  const nextQ = () => {
+    setShowExp(false);
+    if (currentQ < questions.length - 1) {
+      setCurrentQ(currentQ + 1);
+    } else {
+      finishQuiz();
+    }
+  };
+  
+  const skipQ = () => {
+    setShowExp(false);
+    if (currentQ < questions.length - 1) {
+      setCurrentQ(currentQ + 1);
+    } else {
+      finishQuiz();
+    }
+  };
+  
+  const finishQuiz = async () => {
+    // Basic mock submission for now until ResultPage is refactored
+    let score = 0;
+    questions.forEach((q, i) => {
+      if (answers[i] === q.correct_option) score++;
+    });
+    // In the real app, this posted to supabase and navigated to ResultPage
+    navigate(`/result/${selectedQuiz.id}`, { state: { score, answers, timeTaken: 1200 - timer, questions } });
+  };
+  
+  const C = dark
+    ? { bg:"#000000", card:"#0a0a0a", border:"#222222", text:"#ededed", muted:"#888888", hdr:"rgba(0,0,0,0.75)", acc:"#3388FF", acc2:"#1c66d8", ok:"#14b8a6", err:"#ef4444", inp:"#111111", shadow:"0 4px 12px rgba(255,255,255,0.03)" }
+    : { bg:"#fafafa", card:"#ffffff", border:"#eaeaea", text:"#111111", muted:"#666666", hdr:"rgba(255,255,255,0.85)", acc:"#0055FF", acc2:"#0044CC", ok:"#059669", err:"#e11d48", inp:"#f5f5f5", shadow:"0 2px 8px rgba(0,0,0,0.04)" };
+
+  const ms  = { minHeight:"100vh", background: C.bg, color: C.text, paddingBottom: 80 };
 
   const quizName = selectedQuiz?.name || selectedQuiz?.title || selectedQuiz?.quiz_title || selectedQuiz?.quizName || "Quiz";
   const topicName = selectedQuiz?.topic?.name || selectedQuiz?.topic_name || selectedTopic?.name || selectedTopic?.title || "Topic";
@@ -22,6 +152,7 @@ export default function QuizPage(props) {
   const [visited, setVisited] = useState(new Set([currentQ]));
   const [showSidebar, setShowSidebar] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   useEffect(() => {
     setVisited(prev => {
@@ -55,10 +186,8 @@ export default function QuizPage(props) {
 
 
   // Alive animations state
-  const [animDir, setAnimDir] = useState(1);
   const prevQRef = useRef(currentQ);
   useEffect(() => {
-    setAnimDir(currentQ > prevQRef.current ? 1 : -1);
     prevQRef.current = currentQ;
   }, [currentQ]);
 
@@ -80,8 +209,10 @@ export default function QuizPage(props) {
   }, [liveMarks]);
 
   useEffect(() => {
-    if (rootRef.current) initQuiz(rootRef.current);
-    
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    if (rootRef.current) {
+      rootRef.current.scrollTop = 0;
+    }
     // Auto-scroll the desktop bottom navigator pill into view
     const pillEl = document.getElementById(`bot-pill-${currentQ}`);
     if (pillEl) {
@@ -89,42 +220,143 @@ export default function QuizPage(props) {
     }
   }, [currentQ]);
 
-  const pillState = (i) => {
-    if (i === currentQ) return "current";
-    if (answers[i] !== undefined) return "answered";
-    return "not-visited";
-    if (visited.has(i)) return "not-answered";
-    return "not-visited";
-  };
+  // Lock body scroll when palette bottom sheet is open on mobile
+  useEffect(() => {
+    if (showPalette) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showPalette]);
+
+
 
   const answeredCount = Object.keys(answers).length;
-  const notAnsweredCount = visited.size - answeredCount;
   const notAnsweredExact = Array.from(visited).filter(i => answers[i] === undefined).length;
+  const totalRemaining = questions.length - answeredCount;
   const progressPct = questions.length > 0 ? Math.round((answeredCount / questions.length) * 100) : 0;
   const isUrgent = timer < 120;
   const letters = ["A", "B", "C", "D"];
+  
+  // Calculate marked questions
+  const markedCount = questions.filter(q => isBM && isBM(q.id)).length;
 
   const openPalette = () => setShowPalette(true);
   const closePalette = () => { setShowPalette(false); setShowSidebar(false); };
 
+  // Keyboard navigation for modal
+  useEffect(() => {
+    if (!showSubmitModal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setShowSubmitModal(false);
+      if (e.key === 'Enter') finishQuiz();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showSubmitModal, finishQuiz]);
+
+  const SubmitModal = () => {
+    if (!showSubmitModal) return null;
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+      }}>
+        <div style={{
+          background: 'var(--surface)', width: '100%', maxWidth: 400,
+          borderRadius: 24, padding: '32px 24px', boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+          animation: 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', margin: '0 0 8px' }}>
+              Ready to Submit?
+            </h2>
+            {totalRemaining === 0 ? (
+              <div style={{ fontSize: 15, color: '#10b981', fontWeight: 600 }}>
+                You have answered all questions.
+              </div>
+            ) : (
+              <div style={{ fontSize: 15, color: 'var(--muted)', fontWeight: 600, lineHeight: 1.5 }}>
+                You have answered <span style={{ color: 'var(--ink)', fontWeight: 800 }}>{answeredCount} of {questions.length}</span> questions.
+              </div>
+            )}
+          </div>
+
+          <div style={{ background: 'var(--surface-2)', borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 14, color: 'var(--muted)', fontWeight: 600 }}>Answered</span>
+              <span style={{ fontSize: 15, color: 'var(--teal)', fontWeight: 800 }}>{answeredCount} / {questions.length}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 14, color: 'var(--muted)', fontWeight: 600 }}>Remaining</span>
+              <span style={{ fontSize: 15, color: totalRemaining > 0 ? '#f59e0b' : 'var(--ink)', fontWeight: 800 }}>{totalRemaining}</span>
+            </div>
+            {markedCount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 14, color: 'var(--muted)', fontWeight: 600 }}>Marked</span>
+                <span style={{ fontSize: 15, color: 'var(--blue)', fontWeight: 800 }}>{markedCount}</span>
+              </div>
+            )}
+            <div style={{ height: 1, background: 'var(--line)' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 14, color: 'var(--muted)', fontWeight: 600 }}>Time Remaining</span>
+              <span style={{ fontSize: 15, color: isUrgent ? 'var(--crimson)' : 'var(--ink)', fontWeight: 800, fontFamily: 'monospace' }}>
+                {fmt ? fmt(timer) : "00:00"}
+              </span>
+            </div>
+          </div>
+
+          {totalRemaining > 0 && (
+            <div style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '12px 16px', borderRadius: 12, fontSize: 13, fontWeight: 700, display: 'flex', gap: 10, alignItems: 'center', marginBottom: 24 }}>
+              <span style={{ fontSize: 18 }}>⚠️</span>
+              <span>Unanswered questions will be marked as incorrect.</span>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button onClick={() => setShowSubmitModal(false)} style={{
+              width: '100%', padding: '16px', borderRadius: 14, border: '1.5px solid var(--line-3)',
+              background: 'transparent', color: 'var(--ink)', fontSize: 16, fontWeight: 700, cursor: 'pointer'
+            }}>
+              Continue Quiz
+            </button>
+            <button onClick={finishQuiz} style={{
+              width: '100%', padding: '16px', borderRadius: 14, border: 'none',
+              background: 'var(--crimson)', color: '#fff', fontSize: 16, fontWeight: 800, cursor: 'pointer',
+              boxShadow: '0 6px 16px color-mix(in srgb, var(--crimson) 30%, transparent)'
+            }}>
+              Submit Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="quiz-root" style={{ ...ms, display: "flex", flexDirection: "column", backgroundColor: "var(--paper)" }}>
+      <SubmitModal />
       <style>{`
         /* =====================================================
            QUIZ PAGE STYLES — DESKTOP PREMIUM REDESIGN
            Desktop (≥1024px): elegant two-column layout
            Mobile (≤767px): complete bottom-sheet redesign
            ===================================================== */
-        html, body { overflow-y: auto !important; height: auto !important; background-color: var(--paper); }
+        html, body { overflow-y: auto !important; height: auto !important; background-color: var(--paper) !important; overflow-x: hidden !important; max-width: 100% !important; width: 100% !important; }
         .quiz-root * { box-sizing: border-box; }
         /* Do NOT set overflow on quiz-root — it breaks position:fixed children (bottom nav).
            Scrolling is handled by html/body instead. */
-        .quiz-root { min-height: 100vh; }
+        .quiz-root { min-height: 100vh; width: 100%; max-width: 100%; overflow-x: hidden; background-color: var(--paper); }
 
         /* ── Desktop two-column layout ── */
-        .q-layout { display: flex; flex: 1; padding: 24px 32px 180px; gap: 24px; max-width: 1440px; margin: 0 auto; width: 100%; align-items: flex-start; scroll-padding-bottom: 200px; }
-        .q-left { flex: 1; min-width: 0; max-width: 860px; display: flex; flex-direction: column; }
-        .q-right { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 90px; padding-bottom: 180px; }
+        .q-layout { display: flex; flex: 1; padding: 24px 32px 180px; gap: 32px; max-width: 1600px; margin: 0 auto; width: 100%; align-items: flex-start; scroll-padding-bottom: 200px; box-sizing: border-box; overflow-x: hidden; }
+        .q-left { flex: 1; min-width: 0; max-width: 1100px; display: flex; flex-direction: column; }
+        .q-right { width: 360px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 90px; padding-bottom: 180px; }
         .q-card-ui { background: var(--surface); border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); padding: 20px; border: 1px solid var(--line-2); transition: box-shadow 0.3s ease; }
         .q-card-ui:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08); }
 
@@ -267,8 +499,8 @@ export default function QuizPage(props) {
           .hide-on-mobile { display: none !important; }
           .show-on-mobile { display: flex !important; }
 
-          /* Reset layout for mobile — single column, no padding */
-          .q-layout { flex-direction: column; padding: 0 0 120px !important; gap: 0 !important; }
+          /* Reset layout for mobile — single column, safe bottom padding for fixed nav bar */
+          .q-layout { flex-direction: column; padding: 0 0 calc(160px + env(safe-area-inset-bottom, 20px)) !important; gap: 0 !important; }
           .q-left { padding: 0 14px; gap: 10px; max-width: none !important; }
 
           /* ── Mobile question card ── */
@@ -279,6 +511,8 @@ export default function QuizPage(props) {
             border: 1px solid var(--line) !important;
             box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important;
             margin: 0 !important;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
           }
           .q-card-ui:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.07) !important; }
 
@@ -291,6 +525,8 @@ export default function QuizPage(props) {
             border-width: 1.5px !important;
             border-left-width: 1.5px !important;
             background: var(--surface) !important;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
           }
           .q-option:active { transform: scale(0.97) !important; }
           .q-option:hover { transform: none !important; box-shadow: none !important; }
@@ -312,6 +548,8 @@ export default function QuizPage(props) {
             transform: translateY(100%) !important;
             transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important;
             overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior-y: contain !important;
             padding: 0 !important;
             flex-direction: column !important;
             border-radius: 24px 24px 0 0 !important;
@@ -371,7 +609,7 @@ export default function QuizPage(props) {
         </button>
 
         {/* Quiz title + counter */}
-        <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+        <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>
             {quizName}
           </div>
@@ -775,18 +1013,7 @@ export default function QuizPage(props) {
                 <div className="legend-item"><div className="legend-dot" style={{ background: "var(--blue-soft)", border: "1.5px solid var(--blue)" }}/><span>Current</span></div>
                 <div className="legend-item"><div className="legend-dot" style={{ background: "var(--surface-2)", border: "1.5px solid var(--line)" }}/><span>Not visited</span></div>
               </div>
-              <div className="pill-grid">
-                {questions.map((_, i) => (
-                  <div
-                    key={i}
-                    className="palette-pill"
-                    data-state={pillState(i)}
-                    onClick={() => { setCurrentQ(i); closePalette(); }}
-                  >
-                    {i + 1}
-                  </div>
-                ))}
-              </div>
+              <MemoizedSidebarPills questions={questions} currentQ={currentQ} answers={answers} visited={visited} setCurrentQ={setCurrentQ} closePalette={closePalette} />
             </div>
 
             {/* ── Desktop: Quiz overview ── */}
@@ -807,18 +1034,21 @@ export default function QuizPage(props) {
               </div>
             </div>
 
-            {/* ── Desktop: Submit Section ── */}
-            <div className="q-card-ui hide-on-mobile" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--crimson) 8%, transparent), transparent)", borderRadius: 16, border: "1.5px solid color-mix(in srgb, var(--crimson) 20%, transparent)", display: "flex", flexDirection: "column", gap: 12, alignItems: "center", padding: "20px 16px" }}>
+            {/* ── Desktop: Status Section ── */}
+            <div className="q-card-ui hide-on-mobile" style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--line-2)", display: "flex", flexDirection: "column", gap: 12, alignItems: "center", padding: "20px 16px" }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 13, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Ready to finish?</div>
-                <div style={{ fontSize: 14, color: "var(--ink)", fontWeight: 600 }}>You have answered <span style={{ color: "var(--teal)", fontWeight: 800 }}>{answeredCount}</span> out of {questions.length} questions.</div>
+                <div style={{ fontSize: 13, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Current Status</div>
+                <div style={{ fontSize: 14, color: "var(--ink)", fontWeight: 600 }}>Answered: <span style={{ color: "var(--teal)", fontWeight: 800 }}>{answeredCount}</span> / {questions.length}</div>
               </div>
-              <button
-                onClick={nextQ}
-                style={{ width: "100%", padding: "14px 20px", background: "var(--crimson)", color: "#fff", border: "none", borderRadius: 12, fontWeight: 800, fontSize: 15, cursor: "pointer", boxShadow: "0 4px 14px color-mix(in srgb, var(--crimson) 35%, transparent)", transition: "all 0.2s" }}
-              >
-                Submit Assessment
-              </button>
+              {totalRemaining > 0 ? (
+                <div style={{ fontSize: 13, color: '#f59e0b', fontWeight: 600, textAlign: 'center' }}>
+                  ⚠️ {totalRemaining} unanswered
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: '#10b981', fontWeight: 600, textAlign: 'center' }}>
+                  All questions answered!
+                </div>
+              )}
             </div>
 
             {/* ── Mobile palette action buttons ── */}
@@ -830,10 +1060,10 @@ export default function QuizPage(props) {
                 Continue Quiz
               </button>
               <button
-                onClick={nextQ}
-                style={{ padding: "15px", background: "var(--crimson)", color: "#fff", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 14px color-mix(in srgb, var(--crimson) 35%, transparent)" }}
+                onClick={() => { closePalette(); setShowSubmitModal(true); }}
+                style={{ padding: "15px", background: "transparent", color: "var(--teal)", border: "1.5px solid var(--teal)", borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer" }}
               >
-                Submit Quiz
+                Review & Submit
               </button>
             </div>
           </div>
@@ -851,20 +1081,11 @@ export default function QuizPage(props) {
           </button>
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, minWidth: 0, maxWidth: "60vw", padding: "0 24px" }}>
-            <div className="bot-pills" style={{ width: "100%" }}>
-              {questions.map((_, i) => {
-                const state = pillState(i);
-                return (
-                  <div key={i} id={`bot-pill-${i}`} className="palette-pill bot-pill" data-state={state} onClick={() => setCurrentQ(i)}>
-                    {i + 1}
-                  </div>
-                );
-              })}
-            </div>
+            <MemoizedBotPills questions={questions} currentQ={currentQ} answers={answers} visited={visited} setCurrentQ={setCurrentQ} />
           </div>
 
-          <button className="nav-btn btn-next" onClick={() => currentQ < questions.length - 1 ? setCurrentQ(Math.min(questions.length - 1, currentQ + 1)) : nextQ()} style={currentQ === questions.length - 1 ? { background: "var(--crimson)", boxShadow: "0 4px 14px color-mix(in srgb, var(--crimson) 35%, transparent)" } : {}}>
-            <span>{currentQ < questions.length - 1 ? "Next" : "Submit"}</span>
+          <button className="nav-btn btn-next" onClick={() => currentQ < questions.length - 1 ? nextQ() : setShowSubmitModal(true)} style={currentQ === questions.length - 1 ? { background: "var(--teal)", boxShadow: "0 4px 14px color-mix(in srgb, var(--teal) 35%, transparent)" } : {}}>
+            <span>{currentQ < questions.length - 1 ? "Next" : "Finish Quiz"}</span>
             {currentQ < questions.length - 1 ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             ) : (
@@ -980,10 +1201,10 @@ export default function QuizPage(props) {
               </div>
             </div>
 
-            {/* Next / Submit */}
+            {/* Next / Finish */}
             {currentQ < questions.length - 1 ? (
               <button
-                onClick={() => setCurrentQ(Math.min(questions.length - 1, currentQ + 1))}
+                onClick={nextQ}
                 style={{
                   width: 46, height: 44, borderRadius: 12, flexShrink: 0,
                   background: "var(--teal)", border: "none", color: "#fff",
@@ -996,16 +1217,16 @@ export default function QuizPage(props) {
               </button>
             ) : (
               <button
-                onClick={nextQ}
+                onClick={() => setShowSubmitModal(true)}
                 style={{
                   height: 44, paddingInline: 16, borderRadius: 12, flexShrink: 0,
-                  background: "var(--crimson)", border: "none", color: "#fff",
+                  background: "var(--teal)", border: "none", color: "#fff",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: "pointer", fontSize: 13, fontWeight: 800, gap: 6,
-                  boxShadow: "0 4px 14px color-mix(in srgb, var(--crimson) 38%, transparent)",
+                  boxShadow: "0 4px 14px color-mix(in srgb, var(--teal) 38%, transparent)",
                 }}
               >
-                Submit
+                Finish Quiz
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </button>
             )}

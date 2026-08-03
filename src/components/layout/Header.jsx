@@ -18,39 +18,39 @@ export default function Header({
   return (
     <>
     <header className="topbar">
-      <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, overflow: "hidden" }}>
         {back && (
-          <button onClick={onBack} className="iconbtn touch-target active-state" aria-label={t.back}>
+          <button onClick={onBack} className="iconbtn touch-target active-state" aria-label={t.back} style={{ flexShrink: 0 }}>
             <svg className="ic"><use href="#ic-back"></use></svg>
           </button>
         )}
         {!back && (
-          <div className="brand" onClick={onHome} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="brand" onClick={onHome} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
             <div className="mono">CG</div>
-            <div className="brand-t">
-              <b style={{ color: "var(--ink)" }}>{t.appName}</b>
-              <small style={{ color: "var(--muted)" }}>{subtitleOverride || t.tagline}</small>
-            </div>
+            {!titleOverride && (
+              <div className="brand-t">
+                <b style={{ color: "var(--ink)" }}>{t.appName}</b>
+                <small style={{ color: "var(--muted)" }}>{subtitleOverride || t.tagline}</small>
+              </div>
+            )}
+          </div>
+        )}
+        {titleOverride && (
+          <div style={{ 
+            fontSize: 16, 
+            fontWeight: 700, 
+            color: "var(--ink)", 
+            whiteSpace: "nowrap", 
+            overflow: "hidden", 
+            textOverflow: "ellipsis", 
+            textAlign: "left",
+            flex: 1,
+            minWidth: 0
+          }}>
+            {titleOverride}
           </div>
         )}
       </div>
-
-      {titleOverride && (
-        <div style={{ 
-          flex: 1,
-          margin: "0 12px",
-          fontSize: 16, 
-          fontWeight: 700, 
-          color: "var(--ink)", 
-          whiteSpace: "nowrap", 
-          overflow: "hidden", 
-          textOverflow: "ellipsis", 
-          textAlign: "left",
-          pointerEvents: "none"
-        }}>
-          {titleOverride}
-        </div>
-      )}
       <div className="topbar-r">
         {screen === "quiz" && !dataLoading && (
           <div className="timer" data-urgent={timer < 120 ? "true" : "false"} style={{ background: timer < 120 ? "color-mix(in srgb, var(--crimson) 15%, transparent)" : "color-mix(in srgb, var(--blue) 15%, transparent)", color: timer < 120 ? "var(--crimson)" : "var(--blue)", border: `1px solid ${timer < 120 ? "color-mix(in srgb, var(--crimson) 25%, transparent)" : "color-mix(in srgb, var(--blue) 25%, transparent)"}`, borderRadius: 6, padding: "4px 10px", fontWeight: 600, fontSize: 14, fontFamily: "monospace" }}>
