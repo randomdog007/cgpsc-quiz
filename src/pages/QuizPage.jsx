@@ -199,8 +199,11 @@ export default function QuizPage() {
 
   const opts = useMemo(() => {
     if (!q) return [];
-    const arr = lang === 'en' ? q.options : (q.options_hi || q.options);
-    return Array.isArray(arr) ? arr.map(formatText) : [];
+    let arr = lang === 'en' ? q.options : (q.options_hi || q.options);
+    if (!Array.isArray(arr) || arr.length === 0) {
+      arr = ["A", "B", "C", "D"];
+    }
+    return arr.map(formatText);
   }, [q, lang]);
 
   // Live marks
