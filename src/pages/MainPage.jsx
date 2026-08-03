@@ -108,7 +108,7 @@ function BookmarkCard({ q, qi, qText, opts, hasContent, letters, lang, t, toggle
 
 
 const MainPage = React.memo(function MainPage() {
-  const { user, profile, lang, setLang, dark, setDark, t, subjects, dataLoading, dataError } = useAppContext();
+  const { user, profile, lang, setLang, dark, setDark, t, subjects, dataLoading, dataError, history, bookmarks } = useAppContext();
   const navigate = useNavigate();
   const [tab, setTab] = useState("home");
   
@@ -128,9 +128,6 @@ const MainPage = React.memo(function MainPage() {
   const goAdmin = () => navigate('/admin');
   const goRevision = () => navigate('/revision');
   
-  // MOCK PROPS FOR NOW THAT WERE DRILLED (TO AVOID BREAKING EVERYTHING AT ONCE)
-  const history = [];
-  const bookmarks = [];
   const bmLoading = false;
   const toggleBM = () => {};
   const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);

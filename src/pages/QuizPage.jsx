@@ -53,7 +53,7 @@ const MemoizedBotPills = React.memo(({ questions, currentQ, answers, visited, se
 export default function QuizPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, profile, lang, setLang, dark, setDark, t, quizzes, topics } = useAppContext();
+  const { user, profile, lang, setLang, dark, setDark, t, quizzes, topics, fetchHistory } = useAppContext();
   
   const [dataLoading, setDataLoading] = useState(true);
   const [dataError, setDataError] = useState(null);
@@ -128,13 +128,37 @@ export default function QuizPage() {
   };
   
   const finishQuiz = async () => {
-    // Basic mock submission for now until ResultPage is refactored
     let score = 0;
     questions.forEach((q, i) => {
       if (answers[i] === q.correct_option) score++;
     });
-    // In the real app, this posted to supabase and navigated to ResultPage
-    navigate(`/result/${selectedQuiz.id}`, { state: { score, answers, timeTaken: 1200 - timer, questions } });
+    
+    if (!mockMode && user && selectedQuiz) {
+      const selectedTopic = topics.find(t => String(t.id) === String(selectedQuiz.topic_id));
+      const subjectId = selectedTopic?.subject_id;
+      
+      const scoreVal = score;
+      const totalVal = questions.length;
+      const timeSecs = 1200 - timer;
+      
+      try {
+        await supabase.from("quiz_attempts").insert({
+          user_id: user.id,
+          subject_id: subjectId,
+          topic_id: selectedTopic?.id,
+          quiz_id: selectedQuiz.id,
+          score: scoreVal,
+          total: totalVal,
+          time_taken: timeSecs,
+          accuracy: totalVal > 0 ? Math.round((scoreVal / totalVal) * 100) : 0,
+        });
+        fetchHistory(user.id);
+      } catch (e) {
+        console.error("Failed to save attempt", e);
+      }
+    }
+
+    navigate(`/result/${selectedQuiz?.id}`, { state: { score, answers, timeTaken: 1200 - timer, questions } });
   };
   
   const C = dark

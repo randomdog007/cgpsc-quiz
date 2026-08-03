@@ -12,7 +12,7 @@ import ErrorBanner from "../components/ui/ErrorBanner";
 export default function SubjectPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lang, setLang, dark, setDark, t, subjects, topics, profile, dataLoading, dataError } = useAppContext();
+  const { lang, setLang, dark, setDark, t, subjects, topics, profile, dataLoading, dataError, history } = useAppContext();
   
   const selectedSubject = subjects.find(s => String(s.id) === String(id));
   const subjectTopics = topics.filter(t => String(t.subject_id) === String(id));
@@ -26,7 +26,6 @@ export default function SubjectPage() {
   const onTabNavigate = () => navigate("/");
   const onOpenTopic = (t) => navigate(`/topic/${t.id}`);
   const onClearError = () => {};
-  const history = []; // mock for now
   
   const C = dark
     ? { bg:"#000000", card:"#0a0a0a", border:"#222222", text:"#ededed", muted:"#888888", hdr:"rgba(0,0,0,0.75)", acc:"#3388FF", acc2:"#1c66d8", ok:"#14b8a6", err:"#ef4444", inp:"#111111", shadow:"0 4px 12px rgba(255,255,255,0.03)" }
@@ -135,7 +134,7 @@ export default function SubjectPage() {
                     
                     {/* Number Box */}
                     <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(46, 122, 82, 0.1)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, flexShrink: 0 }}>
-                      {String(idx + 1).padStart(2, "0")}
+                      {String(i + 1).padStart(2, "0")}
                     </div>
                     
                     {/* Content */}

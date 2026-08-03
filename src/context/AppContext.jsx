@@ -26,6 +26,9 @@ export const AppProvider = ({ children }) => {
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState(null);
 
+  const [history, setHistory] = useState([]);
+  const [bookmarks, setBookmarks] = useState([]);
+
   const t = translations[lang] || translations.en;
 
   useEffect(() => {
@@ -75,6 +78,31 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const fetchHistory = async (uid) => {
+    try {
+      const { data, error } = await supabase
+        .from("quiz_attempts")
+        .select("*, quizzes(title, title_hi), subjects(name, name_hi), topics(name, name_hi)")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false });
+      if (!error && data) setHistory(data.filter(a => a.user_id === uid));
+    } catch (e) {
+      console.error("Failed to load history", e);
+    }
+  };
+
+  const fetchBookmarks = async (uid) => {
+    try {
+      const { data, error } = await supabase
+        .from("saved_questions")
+        .select("*")
+        .eq("user_id", uid);
+      if (!error && data) setBookmarks(data);
+    } catch (e) {
+      console.error("Failed to load bookmarks", e);
+    }
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data, error }) => {
       const session = data?.session;
@@ -82,6 +110,8 @@ export const AppProvider = ({ children }) => {
         setUser(session.user);
         loadProfile(session.user.id);
         loadGlobalData();
+        fetchHistory(session.user.id);
+        fetchBookmarks(session.user.id);
       }
       setAuthLoading(false);
     }).catch(err => {
@@ -94,21 +124,28 @@ export const AppProvider = ({ children }) => {
         setUser(session.user);
         loadProfile(session.user.id);
         loadGlobalData();
+        fetchHistory(session.user.id);
+        fetchBookmarks(session.user.id);
       } else {
         setUser(null);
         setProfile(null);
+        setHistory([]);
+        setBookmarks([]);
       }
-      setAuthLoading(false);
     });
 
-    return () => subscription?.unsubscribe();
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const value = useMemo(() => ({
     user, authLoading, profile, setProfile,
     lang, setLang, dark, setDark, t,
-    subjects, topics, quizzes, dataLoading, dataError, loadGlobalData
-  }), [user, authLoading, profile, lang, dark, t, subjects, topics, quizzes, dataLoading, dataError]);
+    subjects, topics, quizzes, dataLoading, dataError, loadGlobalData,
+    history, setHistory, fetchHistory,
+    bookmarks, setBookmarks, fetchBookmarks
+  }), [user, authLoading, profile, lang, dark, t, subjects, topics, quizzes, dataLoading, dataError, history, bookmarks]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

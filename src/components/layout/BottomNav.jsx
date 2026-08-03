@@ -7,7 +7,11 @@ const ITEMS = [
   { id: "profile",     icon: "#ic-user", label: "Profile" },
 ];
 
+import { useNavigate } from "react-router-dom";
+
 export default function BottomNav({ tab, onNavigate, profile }) {
+  const navigate = useNavigate();
+
   return (
     <>
       <style>{`
@@ -27,7 +31,10 @@ export default function BottomNav({ tab, onNavigate, profile }) {
         {ITEMS.map(({ id, icon, label }) => (
           <button
             key={id}
-            onClick={() => onNavigate(id)}
+            onClick={() => {
+              if (id === 'revision') navigate('/revision');
+              else onNavigate(id);
+            }}
             className={`tabbar-item touch-target active-state${tab === id ? " active" : ""}`}
             aria-current={tab === id ? "page" : undefined}
           >

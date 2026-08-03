@@ -12,7 +12,7 @@ import ErrorBanner from "../components/ui/ErrorBanner";
 export default function TopicPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lang, setLang, dark, setDark, t, topics, quizzes: allQuizzes, profile, dataLoading, dataError } = useAppContext();
+  const { lang, setLang, dark, setDark, t, topics, quizzes: allQuizzes, profile, dataLoading, dataError, history } = useAppContext();
   
   const selectedTopic = topics.find(topic => String(topic.id) === String(id));
   const quizzes = allQuizzes.filter(q => String(q.topic_id) === String(id));
@@ -35,7 +35,6 @@ export default function TopicPage() {
   const onTabNavigate = () => navigate("/");
   const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);
   const onClearError = () => {};
-  const history = []; // mock for now
   const unfinishedQuizId = null;
 
   const C = dark
