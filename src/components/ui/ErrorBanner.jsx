@@ -1,4 +1,4 @@
-export default function ErrorBanner({ msg, C, onClose }) {
+export default function ErrorBanner({ msg, C = { err:"#e11d48" }, onClose }) {
   if (!msg) return null;
 
   return (
