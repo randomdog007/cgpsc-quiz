@@ -33,6 +33,7 @@ export default function TopicPage() {
   const onBack = () => navigate(-1);
   const onHome = () => navigate("/");
   const onTabNavigate = () => navigate("/");
+  const tab = "home";
   const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);
   const onClearError = () => {};
   const unfinishedQuizId = null;

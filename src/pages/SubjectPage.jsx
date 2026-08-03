@@ -24,6 +24,7 @@ export default function SubjectPage() {
   const onBack = () => navigate("/");
   const onHome = () => navigate("/");
   const onTabNavigate = () => navigate("/");
+  const tab = "home";
   const onOpenTopic = (t) => navigate(`/topic/${t.id}`);
   const onClearError = () => {};
   
