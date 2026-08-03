@@ -199,10 +199,24 @@ export default function QuizPage() {
 
   const opts = useMemo(() => {
     if (!q) return [];
-    let arr = lang === 'en' ? q.options : (q.options_hi || q.options);
-    if (!Array.isArray(arr) || arr.length === 0) {
-      arr = ["A", "B", "C", "D"];
+    
+    let arr = [];
+    if (lang === "hi" && q.options_hi && Array.isArray(q.options_hi) && q.options_hi.length > 0) {
+      arr = q.options_hi;
+    } else if (q.options && Array.isArray(q.options) && q.options.length > 0) {
+      arr = q.options;
+    } else if (lang === "hi" && (q.option_a_hi || q.option_b_hi)) {
+      arr = [q.option_a_hi, q.option_b_hi, q.option_c_hi, q.option_d_hi].filter(Boolean);
+    } else if (q.option_a || q.option_b) {
+      arr = [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean);
+    } else {
+      let rawOpts = lang === 'en' ? q.options : (q.options_hi || q.options);
+      if (typeof rawOpts === 'string') {
+        try { rawOpts = JSON.parse(rawOpts); } catch (e) { rawOpts = []; }
+      }
+      arr = Array.isArray(rawOpts) && rawOpts.length > 0 ? rawOpts : ["A", "B", "C", "D"];
     }
+    
     return arr.map(formatText);
   }, [q, lang]);
 
