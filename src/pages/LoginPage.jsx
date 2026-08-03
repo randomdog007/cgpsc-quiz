@@ -16,9 +16,16 @@ export default function LoginPage() {
   }, [user, navigate]);
 
   const signIn = async () => {
-    setSigningIn(true);
-    await supabase.auth.signInWithOAuth({ provider: "google" });
-    // auth state change will be picked up by AppContext
+    try {
+      setSigningIn(true);
+      const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+      if (error) throw error;
+      // auth state change will be picked up by AppContext
+    } catch (err) {
+      console.error(err);
+      setSigningIn(false);
+      alert("Failed to sign in. Please try again.");
+    }
   };
 
   const css = ``;

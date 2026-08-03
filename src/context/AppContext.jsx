@@ -35,9 +35,11 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("cgpsc_dark", dark);
     if (dark) {
-      document.body.classList.add("dark-mode");
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.body.setAttribute("data-theme", "dark");
     } else {
-      document.body.classList.remove("dark-mode");
+      document.documentElement.setAttribute("data-theme", "light");
+      document.body.setAttribute("data-theme", "light");
     }
   }, [dark]);
 
@@ -74,12 +76,16 @@ export const AppProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data, error }) => {
+      const session = data?.session;
       if (session?.user) {
         setUser(session.user);
         loadProfile(session.user.id);
         loadGlobalData();
       }
+      setAuthLoading(false);
+    }).catch(err => {
+      console.error(err);
       setAuthLoading(false);
     });
 

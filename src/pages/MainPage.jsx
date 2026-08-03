@@ -135,7 +135,14 @@ const MainPage = React.memo(function MainPage() {
   const toggleBM = () => {};
   const onStartQuiz = (q) => navigate(`/quiz/${q.id}`);
   const onClearError = () => {};
-  const onTabNavigate = setTab;
+  const onTabNavigate = (id) => {
+    if (id === 'revision') {
+      navigate('/revision');
+      return;
+    }
+    setTab(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const onHome = () => setTab("home");
   const userAvatar = user?.user_metadata?.avatar_url;
   const userPic = user?.user_metadata?.avatar_url;
