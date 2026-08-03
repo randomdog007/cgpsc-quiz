@@ -200,7 +200,7 @@ export default function QuizPage() {
   const opts = useMemo(() => {
     if (!q) return [];
     const arr = lang === 'en' ? q.options : (q.options_hi || q.options);
-    return arr.map(formatText);
+    return Array.isArray(arr) ? arr.map(formatText) : [];
   }, [q, lang]);
 
   // Live marks
