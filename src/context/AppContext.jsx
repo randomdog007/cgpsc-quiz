@@ -22,6 +22,7 @@ export const AppProvider = ({ children }) => {
 
   const [subjects, setSubjects] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState(null);
 
@@ -53,14 +54,17 @@ export const AppProvider = ({ children }) => {
     setDataLoading(true);
     setDataError(null);
     try {
-      const [subsRes, topsRes] = await Promise.all([
+      const [subsRes, topsRes, quizzesRes] = await Promise.all([
         supabase.from('subjects').select('*').order('sort_order'),
-        supabase.from('topics').select('*').order('sort_order')
+        supabase.from('topics').select('*').order('sort_order'),
+        supabase.from('quizzes').select('*').order('id', { ascending: false })
       ]);
       if (subsRes.error) throw subsRes.error;
       if (topsRes.error) throw topsRes.error;
+      if (quizzesRes.error) throw quizzesRes.error;
       setSubjects(subsRes.data || []);
       setTopics(topsRes.data || []);
+      setQuizzes(quizzesRes.data || []);
     } catch (err) {
       console.error("Data load error:", err);
       setDataError("Failed to load catalog.");
@@ -97,8 +101,8 @@ export const AppProvider = ({ children }) => {
   const value = useMemo(() => ({
     user, authLoading, profile, setProfile,
     lang, setLang, dark, setDark, t,
-    subjects, topics, dataLoading, dataError, loadGlobalData
-  }), [user, authLoading, profile, lang, dark, t, subjects, topics, dataLoading, dataError]);
+    subjects, topics, quizzes, dataLoading, dataError, loadGlobalData
+  }), [user, authLoading, profile, lang, dark, t, subjects, topics, quizzes, dataLoading, dataError]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
